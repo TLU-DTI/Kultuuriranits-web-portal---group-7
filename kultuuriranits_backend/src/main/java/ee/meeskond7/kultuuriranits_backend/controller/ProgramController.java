@@ -22,23 +22,23 @@ public class ProgramController {
     @Autowired
     private ProgramService programService;
 
-    @GetMapping("program")
+    @GetMapping("/program")
     public List<Program> getProgram(){
         return programRepository.findAll();
     }
 
-    @GetMapping("program/{id}")
+    @GetMapping("/program/{id}")
     public Program getOneProgram(@PathVariable Long id){
         return programRepository.findById(id).orElseThrow();
     }
 
-    @DeleteMapping("program/{id}")
+    @DeleteMapping("/program/{id}")
     public List<Program> deleteProgram(@PathVariable Long id){
         programRepository.deleteById(id); //kustutab
         return programRepository.findAll(); //siin on uuenenud seis
     }
 
-    @PostMapping("program")
+    @PostMapping("/program")
     public List<Program> addProgram(@RequestBody Program program){
         if (program.getId() != null){
             throw new RuntimeException("Cannot add with ID");
@@ -47,7 +47,7 @@ public class ProgramController {
         return programRepository.findAll(); //siin on uuenenud seis
     }
 
-    @PutMapping("program")
+    @PutMapping("/program")
     public List<Program> editProgram(@RequestBody Program program){
         if (program.getId() == null){
             throw new RuntimeException("Cannot edit without ID");
@@ -61,8 +61,9 @@ public class ProgramController {
 
     //search bar programmide jaoks
     //ProgramController ->> ProgramService ->> ProgramRepository ->> Frontend
-    @GetMapping("program/search")
+    @GetMapping("/program/search")
     public ResponseEntity<List<Program>> searchPrograms(@RequestParam String keyword){
+        System.out.println("searching with "  + keyword); // keywordi kontrollimiseks
         List<Program> programs = programService.searchPrograms(keyword);
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }

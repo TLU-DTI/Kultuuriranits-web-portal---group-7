@@ -49,5 +49,5 @@ public class Program {
 
     private LocalDateTime updatedAt;
 
-    private Integer culturalInstitutionId;
+    private Integer organizationId;
 }
