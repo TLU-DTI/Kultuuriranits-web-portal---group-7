@@ -21,7 +21,7 @@ public class BookingController {
         return bookingRepository.findAll();
     }
 
-    //@GetMapping("products/admin")
+    //@GetMapping("booking/admin")
     //public List<Booking> getAdminBookings(){
     //    return bookingRepository.findAll(); <--- admini jaoks vbl kunagi?
     // }
@@ -32,7 +32,7 @@ public class BookingController {
     }
 
     @DeleteMapping("booking/{id}")
-    public List<Booking> deleteProduct(@PathVariable Long id){
+    public List<Booking> deleteBooking(@PathVariable Long id){
         bookingRepository.deleteById(id); //kustutab
         return bookingRepository.findAll(); //siin on uuenenud seis
     }
