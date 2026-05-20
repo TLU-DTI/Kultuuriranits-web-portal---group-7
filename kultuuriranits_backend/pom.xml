@@ -77,6 +77,12 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.github.vladislavgoltjajev</groupId>
+			<artifactId>java-personal-code</artifactId>
+			<version>1.6</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
