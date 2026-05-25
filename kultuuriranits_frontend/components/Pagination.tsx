@@ -1,5 +1,4 @@
 "use client";
-import "../button.css";
 
 import { useRouter, useSearchParams } from "next/navigation";
 

@@ -1,7 +1,6 @@
 import { Program } from "../models/Program";
-import SearchBar from "./SearchBar";
-import Pagination from "./Pagination";
-import "../button.css";
+import SearchBar from "../../components/SearchBar";
+import Pagination from "../../components/Pagination";
 
 interface FetchResult {
     content: Program[];
