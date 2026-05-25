@@ -5,6 +5,8 @@ import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import ee.meeskond7.kultuuriranits_backend.service.ProgramService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,8 @@ public class ProgramController {
     private ProgramService programService;
 
     @GetMapping("/program")
-    public List<Program> getProgram(){
-        return programRepository.findAll();
+    public Page<Program> getProgram(Pageable pageable){
+        return programRepository.findAll(pageable);
     }
 
     @GetMapping("/program/{id}")
@@ -62,9 +64,9 @@ public class ProgramController {
     //search bar programmide jaoks
     //ProgramController ->> ProgramService ->> ProgramRepository ->> Frontend
     @GetMapping("/program/search")
-    public ResponseEntity<List<Program>> searchPrograms(@RequestParam String keyword){
+    public ResponseEntity<Page<Program>> searchPrograms(@RequestParam String keyword, Pageable pageable){
         System.out.println("searching with "  + keyword); // keywordi kontrollimiseks
-        List<Program> programs = programService.searchPrograms(keyword);
+        Page<Program> programs = programService.searchPrograms(keyword, pageable);
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
 }

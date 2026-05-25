@@ -1,0 +1,29 @@
+.nav-button {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    color: black;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    /* Võtab lehe üldise fondi */
+    cursor: pointer;
+    /* Muudab hiirekursori käekujuliseks */
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+/* Efekt hiirega peale liikudes (ainult siis, kui nupp pole lukus) */
+.nav-button:hover:not(:disabled) {
+    background-color: #e0e0e0;
+    border-color: #adadad;
+}
+
+/* Päris nupu lukustatud (disabled) olek, mida brauser ise juhib */
+.nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    /* Näitab kasutajale "keelatud" märki */
+    background-color: #f5f5f5;
+    border-color: #ddd;
+}

@@ -5,6 +5,8 @@ import ee.meeskond7.kultuuriranits_backend.entity.Program;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,11 +15,10 @@ import java.util.List;
 @Service
 public class ProgramService {
 
-    @Autowired
-    private ProgramRepository programRepository;
+    private final ProgramRepository programRepository;
 
-    public List<Program> searchPrograms(String keyword) {
-        return programRepository.searchPrograms(keyword);
+    public Page<Program> searchPrograms(String keyword, Pageable pageable) {
+        return programRepository.searchPrograms(keyword, pageable);
     }
 
 }
