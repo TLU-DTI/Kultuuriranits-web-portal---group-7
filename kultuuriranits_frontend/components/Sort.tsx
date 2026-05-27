@@ -1,49 +1,151 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+    useRouter,
+    useSearchParams
+} from "next/navigation";
+
+const SORT_OPTIONS = [
+    {
+        label: "Uuemad enne",
+        value: "id,desc"
+    },
+    {
+        label: "Vanemad enne",
+        value: "id,asc"
+    },
+    {
+        label: "A-Z (Pealkiri)",
+        value: "title,asc"
+    },
+    {
+        label: "Z-A (Pealkiri)",
+        value: "title,desc"
+    },
+    {
+        label: "Hind kasvavalt",
+        value: "pricePerStudent,asc"
+    },
+    {
+        label: "Hind kahanevalt",
+        value: "pricePerStudent,desc"
+    }
+];
+
+const PAGE_SIZES = [1, 2, 3, 4];
 
 export default function Sort() {
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Loeme URL-ist hetke suuruse, et select näitaks õiget väärtust
-    const currentSize = Number(searchParams.get("size")) || 3;
+    const currentSize =
+        Number(searchParams.get("size")) || 3;
 
-    const sizeHandler = (newSize: number) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("size", newSize.toString());
-        params.set("page", "0"); // Reset leheküljele 0
-        router.push(`?${params.toString()}`);
-    }
+    const currentSort =
+        searchParams.get("sort") || "id,desc";
 
-    const sortHandler = (newSort: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("sort", newSort);
-        params.set("page", "0"); // Reset leheküljele 0
+    // Universaalne URL updater
+    const updateParams = (
+        key: string,
+        value: string
+    ) => {
+
+        const params = new URLSearchParams(
+            searchParams.toString()
+        );
+
+        params.set(key, value);
+
+        // Muudatuse korral tagasi esimesele lehele
+        params.set("page", "0");
+
         router.push(`?${params.toString()}`);
-    }
+    };
 
     return (
-        <div style={{ margin: "16px 0" }}>
-            {/* Elementide arvu valik lehel */}
-            <select value={currentSize} onChange={(e) => sizeHandler(Number(e.target.value))}>
-                <option value={1}>1 lehel</option>
-                <option value={2}>2 lehel</option>
-                <option value={3}>3 lehel</option>
-                <option value={4}>4 lehel</option>
-            </select>
+        <div
+            style={{
+                display: "flex",
+                gap: "16px",
+                flexWrap: "wrap",
+                alignItems: "center",
+                margin: "16px 0"
+            }}
+        >
 
-            <br /><br />
+            {/* Tulemusi lehel */}
+            <div>
 
-            {/* Sorteerimise nupud */}
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                <button onClick={() => sortHandler("id,asc")}>Sorteeri vanemad enne</button>
-                <button onClick={() => sortHandler("id,desc")}>Sorteeri uuemad enne</button>
-                <button onClick={() => sortHandler("title,asc")}>Sorteeri A-Z (Pealkiri)</button>
-                <button onClick={() => sortHandler("title,desc")}>Sorteeri Z-A (Pealkiri)</button>
-                <button onClick={() => sortHandler("pricePerStudent,asc")}>Sorteeri hind kasvavalt</button>
-                <button onClick={() => sortHandler("pricePerStudent,desc")}>Sorteeri hind kahanevalt</button>
+                <label
+                    style={{
+                        display: "block",
+                        marginBottom: "4px",
+                        fontWeight: "bold"
+                    }}
+                >
+                    Tulemusi lehel
+                </label>
+
+                <select
+                    value={currentSize}
+                    onChange={(e) =>
+                        updateParams(
+                            "size",
+                            e.target.value
+                        )
+                    }
+                >
+
+                    {PAGE_SIZES.map((size) => (
+                        <option
+                            key={size}
+                            value={size}
+                        >
+                            {size} lehel
+                        </option>
+                    ))}
+
+                </select>
+
             </div>
+
+            {/* Sorteerimine */}
+            <div>
+
+                <label
+                    style={{
+                        display: "block",
+                        marginBottom: "4px",
+                        fontWeight: "bold"
+                    }}
+                >
+                    Sorteeri
+                </label>
+
+                <select
+                    value={currentSort}
+                    onChange={(e) =>
+                        updateParams(
+                            "sort",
+                            e.target.value
+                        )
+                    }
+                >
+
+                    {SORT_OPTIONS.map((option) => (
+                        <option
+                            key={option.value}
+                            value={option.value}
+                        >
+                            {option.label}
+                        </option>
+                    ))}
+
+                </select>
+
+            </div>
+
         </div>
-    )
+    );
 }

@@ -2,53 +2,82 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-interface Category {
-    id: number;
-    name: string;
-}
+import { Category } from "../models/Category";
 
 interface CategoryFilterProps {
     categories: Category[];
     currentCategoryId?: string;
 }
 
-export default function CategoryFilter({ categories, currentCategoryId }: CategoryFilterProps) {
+export default function CategoryFilter({
+    categories,
+    currentCategoryId
+}: CategoryFilterProps) {
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        const params = new URLSearchParams(window.location.search);
+    const handleChange = (
+        e: React.ChangeEvent<HTMLSelectElement>
+    ) => {
 
-        if (val) {
-            params.set("categoryId", val);
+        const categoryId = e.target.value;
+
+        // Võtab olemasolevad URL parameetrid kaasa
+        const params = new URLSearchParams(
+            searchParams.toString()
+        );
+
+        if (categoryId) {
+            params.set("categoryId", categoryId);
         } else {
             params.delete("categoryId");
         }
 
-        // Kui filtrit muudetakse, viskab lehekülje tagasi esimeseks (0)
+        // Filtri muutmisel tagasi esimesele lehele
         params.set("page", "0");
+
         router.push(`?${params.toString()}`);
     };
 
     return (
         <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="category-select" style={{ marginRight: "10px", fontWeight: "bold" }}>
+
+            <label
+                htmlFor="category-select"
+                style={{
+                    marginRight: "10px",
+                    fontWeight: "bold"
+                }}
+            >
                 Kategooria:
             </label>
+
             <select
                 id="category-select"
-                value={currentCategoryId || ""}
+                value={currentCategoryId ?? ""}
                 onChange={handleChange}
-                style={{ padding: "8px", borderRadius: "4px", border: "1px solid gray" }}
+                style={{
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid gray"
+                }}
             >
-                <option value="">Kõik kategooriad</option>
-                {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                        {cat.name || `Kategooria ${cat.id}`} {/* Juhuks kui nimi on ikka null */}
+                <option value="">
+                    Kõik kategooriad
+                </option>
+
+                {categories.map((category) => (
+                    <option
+                        key={category.id}
+                        value={category.id}
+                    >
+                        {category.name ??
+                            `Kategooria ${category.id}`}
                     </option>
                 ))}
             </select>
+
         </div>
     );
 }

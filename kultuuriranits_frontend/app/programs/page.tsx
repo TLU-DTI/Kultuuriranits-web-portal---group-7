@@ -3,17 +3,13 @@ import SearchBar from "../../components/SearchBar";
 import Pagination from "../../components/Pagination";
 import Sort from "../../components/Sort";
 import CategoryFilter from "../../components/CategoryFilter";
+import { Category } from "../../models/Category";
 
-const API_URL = "http://localhost:5050";
+const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
 interface FetchResult {
     content: Program[];
     totalPages: number;
-}
-
-interface Category {
-    id: number;
-    name: string;
 }
 
 interface SearchParams {
@@ -90,7 +86,7 @@ export default async function ProgramsPage({
 
     const keyword = params.keyword;
     const page = Number(params.page) || 0;
-    const sort = params.sort || "id,asc";
+    const sort = params.sort || "id,desc";
     const size = Number(params.size) || 3;
     const categoryId = params.categoryId;
 
