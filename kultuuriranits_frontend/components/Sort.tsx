@@ -1,9 +1,9 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import {
-    useRouter,
-    useSearchParams
-} from "next/navigation";
+
+// router --> lubab muuta URL-i ja navigeerida lehtede vahel
+// searchParams --> lubab lugeda ja muuta URL-i päringus olevaid parameetreid
 
 const SORT_OPTIONS = [
     {
@@ -29,26 +29,33 @@ const SORT_OPTIONS = [
     {
         label: "Hind kahanevalt",
         value: "pricePerStudent,desc"
+    },
+    {
+        label: "Kestus kasvavalt",
+        value: "durationMinutes,asc"
+    },
+    {
+        label: "Kestus kahanevalt",
+        value: "durationMinutes,desc"
     }
 ];
 
 const PAGE_SIZES = [1, 2, 3, 4];
 
-export default function Sort() {
+export function Sort() {
 
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const currentSize =
-        Number(searchParams.get("size")) || 3;
+        Number(searchParams.get("size")) || 3; // algväärtus 3 
 
     const currentSort =
-        searchParams.get("sort") || "id,desc";
+        searchParams.get("sort") || "id,desc"; // algväärtus "id,desc" (uusimad enne)
 
-    // Universaalne URL updater
     const updateParams = (
-        key: string,
-        value: string
+        key: string, // nt "size" või "sort"
+        value: string // nt "4" või "title,asc"
     ) => {
 
         const params = new URLSearchParams(
@@ -57,7 +64,6 @@ export default function Sort() {
 
         params.set(key, value);
 
-        // Muudatuse korral tagasi esimesele lehele
         params.set("page", "0");
 
         router.push(`?${params.toString()}`);

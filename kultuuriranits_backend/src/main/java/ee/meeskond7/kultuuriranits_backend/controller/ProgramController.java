@@ -27,10 +27,14 @@ public class ProgramController {
 
     // http://localhost:5050/program?categoryId=3 <-- Filtreerib kategooria järgi
     @GetMapping("/program")
-    public Page<Program> getProgram(@RequestParam(required = false) Long categoryId, Pageable pageable){
+    public Page<Program> getProgram(
+            @RequestParam(required = false) Long categoryId,
+            Pageable pageable) {
+
         if (categoryId != null) {
             return programRepository.findByCategoryId(categoryId, pageable);
         }
+
         return programRepository.findAll(pageable);
     }
 

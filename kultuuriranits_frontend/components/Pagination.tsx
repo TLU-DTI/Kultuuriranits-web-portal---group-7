@@ -1,5 +1,4 @@
 "use client";
-
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface PaginationProps {
@@ -7,7 +6,7 @@ interface PaginationProps {
     totalPages: number;
 }
 
-export default function Pagination({
+export function Pagination({
     page,
     totalPages
 }: PaginationProps) {
@@ -17,12 +16,10 @@ export default function Pagination({
 
     const changePage = (newPage: number) => {
 
-        // Võtab kõik olemasolevad URL parameetrid kaasa
         const params = new URLSearchParams(
             searchParams.toString()
         );
 
-        // Uuendab ainult page väärtust
         params.set("page", String(newPage));
 
         router.push(`?${params.toString()}`);

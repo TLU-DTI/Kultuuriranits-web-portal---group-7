@@ -1,7 +1,5 @@
 "use client";
-
 import { useRouter, useSearchParams } from "next/navigation";
-
 import { Category } from "../models/Category";
 
 interface CategoryFilterProps {
@@ -9,7 +7,7 @@ interface CategoryFilterProps {
     currentCategoryId?: string;
 }
 
-export default function CategoryFilter({
+export function CategoryFilter({
     categories,
     currentCategoryId
 }: CategoryFilterProps) {
@@ -22,8 +20,6 @@ export default function CategoryFilter({
     ) => {
 
         const categoryId = e.target.value;
-
-        // Võtab olemasolevad URL parameetrid kaasa
         const params = new URLSearchParams(
             searchParams.toString()
         );
@@ -33,10 +29,8 @@ export default function CategoryFilter({
         } else {
             params.delete("categoryId");
         }
-
-        // Filtri muutmisel tagasi esimesele lehele
+        
         params.set("page", "0");
-
         router.push(`?${params.toString()}`);
     };
 

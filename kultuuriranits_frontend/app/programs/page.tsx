@@ -1,17 +1,18 @@
 import { Program } from "../../models/Program";
-import SearchBar from "../../components/SearchBar";
-import Pagination from "../../components/Pagination";
-import Sort from "../../components/Sort";
-import CategoryFilter from "../../components/CategoryFilter";
+import { SearchBar } from "../../components/SearchBar";
+import { Pagination } from "../../components/Pagination";
+import { Sort } from "../../components/Sort";
+import { CategoryFilter } from "../../components/CategoryFilter";
 import { Category } from "../../models/Category";
-
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
+
 
 interface FetchResult {
     content: Program[];
     totalPages: number;
 }
 
+// URL Query parameetrid
 interface SearchParams {
     keyword?: string;
     page?: string;
@@ -20,7 +21,7 @@ interface SearchParams {
     categoryId?: string;
 }
 
-// Kategooriate päring
+// GET category
 async function getCategories(): Promise<Category[]> {
     try {
         const res = await fetch(`${API_URL}/category`, {
@@ -39,12 +40,13 @@ async function getPrograms(
     page = 0,
     sort = "id,asc",
     size = 3,
-    categoryId?: string
+    categoryId?: string,
 ): Promise<FetchResult> {
 
     const baseUrl =
         `${API_URL}/program${keyword ? "/search" : ""}`;
 
+    // URL parameetrid
     const params = new URLSearchParams({
         page: String(page),
         size: String(size),
