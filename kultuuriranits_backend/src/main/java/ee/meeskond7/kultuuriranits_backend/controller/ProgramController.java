@@ -27,6 +27,7 @@ public class ProgramController {
     private ProgramService programService;
 
 
+    // GET Programs
     // http://localhost:5050/program?categoryId=3 <-- Filtreerib kategooria järgi
     @GetMapping("/program")
     public Page<Program> getProgram(
@@ -40,6 +41,7 @@ public class ProgramController {
         return programRepository.findAll(pageable);
     }
 
+    // pildid programmidele
     @GetMapping("/program/{programId}/image")
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable Long programId){
 
@@ -51,7 +53,7 @@ public class ProgramController {
                 .body(imageFile);
     }
 
-    // search bar programmide jaoks koos valikulise kategooriaga
+    // search bar programmide jaoks
     // http://localhost:5050/program/search?keyword=teater&categoryId=3
     @GetMapping("/program/search")
     public ResponseEntity<Page<Program>> searchPrograms(
@@ -65,18 +67,14 @@ public class ProgramController {
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
 
+    // Yks programm id kaudu
     @GetMapping("/program/{id}")
     public Program getOneProgram(@PathVariable Long id){
         return programRepository.findById(id).orElseThrow();
     }
 
-    @DeleteMapping("/program/{id}")
-    public List<Program> deleteProgram(@PathVariable Long id){
-        programRepository.deleteById(id);
-        return programRepository.findAll();
-    }
 
-    //programmi lisamine
+    // Programmi lisamine
     @PostMapping("/program")
     public ResponseEntity<?> addProgram (@RequestPart Program program,
                                          @RequestPart MultipartFile imageFile){
@@ -89,6 +87,14 @@ public class ProgramController {
         }
     }
 
+    // Programmi kustutamine
+    @DeleteMapping("/program/{id}")
+    public List<Program> deleteProgram(@PathVariable Long id){
+        programRepository.deleteById(id);
+        return programRepository.findAll();
+    }
+
+    // Programmi update
     @PutMapping("/program")
     public List<Program> editProgram(@RequestBody Program program){
         if (program.getId() == null){

@@ -17,16 +17,15 @@ public class ProgramService {
 
     private final ProgramRepository programRepository;
 
+    // Programmide otsing
     public Page<Program> searchPrograms(String keyword, Long categoryId, Pageable pageable) {
-        // Kui kasutaja valis otsingule lisaks ka kategooria
         if (categoryId != null) {
             return programRepository.searchProgramsWithCategory(keyword, categoryId, pageable);
         }
-
-        // Kui otsitakse ainult märksõna järgi ilma kategooriata
         return programRepository.searchPrograms(keyword, pageable);
     }
 
+    // Programmide lisamine
     public Program addProgram(Program program, MultipartFile imageFile) throws IOException {
         program.setCreatedAt(LocalDateTime.now());
         program.setUpdatedAt(LocalDateTime.now());
