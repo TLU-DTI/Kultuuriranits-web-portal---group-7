@@ -13,6 +13,8 @@ export function ProgramAddForm({
     categories
 }: ProgramAddFormProps) {
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -22,7 +24,7 @@ export function ProgramAddForm({
         minGroupSize: "",
         maxGroupSize: "",
         location: "",
-        language: "Estonian",
+        language: "Eesti",
         status: "Active",
         organizationId: "",
         categoryId: ""
@@ -46,7 +48,12 @@ export function ProgramAddForm({
     ) {
         e.preventDefault();
 
-        const payload = {
+        if (!imageFile) {
+            alert("Palun vali pilt");
+            return;
+        }
+
+        const program = {
             title: formData.title,
             description: formData.description,
             pricePerStudent: Number(formData.pricePerStudent),
@@ -64,15 +71,35 @@ export function ProgramAddForm({
             }
         };
 
-        const response = await fetch(`${API_URL}/program`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
+        const multipartData = new FormData();
+
+        multipartData.append(
+            "program",
+            new Blob(
+                [JSON.stringify(program)],
+                {
+                    type: "application/json"
+                }
+            )
+        );
+
+        multipartData.append(
+            "imageFile",
+            imageFile
+        );
+
+        const response = await fetch(
+            `${API_URL}/program`,
+            {
+                method: "POST",
+                body: multipartData
+            }
+        );
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error(errorText);
+
             alert("Programmi lisamine ebaõnnestus");
             return;
         }
@@ -88,11 +115,13 @@ export function ProgramAddForm({
             minGroupSize: "",
             maxGroupSize: "",
             location: "",
-            language: "Estonian",
+            language: "Eesti",
             status: "Active",
             organizationId: "",
             categoryId: ""
         });
+
+        setImageFile(null);
     }
 
     return (
@@ -185,9 +214,17 @@ export function ProgramAddForm({
                 value={formData.language}
                 onChange={handleChange}
             >
-                <option value="Estonian">Eesti</option>
-                <option value="English">Inglise</option>
-                <option value="Russian">Vene</option>
+                <option value="Eesti">
+                    Eesti
+                </option>
+
+                <option value="Inglise">
+                    Inglise
+                </option>
+
+                <option value="Vene">
+                    Vene
+                </option>
             </select>
 
             <select
@@ -195,8 +232,13 @@ export function ProgramAddForm({
                 value={formData.status}
                 onChange={handleChange}
             >
-                <option value="Active">Aktiivne</option>
-                <option value="Inactive">Mitteaktiivne</option>
+                <option value="Active">
+                    Aktiivne
+                </option>
+
+                <option value="Inactive">
+                    Mitteaktiivne
+                </option>
             </select>
 
             <input
@@ -226,6 +268,43 @@ export function ProgramAddForm({
                     </option>
                 ))}
             </select>
+
+            <div>
+                <label>
+                    Programmi pilt
+                </label>
+
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                            setImageFile(
+                                e.target.files[0]
+                            );
+                        }
+                    }}
+                    required
+                />
+            </div>
+
+            {imageFile && (
+                <div>
+                    <p>Pildi eelvaade:</p>
+
+                    <img
+                        src={URL.createObjectURL(imageFile)}
+                        alt="Preview"
+                        style={{
+                            maxWidth: "300px",
+                            maxHeight: "300px",
+                            objectFit: "cover",
+                            border: "1px solid #ccc",
+                            borderRadius: "8px"
+                        }}
+                    />
+                </div>
+            )}
 
             <button type="submit">
                 Salvesta programm

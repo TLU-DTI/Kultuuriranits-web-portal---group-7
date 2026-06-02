@@ -184,6 +184,17 @@ export default async function ProgramsPage({
                                     }}
                                 >
                                     <h2>{program.title}</h2>
+                                    <img
+                                        src={`${API_URL}/program/${program.id}/image`}
+                                        alt={program.title}
+                                        style={{
+                                            width: "100%",
+                                            height: "250px",
+                                            objectFit: "cover",
+                                            borderRadius: "8px",
+                                            marginBottom: "12px"
+                                        }}
+                                    />
 
                                     {program.category && (
                                         <span

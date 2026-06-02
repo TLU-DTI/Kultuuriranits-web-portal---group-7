@@ -1,33 +1,26 @@
-import { Category } from "./Category"
+import { Category } from "./Category";
 
 export interface Program {
-    id: number
 
-    title: string
+    id: number;
 
-    description: string
+    title: string;
+    description: string;
+    pricePerStudent: number;
+    durationMinutes: number;
+    targetGroup: string;
+    minGroupSize: number;
+    maxGroupSize: number;
+    location: string;
+    language: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
 
-    pricePerStudent: number
+    organizationId: number; // Hiljem tuleb relatinshipiks, kui kasutajakontod tehtud
 
-    durationMinutes: number
-
-    targetGroup: string
-
-    minGroupSize: number
-
-    maxGroupSize: number
-
-    location: string
-
-    language: string
-
-    status: string
-
-    createdAt: string
-
-    updatedAt: string
-
-    organizationId: number
+    imageName: string | null;
+    imageType: string | null;
 
     category: Category | null;
 }

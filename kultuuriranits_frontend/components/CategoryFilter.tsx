@@ -29,7 +29,7 @@ export function CategoryFilter({
         } else {
             params.delete("categoryId");
         }
-        
+
         params.set("page", "0");
         router.push(`?${params.toString()}`);
     };

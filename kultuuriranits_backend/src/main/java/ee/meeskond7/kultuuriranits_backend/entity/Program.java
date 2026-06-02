@@ -1,12 +1,15 @@
 package ee.meeskond7.kultuuriranits_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.time.LocalDateTime;
 
 @Getter
@@ -46,6 +49,13 @@ public class Program {
     private LocalDateTime updatedAt;
 
     private Integer organizationId;
+
+    private String imageName;
+    private String imageType;
+    @Lob
+    @JsonIgnore
+    @JdbcTypeCode(Types.BINARY)
+    private byte[] imageData;
 
     @ManyToOne
     private Category category;
