@@ -8,6 +8,7 @@ import { AddFavorites } from "../../../components/AddFavorites";
 import { cookies } from "next/headers";
 import { Favorites } from "../../../models/Favorites";
 import { RemoveFavorites } from "../../../components/RemoveFavorites";
+import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -265,6 +266,8 @@ export default async function ProgramsPage({
                                     )}
 
                                     <p>{program.description}</p>
+
+                                    <Link href={`/programs/${program.id}`}>Detailvaade</Link>
 
                                     {details.map(([label, value]) => (
                                         <p key={label}>

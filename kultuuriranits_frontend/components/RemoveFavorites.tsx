@@ -38,7 +38,7 @@ export function RemoveFavorites({ favoriteId, apiUrl }: RemoveFavoriteButtonProp
                 cursor: "pointer"
             }}
         >
-            🗑️ Kustuta lemmikust
+            Kustuta lemmikust
         </button>
     );
 }
