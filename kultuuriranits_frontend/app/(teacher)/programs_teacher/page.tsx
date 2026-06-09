@@ -1,10 +1,13 @@
-import { Program } from "../../models/Program";
-import { SearchBar } from "../../components/SearchBar";
-import { Pagination } from "../../components/Pagination";
-import { Sort } from "../../components/Sort";
-import { CategoryFilter } from "../../components/CategoryFilter";
-import { Category } from "../../models/Category";
-import Link from "next/link";
+import { Program } from "../../../models/Program";
+import { SearchBar } from "../../../components/SearchBar";
+import { Pagination } from "../../../components/Pagination";
+import { Sort } from "../../../components/Sort";
+import { CategoryFilter } from "../../../components/CategoryFilter";
+import { Category } from "../../../models/Category";
+import { AddFavorites } from "../../../components/AddFavorites";
+import { cookies } from "next/headers";
+import { Favorites } from "../../../models/Favorites";
+import { RemoveFavorites } from "../../../components/RemoveFavorites";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -19,6 +22,48 @@ interface SearchParams {
     sort?: string;
     size?: string;
     categoryId?: string;
+}
+
+// kasutaja tuvastamine sessiooni kaudu
+async function getCurrentUser(): Promise<{ id: number } | null> {
+    try {
+        const cookieStore = await cookies();
+        const cookieString = cookieStore.toString();
+
+        const res = await fetch(`${API_URL}/me`, {
+            headers: {
+                Cookie: cookieString,
+            },
+            cache: "no-store",
+        });
+
+        if (res.ok) {
+            return await res.json();
+        }
+        return null;
+    } catch (error) {
+        console.error("Viga sisselogitud kasutaja tuvastamisel:", error);
+        return null;
+    }
+}
+
+async function getUserFavorites(): Promise<Favorites[]> {
+    try {
+        const cookieStore = await cookies();
+        const cookieString = cookieStore.toString();
+
+        const res = await fetch(`${API_URL}/favorites`, {
+            headers: {
+                Cookie: cookieString,
+            },
+            cache: "no-store",
+        });
+
+        return res.ok ? await res.json() : [];
+    } catch (error) {
+        console.error("Viga kasutaja lemmikute pärimisel:", error);
+        return [];
+    }
 }
 
 // GET category
@@ -88,15 +133,15 @@ export default async function ProgramsPage({
     const sort = params.sort || "id,desc";
     const size = Number(params.size) || 3;
     const categoryId = params.categoryId;
-    
-    const [programData, categories] = await Promise.all([
+    const [programData, categories, currentUser, userFavorites] = await Promise.all([
         getPrograms(keyword, page, sort, size, categoryId),
         getCategories(),
-        
+        getCurrentUser(),
+        getUserFavorites()
     ]);
 
     const { content: programs, totalPages } = programData;
-
+    const currentUserId = currentUser ? currentUser.id : null;
     return (
         <main
             style={{
@@ -163,7 +208,6 @@ export default async function ProgramsPage({
                                 ],
                                 ["Staatus", program.status]
                             ];
-
                             return (
                                 <div
                                     key={program.id}
@@ -174,6 +218,24 @@ export default async function ProgramsPage({
                                     }}
                                 >
                                     <h2>{program.title}</h2>
+                                    {/* Lemmiku nupp  */}
+                                    {currentUserId ? (
+                                        (() => {
+                                            const favoriteRelation = userFavorites.find(
+                                                (fav) => fav.program && fav.program.id === program.id
+                                            );
+
+                                            if (favoriteRelation) {
+                                                return (
+                                                    <RemoveFavorites favoriteId={favoriteRelation.id} apiUrl={API_URL} />);
+                                            } else {
+                                                return (
+                                                    <AddFavorites programId={program.id} personId={currentUserId} apiUrl={API_URL} />);
+                                            }
+                                        })()
+                                    ) : (
+                                        <p style={{ color: "gray", fontSize: "14px" }}>Logi sisse, et lisada lemmikutesse</p>
+                                    )}
                                     <img
                                         src={`${API_URL}/program/${program.id}/image`}
                                         alt={program.title}
@@ -204,15 +266,11 @@ export default async function ProgramsPage({
 
                                     <p>{program.description}</p>
 
-                                    <Link href={`/programs/${program.id}`}>Detailvaade</Link>
-
                                     {details.map(([label, value]) => (
                                         <p key={label}>
                                             <strong>{label}:</strong> {value}
                                         </p>
                                     ))}
-
-                                    
                                 </div>
                             );
                         })}
