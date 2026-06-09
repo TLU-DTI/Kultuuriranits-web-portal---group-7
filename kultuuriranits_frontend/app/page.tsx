@@ -8,7 +8,7 @@ import { UserRoles } from '../components/home/UserRoles';
 export default function Home() {
   return (
     <main>
-      <h1>Avaleht</h1>
+      <h1>Kultuuriranits</h1>
       <div id="nav" />
         <Link href="/programs">Kultuuriprogrammid</Link>
         <br />
@@ -16,7 +16,7 @@ export default function Home() {
         <br />
         <Link href="/signup">Registreerimine</Link>
         <br />
-        <Link href="/login">Sisselogimine</Link>
+        <Link href="/login">Logi sisse</Link>
 
       <div className="flex flex-col" />
       {/* Hero Section - Full Width */}
