@@ -2,8 +2,9 @@ import { Program } from "../../models/Program";
 import { SearchBar } from "../../components/SearchBar";
 import { Pagination } from "../../components/Pagination";
 import { Sort } from "../../components/Sort";
-import { CategoryFilter } from "../../components/CategoryFilter";
 import { Category } from "../../models/Category";
+import { AdvancedFilters } from "../../components/AdvancedFilter";
+import { Organization } from "../../models/Organization";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -18,6 +19,18 @@ interface SearchParams {
     sort?: string;
     size?: string;
     categoryId?: string;
+    organizationId?: string;
+    targetGroup?: string;
+    date?: string;
+    county?: string;
+    location?: string;
+    price?: string;
+    duration?: string;
+    groupSize?: string;
+    languages?: string;
+    wheelchair?: string;
+    specialNeeds?: string;
+    outdoor?: string;
 }
 
 // GET category
@@ -33,6 +46,20 @@ async function getCategories(): Promise<Category[]> {
     }
 }
 
+//Organization fetch
+async function getOrganizations() {
+    try {
+        const res = await fetch(`${API_URL}/organization`, {
+            cache: "no-store"
+        });
+
+        return res.ok ? await res.json() : [];
+    } catch (error) {
+        console.error("Viga organisatsioonide pärimisel backendist:", error);
+        return [];
+    }
+}
+
 // GET programs (või search)
 async function getPrograms(
     keyword?: string,
@@ -40,6 +67,18 @@ async function getPrograms(
     sort = "id,asc",
     size = 3,
     categoryId?: string,
+    organizationId?: string,
+    targetGroup?: string,
+    date?: string,
+    county?: string,
+    location?: string,
+    price?: string,
+    duration?: string,
+    groupSize?: string,
+    languages?: string,
+    wheelchair?: string,
+    specialNeeds?: string,
+    outdoor?: string,
 ): Promise<FetchResult> {
     try {
         const baseUrl = `${API_URL}/program${keyword ? "/search" : ""}`;
@@ -52,6 +91,18 @@ async function getPrograms(
 
         if (keyword) params.set("keyword", keyword);
         if (categoryId) params.set("categoryId", categoryId);
+        if (organizationId) params.set("organizationId", organizationId);
+        if (targetGroup) params.set("targetGroup", targetGroup);
+        if (date) params.set("date", date);
+        if (county) params.set("county", county);
+        if (location) params.set("location", location);
+        if (price) params.set("price", price);
+        if (duration) params.set("duration", duration);
+        if (groupSize) params.set("groupSize", groupSize);
+        if (languages) params.set("languages", languages);
+        if (wheelchair) params.set("wheelchair", wheelchair);
+        if (specialNeeds) params.set("specialNeeds", specialNeeds);
+        if (outdoor) params.set("outdoor", outdoor);
 
         const res = await fetch(
             `${baseUrl}?${params.toString()}`,
@@ -87,9 +138,22 @@ export default async function ProgramsPage({
     const sort = params.sort || "id,desc";
     const size = Number(params.size) || 3;
     const categoryId = params.categoryId;
-    const [programData, categories] = await Promise.all([
-        getPrograms(keyword, page, sort, size, categoryId),
-        getCategories()
+    const targetGroup = params.targetGroup;
+    const date = params.date;
+    const county = params.county;
+    const location = params.location;
+    const price = params.price;
+    const duration = params.duration;
+    const groupSize = params.groupSize;
+    const languages = params.languages;
+    const wheelchair = params.wheelchair;
+    const specialNeeds = params.specialNeeds;
+    const outdoor = params.outdoor;
+    const organizationId = params.organizationId;
+    const [programData, categories, organizations] = await Promise.all([
+        getPrograms(keyword, page, sort, size, categoryId, organizationId, targetGroup, date, county, location, price, duration, groupSize, languages, wheelchair, specialNeeds, outdoor),
+        getCategories(),
+        getOrganizations()
     ]);
 
     const { content: programs, totalPages } = programData;
@@ -127,10 +191,11 @@ export default async function ProgramsPage({
                     <Sort />
                 </div>
 
-                <CategoryFilter
+                <AdvancedFilters
                     categories={categories}
-                    currentCategoryId={categoryId}
+                    organizations={organizations}
                 />
+
             </div>
 
             {/* Tulemused */}
