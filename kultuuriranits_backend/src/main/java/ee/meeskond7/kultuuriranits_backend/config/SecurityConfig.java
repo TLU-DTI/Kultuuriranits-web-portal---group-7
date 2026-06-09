@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup", "/login", "/me", "/profile", "/users").permitAll()
                         .requestMatchers("/program", "/program/**").permitAll()
                         .requestMatchers("/category", "/category/**").permitAll()
+                        .requestMatchers("/favorites","/favorites/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
