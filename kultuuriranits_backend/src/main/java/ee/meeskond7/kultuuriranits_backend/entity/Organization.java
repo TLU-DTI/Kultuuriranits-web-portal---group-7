@@ -18,11 +18,11 @@ public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type;
     private String name;
-    private String state;
-    private String city;
     private String address;
+    private String city;
+    private String state;
+    private String type;
     private String phone;
     private String email;
 }
