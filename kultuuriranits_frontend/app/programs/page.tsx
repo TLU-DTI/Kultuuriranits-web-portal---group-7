@@ -204,7 +204,7 @@ export default async function ProgramsPage({
 
                                     <p>{program.description}</p>
 
-                                    <div><Link href={`/programs/${program.id}`}>Detailvaade</Link></div>
+                                    <Link href={`/programs/${program.id}`}>Detailvaade</Link>
 
                                     {details.map(([label, value]) => (
                                         <p key={label}>
