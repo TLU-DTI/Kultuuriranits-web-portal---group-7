@@ -4,6 +4,7 @@ import { Pagination } from "../../components/Pagination";
 import { Sort } from "../../components/Sort";
 import { CategoryFilter } from "../../components/CategoryFilter";
 import { Category } from "../../models/Category";
+import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -87,9 +88,11 @@ export default async function ProgramsPage({
     const sort = params.sort || "id,desc";
     const size = Number(params.size) || 3;
     const categoryId = params.categoryId;
+    
     const [programData, categories] = await Promise.all([
         getPrograms(keyword, page, sort, size, categoryId),
-        getCategories()
+        getCategories(),
+        
     ]);
 
     const { content: programs, totalPages } = programData;
@@ -201,11 +204,15 @@ export default async function ProgramsPage({
 
                                     <p>{program.description}</p>
 
+                                    <Link href={`/programs/${program.id}`}>Detailvaade</Link>
+
                                     {details.map(([label, value]) => (
                                         <p key={label}>
                                             <strong>{label}:</strong> {value}
                                         </p>
                                     ))}
+
+                                    
                                 </div>
                             );
                         })}
