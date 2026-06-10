@@ -45,6 +45,8 @@ export default function RegisterPage() {
             return org.type === "kooliasutus";
         } else if (selectedRoleId === 2) {
             return org.type === "kultuuriasutus";
+        } else if (selectedRoleId === null) {
+            return true;
         }
         return false;
     });
@@ -160,6 +162,7 @@ export default function RegisterPage() {
                     <select value={selectedRoleId} onChange={(e) => setSelectedRoleId(Number(e.target.value))} style={{ width: "100%", padding: "8px" }}>
                         <option value={1}>Õpetaja (TEACHER)</option>
                         <option value={2}>Kultuuriasutus (CULTURAL_INSTITUTION)</option>
+                        <option value={3}>Admin (ADMIN)</option>
                     </select>
                 </div>
                 <div>

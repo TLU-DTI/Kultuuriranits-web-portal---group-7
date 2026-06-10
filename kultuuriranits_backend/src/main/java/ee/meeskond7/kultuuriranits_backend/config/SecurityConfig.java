@@ -23,11 +23,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup", "/login", "/me", "/profile", "/users").permitAll()
+                        .requestMatchers("/signup", "/login", "/me", "/profile", "/users", "/users/{id}").permitAll()
                         .requestMatchers("/program", "/program/**").permitAll()
                         .requestMatchers("/category", "/category/**").permitAll()
                         .requestMatchers("/favorites","/favorites/**").permitAll()
                         .requestMatchers("/organization","/organization/**").permitAll()
+                        //.requestMatchers("/users").hasRole("ADMIN") <-- tulevikus naeb kasutajaid ainult admin
                         .anyRequest().authenticated()
                 )
 

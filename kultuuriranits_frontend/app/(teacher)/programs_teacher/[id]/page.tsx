@@ -8,6 +8,7 @@ export default async function ProgramPage({
 }) {
   const { id } = await params;
   const program = await getProgram(id);
+  console.log("Programmi andmed detailvaates:", program);
 
   console.log(console.log("params:", id));
 
@@ -17,6 +18,7 @@ export default async function ProgramPage({
 
 
   const details = [
+    ["Korraldaja", program.organization?.name ?? "Teadmata organisatsioon"],
     ["Hind", `${program.pricePerStudent}€`],
     ["Kestus", `${program.durationMinutes} min`],
     ["Asukoht", program.location],
@@ -37,6 +39,7 @@ export default async function ProgramPage({
         }}
       >
         <h2>{program.title}</h2>
+        <p><strong>Korraldaja:</strong> {program.organization?.name ?? "Teadmata organisatsioon"}</p>
         <img
           src={`${API_URL}/program/${program.id}/image`}
           alt={program.title}
