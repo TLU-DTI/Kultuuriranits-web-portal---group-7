@@ -1,8 +1,10 @@
 package ee.meeskond7.kultuuriranits_backend.controller;
 
+import ee.meeskond7.kultuuriranits_backend.entity.Organization;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import ee.meeskond7.kultuuriranits_backend.service.ProgramService;
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -77,8 +79,20 @@ public class ProgramController {
     // Programmi lisamine
     @PostMapping("/program")
     public ResponseEntity<?> addProgram (@RequestPart Program program,
-                                         @RequestPart MultipartFile imageFile){
+                                         @RequestPart MultipartFile imageFile, HttpSession session){
         try {
+            Long orgId = (Long) session.getAttribute("organization_id");
+            System.out.println("====== SESSIIOONI KONTROLL: organization_id = " + orgId + " ======");
+
+            if (orgId == null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Sessioon puudub või sul pole õigust selle organisatsiooni alt programme lisada.");
+            }
+
+            Organization org = new Organization();
+            org.setId(orgId);
+            program.setOrganization(org);
+
             Program program1 = programService.addProgram(program, imageFile);
             return new ResponseEntity<>(program1, HttpStatus.CREATED);
         }

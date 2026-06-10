@@ -44,6 +44,10 @@ public class PersonController {
 
         session.setAttribute("user_id", savedPerson.getId());
         session.setAttribute("user_role", person.getRole().getName());
+
+        if (savedPerson.getOrganization() != null) {
+            session.setAttribute("organization_id", savedPerson.getOrganization().getId());
+        }
         return ResponseEntity.ok(savedPerson);
     }
 
@@ -63,6 +67,10 @@ public class PersonController {
         // Sessiooni loomine
         session.setAttribute("user_id", dbPerson.getId());
         session.setAttribute("user_role", dbPerson.getRole().getName());
+
+        if (dbPerson.getOrganization() != null) {
+            session.setAttribute("organization_id", dbPerson.getOrganization().getId());
+        }
         return ResponseEntity.ok(dbPerson);
     }
 
