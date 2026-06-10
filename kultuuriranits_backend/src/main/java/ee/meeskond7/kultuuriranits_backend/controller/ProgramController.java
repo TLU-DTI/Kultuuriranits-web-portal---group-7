@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -66,6 +67,27 @@ public class ProgramController {
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
         Page<Program> programs = programService.searchPrograms(keyword, categoryId, pageable);
+        return new ResponseEntity<>(programs, HttpStatus.OK);
+    }
+
+    @GetMapping("/program/searchall")
+    public ResponseEntity<Page<Program>> searchProgramsAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String language,
+            @RequestParam(required = false) BigDecimal pricePerStudent,
+            @RequestParam(required = false) Integer durationMinutes,
+            @RequestParam(required = false) String targetGroup,
+            @RequestParam(required = false) Integer minGroupSize,
+            @RequestParam(required = false) Integer maxGroupSize,
+            @RequestParam(required = false) String status,
+            Pageable pageable){
+
+        System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
+
+        Page<Program> programs = programService.searchProgramsAll(keyword, categoryId, location, language, pricePerStudent,
+                durationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
 
