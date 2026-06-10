@@ -14,6 +14,10 @@ export default function Home() {
         <br />
         <Link href="/programs/add">Lisa uus programm</Link>
         <br />
+        <Link href="/info">Info</Link>
+        <br />
+        <Link href="/contact">Kontakt</Link>
+        <br />
         <Link href="/signup">Registreerimine</Link>
         <br />
         <Link href="/login">Logi sisse</Link>
