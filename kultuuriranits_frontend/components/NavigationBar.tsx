@@ -37,9 +37,10 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
 
   TEACHER: [
     { name: 'Avaleht', href: '/' },
-    { name: 'Kultuuriprogrammid', href: '/programs' },
-    { name: 'Lemmikud', href: '/teacher/favorites' },
-    { name: 'Teated', href: '/teacher/notifications' },
+    { name: 'Kultuuriprogrammid', href: '/programs_teacher' },
+    { name: 'Lemmikud', href: '/favorites' },
+    { name: 'Teated', href: '/notifications' },
+    { name: 'Tagasiside', href: '/feedback' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
   ],
@@ -212,11 +213,10 @@ export function Navbar() {
                   <Link
                     key={`${link.name}-${link.href}`}
                     href={link.href}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                      isActive
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${isActive
                         ? 'bg-blue-50 text-blue-700 font-semibold'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <span>{link.name}</span>
                   </Link>
@@ -253,9 +253,8 @@ export function Navbar() {
                     </span>
 
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform ${
-                        isProfileOpen ? 'rotate-180' : ''
-                      }`}
+                      className={`w-4 h-4 text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''
+                        }`}
                     />
                   </button>
 
@@ -312,11 +311,10 @@ export function Navbar() {
               <Link
                 key={`${link.name}-${link.href}-mobile`}
                 href={link.href}
-                className={`text-sm ${
-                  isActive
+                className={`text-sm ${isActive
                     ? 'text-blue-700 font-semibold'
                     : 'text-gray-700 hover:text-blue-700'
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>

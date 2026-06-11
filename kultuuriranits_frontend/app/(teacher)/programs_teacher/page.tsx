@@ -25,7 +25,7 @@ interface SearchParams {
     categoryId?: string;
 }
 
-// kasutaja tuvastamine sessiooni kaudu
+// kasutaja tuvastamine
 async function getCurrentUser(): Promise<{ id: number } | null> {
     try {
         const cookieStore = await cookies();

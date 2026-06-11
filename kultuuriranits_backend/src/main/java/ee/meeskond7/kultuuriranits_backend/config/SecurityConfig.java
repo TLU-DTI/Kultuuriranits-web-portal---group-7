@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/category", "/category/**").permitAll()
                         .requestMatchers("/favorites","/favorites/**").permitAll()
                         .requestMatchers("/organization","/organization/**").permitAll()
+                        .requestMatchers("/feedback","/feedback/**").permitAll()
                         //.requestMatchers("/users").hasRole("ADMIN") <-- tulevikus naeb kasutajaid ainult admin
                         .anyRequest().authenticated()
                 )

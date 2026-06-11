@@ -104,7 +104,6 @@ public class ProgramController {
                                          @RequestPart MultipartFile imageFile, HttpSession session){
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
-            System.out.println("====== SESSIIOONI KONTROLL: organization_id = " + orgId + " ======");
 
             if (orgId == null) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
