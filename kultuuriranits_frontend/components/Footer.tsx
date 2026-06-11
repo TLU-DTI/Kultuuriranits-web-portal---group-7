@@ -9,24 +9,34 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 pb-12">
           
           {/* Peamine Logo ja Sotsiaalmeedia */}
-          <div className="md:col-span-1 space-y-4">
-            <h2 className="text-2xl font-semibold tracking-tight">Kultuuriranits</h2>
-            <div className="flex space-x-4 text-xl">
-              {/* Sotsiaalmeedia ikoonide kohahoidjad */}
-              <a href="#" className="hover:opacity-80 transition-opacity" aria-label="X">
-                <span className="font-bold text-lg">𝕏</span>
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity" aria-label="Instagram">
-                <span>📸</span>
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity" aria-label="YouTube">
-                <span>▶️</span>
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity" aria-label="LinkedIn">
-                <span className="font-bold">in</span>
-              </a>
-            </div>
-          </div>
+<div className="md:col-span-1 space-y-4">
+  
+  {/* Logo */}
+  <div className="inline-block bg-white p-3 rounded-sm shadow-sm max-w-[200px]">
+    <img 
+      src="../public/images/KulMin.jpg" alt="Kultuuriministeerium" className="h-12 w-auto object-contain"/>
+  </div>
+
+  {/* Kultuuriranits */}
+  <h2 className="text-2xl font-semibold tracking-tight pt-2">Kultuuriranits</h2>
+  
+  {/* 3. Sotsiaalmeedia ikoonid */}
+  <div className="flex space-x-4 text-xl pt-1">
+    <a href="#" className="hover:opacity-80 transition-opacity" aria-label="X">
+      <span className="font-bold text-lg">𝕏</span>
+    </a>
+    <a href="#" className="hover:opacity-80 transition-opacity" aria-label="Instagram">
+      <span>📸</span>
+    </a>
+    <a href="#" className="hover:opacity-80 transition-opacity" aria-label="YouTube">
+      <span>▶️</span>
+    </a>
+    <a href="#" className="hover:opacity-80 transition-opacity" aria-label="LinkedIn">
+      <span className="font-bold">in</span>
+    </a>
+  </div>
+
+</div>
 
           {/* Info */}
           <div>
@@ -67,20 +77,12 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/20 pt-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-end text-sm text-white/90">
-          
-          {/* Kultuuriministeeriumi Logo */}
-          <div className="flex items-center space-x-3 border-l-2 border-white/50 pl-4 h-12">
-            {/* Kolm lõvi */}
-            <div className="text-xl"><a href=""></a></div>
-            <div className="text-xs font-bold uppercase tracking-wider leading-tight">
-              Kultuuriministeerium
-            </div>
-          </div>
 
           {/* Kultuuriranitsa Kontakt */}
           <div>
-            <h4 className="font-semibold mb-2">Kultuuriranits</h4>
-            <p className="text-white/80">+372 xxxx xxxx</p>
+            <h4 className="font-semibold mb-2">Annikki Aruväli</h4>
+            <p className="mb-2"><i>Kultuurihariduse ja ligipääsetavuse nõunik</i></p>
+            <p className="text-white/80">+372 5199 6885</p>
             <a href="mailto:kultuuriranits@kul.ee" className="text-white/80 hover:underline">
               kultuuriranits@kul.ee
             </a>
@@ -89,7 +91,7 @@ export function Footer() {
           {/* Kultuuriministeeriumi Kontakt */}
           <div>
             <h4 className="font-semibold mb-2">Kultuuriministeerium</h4>
-            <p className="text-white/80">+372 xxxx xxxx</p>
+            <p className="text-white/80">+372 628 2222</p>
             <p className="text-white/80">min@kul.ee</p>
             <p className="text-white/80 text-xs">Suur-Karja 23, 15076 Tallinn</p>
           </div>
