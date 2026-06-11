@@ -243,49 +243,32 @@ export default async function ProgramPage({
                 Õppematerjalid (seotud selle programmiga)
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                
-                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white rounded-lg border border-gray-150 shadow-xs group-hover/mat:border-gray-300 transition-colors">
-                        <FileText className="w-4 h-4 text-gray-400" />
-                      </div>
-                      <span className="text-xs font-extrabold text-gray-800 truncate max-w-[180px]"></span>
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-lg border border-gray-150 shadow-xs group-hover/mat:border-gray-300 transition-colors">
+                      <FileText className="w-4 h-4 text-gray-400" />
                     </div>
-                    <button className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    </button>
+                    <span className="text-xs font-extrabold text-gray-800 truncate max-w-[180px]"></span>
                   </div>
+                  <button className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           )}
-
-          {/* Kontakt */}
-          {/* {(program.contactEmail || program.contactPhone) && (
-            <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h3 className="text-base font-extrabold text-gray-900 mb-4">
-                Kontakt
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {program.contactEmail && (
-                  <div className="flex items-center p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2 bg-white rounded-lg border border-gray-150 shadow-xs shrink-0 text-gray-400">
-                        <Mail className="w-4 h-4" />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
-                          E-post
-                        </span>
-                        <a
-                          href={`mailto:${program.contactEmail}`}
-                          className="text-xs font-extrabold text-blue-600 hover:text-blue-800 hover:underline break-all leading-tight"
-                        >
-                          {program.contactEmail}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )} */}
 
           <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-base font-extrabold text-gray-900 mb-4">
@@ -299,8 +282,11 @@ export default async function ProgramPage({
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
-                      E-post: {program.organization?.email || "Puudub"}
+                      E-post:
                     </span>
+                    <a className="text-xs font-extrabold text-blue-600 break-all leading-tight">
+                      {program.organization?.email || "Puudub"}
+                    </a>
                   </div>
                 </div>
               </div>
@@ -312,8 +298,11 @@ export default async function ProgramPage({
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
-                      Telefon: {program.organization?.phone || "Puudub"}
+                      Telefon:
                     </span>
+                    <a className="text-xs font-extrabold text-blue-600 break-all leading-tight">
+                      {program.organization?.phone || "Puudub"}
+                    </a>
                   </div>
                 </div>
               </div>
