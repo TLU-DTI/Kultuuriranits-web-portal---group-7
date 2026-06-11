@@ -103,22 +103,24 @@ export default function InfoPage() {
       </ul>
 
       {/* Kultuuriministeeriumi kaart */}
-      <a
-        className="block border border-gray-200 rounded-xl p-6 flex items-center justify-between hover:shadow-md transition-shadow"
-      >
+      <div className="block border border-gray-200 rounded-xl p-6 flex items-center justify-between">
         <div>
-          <p className="font-bold text-lg mb-3">Uuri rohkem kultuuriministeeriumi kodulehelt</p>
-          <p className="text-blue-700 italic"><a href="https://www.kul.ee/asutus-uudised-ja-rahastamine/rahastamine/kultuuriranits">Kliki siia!</a></p>
+          <h3 className="font-bold text-lg mb-3">Uuri rohkem kultuuriministeeriumi kodulehelt</h3>
+          <p className="text-blue-700 italic">
+            <a
+              href="https://www.kul.ee/asutus-uudised-ja-rahastamine/rahastamine/kultuuriranits"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline cursor-pointer"
+            >
+              Kliki siia!
+            </a>
+          </p>
         </div>
         <div className="flex items-center gap-3 text-blue-900 font-semibold shrink-0 ml-8">
-          <img
-            src="https://www.kul.ee/sites/default/files/KULTUURIMINISTEERIUM_EST.svg"
-            alt="Kultuuriministeerium"
-            className="h-12"
-          />
+          <img src="https://www.kul.ee/sites/default/files/KULTUURIMINISTEERIUM_EST.svg" alt="Kultuuriministeerium" className="h-12" />
         </div>
-      </a>
-
+      </div>
     </main>
   );
 }
