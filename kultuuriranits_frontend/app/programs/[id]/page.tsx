@@ -57,16 +57,6 @@ export default async function ProgramPage({
     );
   }
 
-  const details = [
-    ["Hind", `${program.pricePerStudent}€`],
-    ["Kestus", `${program.durationMinutes} min`],
-    ["Asukoht", program.location],
-    ["Keel", program.language],
-    ["Sihtgrupp", program.targetGroup],
-    ["Grupi suurus", `${program.minGroupSize} - ${program.maxGroupSize}`],
-    ["Staatus", program.status],
-  ];
-
   return (
     <div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -108,7 +98,7 @@ export default async function ProgramPage({
             <div className="p-6 sm:p-8">
               <div className="flex items-center text-xs font-bold text-gray-400 gap-1.5 uppercase tracking-wider mb-2">
                 <span className="bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md">
-                  {program.organizer} Program organizer
+                  {program.organization?.name}
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 mb-6 leading-tight">
@@ -247,25 +237,24 @@ export default async function ProgramPage({
           </div>
 
           {/* Materials */}
-          {program.materials && program.materials.length > 0 && (
+          {program?.materials && program?.materials.length > 0 && (
             <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm hover:shadow-md transition-shadow duration-300">
               <h3 className="text-base font-extrabold text-gray-900 mb-4">
                 Õppematerjalid (seotud selle programmiga)
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* {program.materials.map((mat, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat">
+                
+                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white rounded-lg border border-gray-150 shadow-xs group-hover/mat:border-gray-300 transition-colors">
                         <FileText className="w-4 h-4 text-gray-400" />
                       </div>
-                      <span className="text-xs font-extrabold text-gray-800 truncate max-w-[180px]">{mat.name}</span>
+                      <span className="text-xs font-extrabold text-gray-800 truncate max-w-[180px]"></span>
                     </div>
                     <button className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     </button>
                   </div>
-                ))} */}
               </div>
             </div>
           )}
@@ -310,7 +299,7 @@ export default async function ProgramPage({
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
-                      E-post
+                      E-post: {program.organization?.email} email
                     </span>
                   </div>
                 </div>
@@ -323,7 +312,7 @@ export default async function ProgramPage({
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
-                      Telefon
+                      Telefon: {program.organization?.phone} phone
                     </span>
                   </div>
                 </div>
