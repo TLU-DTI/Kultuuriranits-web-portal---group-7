@@ -18,6 +18,28 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  CartesianGrid,
+} from 'recharts';
+
+const CHART_COLORS = [
+  '#2563eb', // sinine
+  '#16a34a', // roheline
+  '#f97316', // oranž
+  '#9333ea', // lilla
+  '#dc2626', // punane
+  '#0891b2', // cyan
+];
+
 type DashboardTab = 'programs' | 'feedback' | 'statistics';
 
 type Organization = {
@@ -86,6 +108,43 @@ export default function CulturalInstitutionDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const statusChartData = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    programs.forEach((program) => {
+      const status = program.status || 'Staatus puudub';
+      counts[status] = (counts[status] || 0) + 1;
+    });
+
+    return Object.entries(counts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [programs]);
+
+  const categoryChartData = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    programs.forEach((program) => {
+      const category = program.category?.name || 'Kategooria puudub';
+      counts[category] = (counts[category] || 0) + 1;
+    });
+
+    return Object.entries(counts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [programs]);
+
+  const priceChartData = useMemo(() => {
+    return programs.map((program) => ({
+      name: program.title.length > 18
+        ? `${program.title.slice(0, 18)}...`
+        : program.title,
+      price: Number(program.pricePerStudent || 0),
+    }));
+  }, [programs]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -185,8 +244,8 @@ export default function CulturalInstitutionDashboardPage() {
 
       const matchesPublished = publishedOnly
         ? program.status?.toLowerCase() === 'active' ||
-          program.status?.toLowerCase() === 'published' ||
-          program.status?.toLowerCase() === 'avalikustatud'
+        program.status?.toLowerCase() === 'published' ||
+        program.status?.toLowerCase() === 'avalikustatud'
         : true;
 
       return matchesSearch && matchesPublished;
@@ -253,11 +312,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('programs')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'programs'
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'programs'
                   ? 'text-blue-700 border-blue-600'
                   : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+                }`}
             >
               <BookOpen className="w-4 h-4" />
               Programmid
@@ -269,11 +327,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('feedback')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'feedback'
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'feedback'
                   ? 'text-blue-700 border-blue-600'
                   : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+                }`}
             >
               <MessageSquare className="w-4 h-4" />
               Tagasiside
@@ -282,11 +339,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('statistics')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'statistics'
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'statistics'
                   ? 'text-blue-700 border-blue-600'
                   : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+                }`}
             >
               <BarChart3 className="w-4 h-4" />
               Statistika
@@ -422,11 +478,10 @@ export default function CulturalInstitutionDashboardPage() {
                               <div>
                                 <div className="flex items-center gap-2 mb-3">
                                   <span
-                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
-                                      isPublished
+                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${isPublished
                                         ? 'bg-green-500 text-white'
                                         : 'bg-gray-100 text-gray-600'
-                                    }`}
+                                      }`}
                                   >
                                     {isPublished
                                       ? 'Avalikustatud'
@@ -600,7 +655,7 @@ export default function CulturalInstitutionDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="rounded-3xl border border-gray-200 bg-white p-8 min-h-[180px]">
+              <div className="rounded-3xl border border-gray-200 bg-white p-8">
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Programme kokku
                 </p>
@@ -609,7 +664,7 @@ export default function CulturalInstitutionDashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-gray-200 bg-white p-8 min-h-[180px]">
+              <div className="rounded-3xl border border-gray-200 bg-white p-8">
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Avalikustatud
                 </p>
@@ -618,36 +673,115 @@ export default function CulturalInstitutionDashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-gray-200 bg-white p-8 min-h-[180px]">
+              <div className="rounded-3xl border border-gray-200 bg-white p-8">
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Keskmine hind
                 </p>
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length > 0
                     ? `${Math.round(
-                        programs.reduce(
-                          (sum, program) =>
-                            sum + Number(program.pricePerStudent || 0),
-                          0
-                        ) / programs.length
-                      )}€`
+                      programs.reduce(
+                        (sum, program) =>
+                          sum + Number(program.pricePerStudent || 0),
+                        0
+                      ) / programs.length
+                    )}€`
                     : '—'}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 min-h-[260px] flex items-center justify-center text-center">
-              <div>
+            {programs.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
                 <BarChart3 className="w-10 h-10 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-extrabold text-gray-900 mb-2">
-                  Graafikute ala
+                  Statistikat pole veel kuvada
                 </h3>
-                <p className="text-gray-500 max-w-md">
-                  Siia saab hiljem lisada näiteks vaatamiste, osalejate või
-                  tagasiside graafikud.
+                <p className="text-gray-500">
+                  Kui kultuuriasutusel on programmid olemas, kuvatakse siin graafikud.
                 </p>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-6">
+                  <h3 className="text-lg font-extrabold text-gray-900 mb-1">
+                    Programmid staatuse järgi
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mb-6">
+                    Näitab, mitu programmi on igas staatuses.
+                  </p>
+
+                  <div className="h-[320px]">
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={statusChartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis allowDecimals={false} stroke="#6b7280"/>
+                        <Tooltip />
+                        <Bar dataKey="value" fill="#2563eb" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-6">
+                  <h3 className="text-lg font-extrabold text-gray-900 mb-1">
+                    Programmid kategooriate järgi
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mb-6">
+                    Näitab programmide jaotust kategooriate kaupa.
+                  </p>
+
+                  <div className="h-[320px]">
+                    <ResponsiveContainer width="100%" height={320}>
+                      <PieChart>
+                        <Pie
+                          data={categoryChartData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={110}
+                          label
+                        >
+                          {categoryChartData.map((entry, index) => (
+                            <Cell
+                            key={`category-${entry.name}-${index}`}
+                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="xl:col-span-2 rounded-3xl bg-white border border-gray-200 shadow-sm p-6">
+                  <h3 className="text-lg font-extrabold text-gray-900 mb-1">
+                    Programmi hind õpilase kohta
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mb-6">
+                    Võrdleb kultuuriasutuse programmide hindu.
+                  </p>
+
+                  <div className="h-[360px]">
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={priceChartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"/>
+                        <XAxis dataKey="name" stroke="#6b7280"/>
+                        <YAxis stroke="#6b7280"/>
+                        <Tooltip />
+                        <Bar dataKey="price" fill="#16a34a" radius= {[8, 8, 0, 0]}/>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         )}
       </section>
