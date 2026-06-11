@@ -9,6 +9,7 @@ import {
   MapPin,
   Phone,
   Users,
+  MessageSquarePlus,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -309,11 +310,27 @@ export default async function ProgramPage({
             </div>
           </div>
 
-          {/* Tagasiside sektsioon */}
-          {/* <FeedbackSection reviews={program.reviews} />
-        </div>
-      </ProgramDetailLayout>
-    </div> */}
+          {/* Tagasiside */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-gray-900 tracking-tight mb-1">
+                  Tagasiside
+                </h3>
+                <p className="text-xs font-medium text-gray-500">
+                  Jaga oma kogemust antud haridusprogrammiga või vaata teiste arvustusi.
+                </p>
+              </div>
+              <Link
+                href={`/programs/${id}/addFeedback`}
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-5 py-3 rounded-xl transition-all cursor-pointer active:scale-95 shadow-md shadow-blue-500/10 text-sm shrink-0"
+              >
+                <MessageSquarePlus className="w-4 h-4" />
+                Lisa tagasiside
+              </Link>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
