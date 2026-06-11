@@ -31,18 +31,29 @@ public class FeedbackController {
     }
 
     @PostMapping("feedback")
-    public List<Feedback> addFeedback(@RequestBody Feedback feedback){
-        if (feedback.getId() != null){
-            throw new RuntimeException("Cannot add with ID");
+    public List<Feedback> addFeedback(@RequestBody Feedback feedback, HttpSession session) {
+        if (feedback.getId() != null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Cannot add with ID"
+            );
         }
+        if (feedback.getPerson() == null || feedback.getPerson().getId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Kasutaja ID on puudu!"
+            );
+        }
+        feedback.setCreatedAt(java.time.LocalDateTime.now());
         boolean alreadyAdded = feedbackRepository.existsByProgramIdAndPersonId(
                 feedback.getProgram().getId(),
                 feedback.getPerson().getId()
         );
 
-        if (alreadyAdded) {throw new org.springframework.web.server.ResponseStatusException(
-                HttpStatus.CONFLICT, "Sellele programmile oled juba lisanud tagasiside!");
+        if (alreadyAdded) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.CONFLICT, "Sellele programmile oled juba lisanud tagasiside!"
+            );
         }
+
         feedbackRepository.save(feedback);
         return feedbackRepository.findAll();
     }
