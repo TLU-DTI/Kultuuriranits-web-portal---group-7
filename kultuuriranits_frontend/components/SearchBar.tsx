@@ -3,11 +3,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function SearchBar() {
-
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Algväärtus URL-ist
     const [keyword, setKeyword] = useState(
         searchParams.get("keyword") || ""
     );
@@ -26,18 +24,14 @@ export function SearchBar() {
             }
             params.set("page", "0");
 
-            // Uuendab URL-i ilma refreshita
             router.replace(`?${params.toString()}`);
-
         }, 300);
 
         return () => clearTimeout(timeout);
-
-    }, [keyword]);
+    }, [keyword, searchParams, router]);
 
     return (
-        <div style={{ marginBottom: "25px" }}>
-
+        <div className="w-full">
             <input
                 type="text"
                 value={keyword}
@@ -48,11 +42,9 @@ export function SearchBar() {
                     maxWidth: "400px",
                     padding: "10px 14px",
                     borderRadius: "6px",
-                    border: "1px solid #ccc",
-                    fontSize: "16px"
+                    border: "1px solid #ccc"
                 }}
             />
-
         </div>
     );
 }
