@@ -3,6 +3,7 @@ import { RemoveFavorites } from "../../../components/RemoveFavorites";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -35,7 +36,7 @@ async function getCurrentUser(): Promise<{ id: number } | null> {
 
         if (res.ok) return await res.json();
         return null;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -107,10 +108,12 @@ export default async function GetFavoritesPage() {
 
                                 {/* Pilt */}
                                 {p?.imageName ? (
-                                    <img
+                                    <Image
                                         src={`${API_URL}/program/${p.id}/image`}
                                         alt={p.title}
                                         className="w-48 h-full object-cover shrink-0"
+                                        width={192}
+                                        height={192}
                                     />
                                 ) : (
                                     <div className="w-48 shrink-0 bg-gray-100 flex items-center justify-center">
