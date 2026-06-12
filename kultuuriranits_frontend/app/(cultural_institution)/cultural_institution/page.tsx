@@ -1,5 +1,5 @@
 'use client';
-
+import { DeleteProgramButton } from '@/components/DeleteProgramButton';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -230,29 +230,6 @@ export default function CulturalInstitutionDashboardPage() {
     };
   }, []);
 
-  const handleDeleteProgram = async (id: number, title: string) => {
-    const confirmDelete = window.confirm(`Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`);
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch(`${API_URL}/program/${id}`, {
-        method: 'DELETE',
-        credentials: 'include', 
-      });
-
-      if (res.ok) {
-        setPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== id));
-        alert('Programm edukalt kustutatud!');
-      } else {
-        const errorText = await res.text();
-        alert(`Kustutamine ebaõnnestus: ${errorText || 'Viga serveris'}`);
-      }
-    } catch (error) {
-      console.error('Viga kustutamisel:', error);
-      alert('Võrguviga programmi kustutamisel.');
-    }
-  };
-
   const institutionName = currentUser?.organization?.name ?? 'Minu asutus';
 
   const filteredPrograms = useMemo(() => {
@@ -336,8 +313,8 @@ export default function CulturalInstitutionDashboardPage() {
               type="button"
               onClick={() => setActiveTab('programs')}
               className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'programs'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
                 }`}
             >
               <BookOpen className="w-4 h-4" />
@@ -351,8 +328,8 @@ export default function CulturalInstitutionDashboardPage() {
               type="button"
               onClick={() => setActiveTab('feedback')}
               className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'feedback'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
                 }`}
             >
               <MessageSquare className="w-4 h-4" />
@@ -363,8 +340,8 @@ export default function CulturalInstitutionDashboardPage() {
               type="button"
               onClick={() => setActiveTab('statistics')}
               className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'statistics'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
                 }`}
             >
               <BarChart3 className="w-4 h-4" />
@@ -502,8 +479,8 @@ export default function CulturalInstitutionDashboardPage() {
                                 <div className="flex items-center gap-2 mb-3">
                                   <span
                                     className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${isPublished
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-gray-100 text-gray-600'
+                                      ? 'bg-green-500 text-white'
+                                      : 'bg-gray-100 text-gray-600'
                                       }`}
                                   >
                                     {isPublished
@@ -600,14 +577,10 @@ export default function CulturalInstitutionDashboardPage() {
                                   Muuda mitteavalikuks
                                 </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteProgram(program.id, program.title)}
-                                  className="inline-flex items-center gap-2 rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  Kustuta
-                                </button>
+                                <DeleteProgramButton
+                                  programId={program.id}
+                                  programTitle={program.title}
+                                />
                               </div>
                             </div>
                           </div>
@@ -741,7 +714,7 @@ export default function CulturalInstitutionDashboardPage() {
                       <BarChart data={statusChartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis dataKey="name" stroke="#6b7280" />
-                        <YAxis allowDecimals={false} stroke="#6b7280"/>
+                        <YAxis allowDecimals={false} stroke="#6b7280" />
                         <Tooltip />
                         <Bar dataKey="value" fill="#2563eb" radius={[8, 8, 0, 0]} />
                       </BarChart>
@@ -772,8 +745,8 @@ export default function CulturalInstitutionDashboardPage() {
                         >
                           {categoryChartData.map((entry, index) => (
                             <Cell
-                            key={`category-${entry.name}-${index}`}
-                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              key={`category-${entry.name}-${index}`}
+                              fill={CHART_COLORS[index % CHART_COLORS.length]}
                             />
                           ))}
                         </Pie>
@@ -795,11 +768,11 @@ export default function CulturalInstitutionDashboardPage() {
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height={320}>
                       <BarChart data={priceChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"/>
-                        <XAxis dataKey="name" stroke="#6b7280"/>
-                        <YAxis stroke="#6b7280"/>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" />
                         <Tooltip />
-                        <Bar dataKey="price" fill="#16a34a" radius= {[8, 8, 0, 0]}/>
+                        <Bar dataKey="price" fill="#16a34a" radius={[8, 8, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

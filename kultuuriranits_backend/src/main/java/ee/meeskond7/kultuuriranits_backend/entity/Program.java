@@ -44,6 +44,8 @@ public class Program {
 
     private String status;
 
+    private Double averageRating;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -60,4 +62,5 @@ public class Program {
 
     @ManyToOne
     private Organization organization;
+
 }

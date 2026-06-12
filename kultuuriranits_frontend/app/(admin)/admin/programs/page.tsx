@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Program } from "../../../../models/Program";
 import { Category } from "../../../../models/Category";
 import { Organization } from "../../../../models/Organization";
+import { DeleteProgramButton } from "../../../../components/DeleteProgramButton";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -89,8 +90,13 @@ export default async function AdminProgramsPage() {
                             <td style={{ padding: "10px" }}>{formatDate(program.updatedAt)}</td>
                             <td style={{ padding: "10px" }}>{program.category?.name ?? "Määramata"}</td>
                             <td style={{ padding: "10px" }}>{program.organization?.name ?? "Määramata"}</td>
+                            <DeleteProgramButton
+                                programId={program.id}
+                                programTitle={program.title}
+                            />
                         </tr>
                     ))}
+
                 </tbody>
             </table>
         </div>
