@@ -38,7 +38,7 @@ export function RemoveFeedback({ feedbackId, apiUrl }: RemoveFeedbackButtonProps
                 cursor: "pointer"
             }}
         >
-            Kustuta tagasisidest
+            Kustuta tagasiside
         </button>
     );
 }
