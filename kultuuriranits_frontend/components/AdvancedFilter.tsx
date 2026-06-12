@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SlidersHorizontal } from "lucide-react";
 
 const counties = [
   "Kõik piirkonnad",
@@ -22,7 +22,6 @@ const counties = [
   "Võrumaa",
 ];
 
-
 const targetGroups = [
   "Vali...",
   "Lasteaed",
@@ -32,26 +31,13 @@ const targetGroups = [
   "Gümnaasium",
 ];
 
-
-// const locations = [
-//   "Kõik toimumiskohad",
-//   "Muuseum",
-//   "Teater",
-//   "Raamatukogu",
-//   "Koolis kohapeal",
-//   "Välitingimustes",
-//   "Veebis",
-// ];
-
-
 const prices = [
-  { label: "Kõik", min: undefined, max: undefined },
+  { label: "Kõik hinnad", min: undefined, max: undefined },
   { label: "Tasuta", max: 0 },
   { label: "Kuni 5€", max: 5 },
-  { label: "Kuni 10", max: 10 },
+  { label: "Kuni 10€", max: 10 },
   { label: "Üle 10€", min: 10 },
 ];
-
 
 const durations = [
   { label: "Kõik", min: undefined, max: undefined },
@@ -59,7 +45,6 @@ const durations = [
   { label: "45-90 min", min: 45, max: 90 },
   { label: "Üle 90 min", min: 90 },
 ];
-
 
 const groupSizes = [
   { label: "Kõik suurused", min: undefined, max: undefined },
@@ -74,7 +59,6 @@ interface AdvancedFiltersProps {
     name: string;
   }[];
 
-
   organizations: {
     id: number;
     name: string;
@@ -87,22 +71,38 @@ interface AdvancedFiltersProps {
   }[];
 }
 
-
-
 export function AdvancedFilters({
   categories,
   organizations,
 }: AdvancedFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const [durationLabel, setDurationLabel] = useState("Kõik");
-  const [priceLabel, setPriceLabel] = useState("Kõik hinnad");
-  const [groupLabel, setGroupLabel] = useState("Kõik suurused");
+
+  const isOpen = searchParams.get("filters") === "open";
+  const selectedLanguage = searchParams.get("language")?.split(",").filter(Boolean) || [];
+
+  const pushParams = (params: URLSearchParams) => {
+    params.set("page", "0");
+
+    const query = params.toString();
+    router.push(query ? `/programs?${query}` : "/programs");
+  };
+
+  const toggleFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (isOpen) {
+      params.delete("filters");
+    } else {
+      params.set("filters", "open");
+    }
+
+    const query = params.toString();
+    router.push(query ? `/programs?${query}` : "/programs");
+  };
 
   const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-
 
     if (
       value &&
@@ -118,18 +118,11 @@ export function AdvancedFilters({
       params.delete(key);
     }
 
-
-    params.set("page", "0");
-    
-    router.push(`/programs?${params.toString()}`);
+    pushParams(params);
   };
-
-
-
 
   const updateCheckbox = (key: string, checked: boolean) => {
     const params = new URLSearchParams(searchParams.toString());
-
 
     if (checked) {
       params.set(key, "true");
@@ -137,22 +130,15 @@ export function AdvancedFilters({
       params.delete(key);
     }
 
-
-    params.set("page", "0");
-
-
-    router.push(`/programs?${params.toString()}`);
+    pushParams(params);
   };
-
 
   const updateLanguage = (language: string, checked: boolean) => {
     const params = new URLSearchParams(searchParams.toString());
     const currentLanguage =
       params.get("language")?.split(",").filter(Boolean) || [];
 
-
     let newLanguage: string[];
-
 
     if (checked) {
       newLanguage = [...currentLanguage, language];
@@ -160,136 +146,129 @@ export function AdvancedFilters({
       newLanguage = currentLanguage.filter((item) => item !== language);
     }
 
-
     if (newLanguage.length > 0) {
       params.set("language", newLanguage.join(","));
     } else {
       params.delete("language");
     }
 
-
-    params.set("page", "0");
-
-
-    router.push(`/programs?${params.toString()}`);
+    pushParams(params);
   };
 
+  const updateRange = (
+    minKey: string,
+    maxKey: string,
+    selected?: {
+      label: string;
+      min?: number;
+      max?: number;
+    }
+  ) => {
+    if (!selected) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete(minKey);
+    params.delete(maxKey);
+
+    if (selected.min !== undefined) {
+      params.set(minKey, String(selected.min));
+    }
+
+    if (selected.max !== undefined) {
+      params.set(maxKey, String(selected.max));
+    }
+
+    pushParams(params);
+  };
 
   const clearFilters = () => {
     router.push("/programs");
   };
 
+  const getRangeLabel = (
+    items: {
+      label: string;
+      min?: number;
+      max?: number;
+    }[],
+    minKey: string,
+    maxKey: string,
+    fallback: string
+  ) => {
+    const minValue = searchParams.get(minKey);
+    const maxValue = searchParams.get(maxKey);
 
-  const selectedLanguage = searchParams.get("language")?.split(",") || [];
+    const selected = items.find((item) => {
+      const itemMin = item.min !== undefined ? String(item.min) : null;
+      const itemMax = item.max !== undefined ? String(item.max) : null;
 
+      return itemMin === minValue && itemMax === maxValue;
+    });
 
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    marginBottom: "8px",
-    fontWeight: 500,
+    return selected?.label || fallback;
   };
 
+  const priceLabel = getRangeLabel(
+    prices,
+    "minPricePerStudent",
+    "maxPricePerStudent",
+    "Kõik hinnad"
+  );
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    border: "1px solid #ddd",
-    fontSize: "14px",
-    backgroundColor: "white",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.08)",
-  };
+  const durationLabel = getRangeLabel(
+    durations,
+    "minDurationMinutes",
+    "maxDurationMinutes",
+    "Kõik"
+  );
 
-
-  const checkboxLabelStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
-  };
-  //kui tahame et refreshil labelid alles jääks peab nii tegema
-  // const durationLabel =
-  // durations.find(
-  //   (d) =>
-  //     d.min?.toString() === searchParams.get("minDurationMinutes") &&
-  //     d.max?.toString() === searchParams.get("maxDurationMinutes")
-  // )?.label || "Kõik";
-
+  const groupLabel = getRangeLabel(
+    groupSizes,
+    "minGroupSize",
+    "maxGroupSize",
+    "Kõik suurused"
+  );
 
   return (
-    <div style={{ marginBottom: "30px" }}>
+    <>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          backgroundColor: "#2563eb",
-          color: "white",
-          border: "none",
-          padding: "12px 20px",
-          borderRadius: "10px",
-          fontWeight: "bold",
-          cursor: "pointer",
-          marginBottom: "16px",
-          boxShadow: "0 4px 8px rgba(37, 99, 235, 0.25)",
-        }}
+        onClick={toggleFilters}
+        className="inline-flex h-14 items-center justify-center gap-2 px-4 text-sm font-extrabold text-gray-900 hover:text-blue-600 transition-colors cursor-pointer whitespace-nowrap"
       >
-        {isOpen ? "Peida filtrid" : "Näita filtreid"}
+        <SlidersHorizontal className="w-4 h-4" />
+        {isOpen ? "Sulge täpsem otsing" : "Ava täpsem otsing"}
       </button>
 
-
       {isOpen && (
-        <div
-          style={{
-            border: "1px solid black",
-            borderRadius: "24px",
-            padding: "32px",
-            boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
-            backgroundColor: "white",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "24px",
-            }}
-          >
-            <div></div>
-
+        <div className="md:col-span-2 mt-2 bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-sm">
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <h2 className="text-xl font-black text-gray-900 tracking-tight">
+              Täpsem otsing
+            </h2>
 
             <button
               type="button"
               onClick={clearFilters}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#2563eb",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
+              className="text-sm font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
             >
               Puhasta filtrid
             </button>
           </div>
 
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "28px 24px",
-            }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label style={labelStyle}>Kategooriad</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Kategooriad
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={searchParams.get("categoryId") || ""}
                 onChange={(e) => updateParam("categoryId", e.target.value)}
               >
                 <option value="">Vali...</option>
-
 
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -299,11 +278,13 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
             <div>
-              <label style={labelStyle}>Sihtgrupp</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Sihtgrupp
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={searchParams.get("targetGroup") || "Vali..."}
                 onChange={(e) => updateParam("targetGroup", e.target.value)}
               >
@@ -315,22 +296,26 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
             <div>
-              <label style={labelStyle}>Kuupäev</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Kuupäev
+              </label>
+
               <input
                 type="date"
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={searchParams.get("date") || ""}
                 onChange={(e) => updateParam("date", e.target.value)}
               />
             </div>
 
-
             <div>
-              <label style={labelStyle}>Maakond</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Maakond
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={searchParams.get("county") || "Kõik piirkonnad"}
                 onChange={(e) => updateParam("county", e.target.value)}
               >
@@ -342,18 +327,17 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
-            <div style={{ gridColumn: "span 2" }}>
-              <label style={labelStyle}>Toimumiskoht</label>
-
+            <div className="md:col-span-2">
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Toimumiskoht
+              </label>
 
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={searchParams.get("organizationId") || ""}
                 onChange={(e) => updateParam("organizationId", e.target.value)}
               >
                 <option value="">Kõik toimumiskohad</option>
-
 
                 {organizations.map((organization) => (
                   <option key={organization.id} value={organization.id}>
@@ -363,35 +347,24 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
             <div>
-              <label style={labelStyle}>Hind õpilase kohta</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Hind õpilase kohta
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={priceLabel}
                 onChange={(e) => {
                   const selected = prices.find(
-                    (price) => price.label === e.target.value,
+                    (price) => price.label === e.target.value
                   );
-                  //console.log("selected", selected);
-                  if (!selected) return;
-                  setPriceLabel(selected.label)
-                  const params = new URLSearchParams(searchParams.toString());
 
-
-                  params.delete("minPricePerStudent");
-                  params.delete("maxPricePerStudent");
-                  console.log("selected", selected);
-                  if (selected.min !== undefined) {
-                    params.set("minPricePerStudent", String(selected.min));
-                  }
-
-
-                  if (selected.max !== undefined) {
-                    params.set("maxPricePerStudent", String(selected.max));
-                  }
-                  // console.log([...params.entries()]);
-                  router.push(`/programs?${params.toString()}`);
+                  updateRange(
+                    "minPricePerStudent",
+                    "maxPricePerStudent",
+                    selected
+                  );
                 }}
               >
                 {prices.map((price) => (
@@ -402,34 +375,24 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
             <div>
-              <label style={labelStyle}>Kestus</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Kestus
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={durationLabel}
                 onChange={(e) => {
                   const selected = durations.find(
-                    (duration) => duration.label === e.target.value,
+                    (duration) => duration.label === e.target.value
                   );
 
-                  const params = new URLSearchParams(searchParams.toString());
-                  if (!selected) return;
-                  setDurationLabel(selected.label);
-
-                  params.delete("minDurationMinutes");
-                  params.delete("maxDurationMinutes");
-                  console.log("selected", selected);
-                  if (selected.min !== undefined) {
-                    params.set("minDurationMinutes", String(selected.min));
-                  }
-
-
-                  if (selected.max !== undefined) {
-                    params.set("maxDurationMinutes", String(selected.max));
-                  }
-
-                  router.push(`/programs?${params.toString()}`);
+                  updateRange(
+                    "minDurationMinutes",
+                    "maxDurationMinutes",
+                    selected
+                  );
                 }}
               >
                 {durations.map((duration) => (
@@ -440,34 +403,20 @@ export function AdvancedFilters({
               </select>
             </div>
 
-
             <div>
-              <label style={labelStyle}>Grupi suurus</label>
+              <label className="block mb-2 text-sm font-bold text-gray-900">
+                Grupi suurus
+              </label>
+
               <select
-                style={inputStyle}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={groupLabel}
                 onChange={(e) => {
                   const selected = groupSizes.find(
-                    (groupSize) => groupSize.label === e.target.value,
+                    (groupSize) => groupSize.label === e.target.value
                   );
 
-
-                  const params = new URLSearchParams(searchParams.toString());
-                  if (!selected) return;
-                  setGroupLabel(selected.label);
-                  params.delete("minGroupSize");
-                  params.delete("maxGroupSize");
-                  console.log("selected", selected);
-                  if (selected.min !== undefined) {
-                    params.set("minGroupSize", String(selected.min));
-                  }
-
-
-                  if (selected.max !== undefined) {
-                    params.set("maxGroupSize", String(selected.max));
-                  }
-                  // console.log([...params.entries()]);
-                  router.push(`/programs?${params.toString()}`);
+                  updateRange("minGroupSize", "maxGroupSize", selected);
                 }}
               >
                 {groupSizes.map((size) => (
@@ -479,105 +428,66 @@ export function AdvancedFilters({
             </div>
           </div>
 
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            <p className="mb-4 text-sm font-bold text-gray-900">
+              Programmi keel
+            </p>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "18px",
-              flexWrap: "wrap",
-              marginTop: "28px",
-              paddingTop: "20px",
-              borderTop: "1px solid #eee",
-            }}
-          >
-            {["Eesti", "Inglise", "Vene", "Muu"].map((language) => (
-              <label key={language} style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  checked={selectedLanguage.includes(language)}
-                  onChange={(e) => updateLanguage(language, e.target.checked)}
-                />
-                {language}
-              </label>
-            ))}
+            <div className="flex flex-wrap gap-4">
+              {["Eesti", "Inglise", "Vene", "Muu"].map((language) => (
+                <label
+                  key={language}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedLanguage.includes(language)}
+                    onChange={(e) =>
+                      updateLanguage(language, e.target.checked)
+                    }
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  {language}
+                </label>
+              ))}
+            </div>
           </div>
 
-
-          <div
-            style={{
-              display: "flex",
-              gap: "28px",
-              flexWrap: "wrap",
-              marginTop: "24px",
-            }}
-          >
-            <label style={checkboxLabelStyle}>
+          <div className="mt-6 flex flex-wrap gap-5">
+            <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
               <input
                 type="checkbox"
                 checked={searchParams.get("wheelchair") === "true"}
                 onChange={(e) => updateCheckbox("wheelchair", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               Ligipääs ratastooliga
             </label>
 
-
-            <label style={checkboxLabelStyle}>
+            <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
               <input
                 type="checkbox"
                 checked={searchParams.get("specialNeeds") === "true"}
                 onChange={(e) =>
                   updateCheckbox("specialNeeds", e.target.checked)
                 }
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               Sobib erivajadustega õpilastele
             </label>
 
-
-            <label style={checkboxLabelStyle}>
+            <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
               <input
                 type="checkbox"
                 checked={searchParams.get("outdoor") === "true"}
                 onChange={(e) => updateCheckbox("outdoor", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               Välitingimustes
             </label>
           </div>
-
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: "32px",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => router.refresh()}
-              style={{
-                backgroundColor: "#2563eb",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 4px 8px rgba(37, 99, 235, 0.35)",
-              }}
-            >
-              Rakenda filtrid
-            </button>
-          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
-
-
-
-
-
-
-
-
