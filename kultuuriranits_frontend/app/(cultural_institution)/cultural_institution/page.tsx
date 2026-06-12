@@ -1,22 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   BookOpen,
   MessageSquare,
   BarChart3,
   PlusCircle,
   Search,
-  MapPin,
-  Clock3,
-  Users,
-  Pencil,
-  EyeOff,
-  Trash2,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 
 import {
   ResponsiveContainer,
@@ -29,18 +23,23 @@ import {
   Pie,
   Cell,
   CartesianGrid,
-} from 'recharts';
+} from "recharts";
+
+import {
+  InstitutionProgramCard,
+  type InstitutionProgram,
+} from "@/components/InstitutionProgramCard";
 
 const CHART_COLORS = [
-  '#2563eb', // sinine
-  '#16a34a', // roheline
-  '#f97316', // oranž
-  '#9333ea', // lilla
-  '#dc2626', // punane
-  '#0891b2', // cyan
+  "#2563eb",
+  "#16a34a",
+  "#f97316",
+  "#9333ea",
+  "#dc2626",
+  "#0891b2",
 ];
 
-type DashboardTab = 'programs' | 'feedback' | 'statistics';
+type DashboardTab = "programs" | "feedback" | "statistics";
 
 type Organization = {
   id: number;
@@ -65,55 +64,30 @@ type CurrentUser = {
   };
 };
 
-type Category = {
-  id: number;
-  name: string;
-};
-
-type InstitutionProgram = {
-  id: number;
-  title: string;
-  description: string;
-  pricePerStudent: number;
-  durationMinutes: number;
-  targetGroup: string;
-  minGroupSize: number;
-  maxGroupSize: number;
-  location: string;
-  language: string;
-  status: string;
-  createdAt?: string;
-  updatedAt?: string;
-  imageName: string | null;
-  imageType: string | null;
-  category: Category | null;
-  organization?: Organization | null;
-};
-
 type ProgramResponse = {
   content?: InstitutionProgram[];
   totalPages?: number;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_BACK_URL || 'http://localhost:5050';
+const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
 
 const PROGRAMS_PER_PAGE = 4;
 
 export default function CulturalInstitutionDashboardPage() {
-  const [activeTab, setActiveTab] = useState<DashboardTab>('programs');
+  const [activeTab, setActiveTab] = useState<DashboardTab>("programs");
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [programs, setPrograms] = useState<InstitutionProgram[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [publishedOnly, setPublishedOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const statusChartData = useMemo(() => {
     const counts: Record<string, number> = {};
 
     programs.forEach((program) => {
-      const status = program.status || 'Staatus puudub';
+      const status = program.status || "Staatus puudub";
       counts[status] = (counts[status] || 0) + 1;
     });
 
@@ -127,7 +101,7 @@ export default function CulturalInstitutionDashboardPage() {
     const counts: Record<string, number> = {};
 
     programs.forEach((program) => {
-      const category = program.category?.name || 'Kategooria puudub';
+      const category = program.category?.name || "Kategooria puudub";
       counts[category] = (counts[category] || 0) + 1;
     });
 
@@ -139,9 +113,10 @@ export default function CulturalInstitutionDashboardPage() {
 
   const priceChartData = useMemo(() => {
     return programs.map((program) => ({
-      name: program.title.length > 18
-        ? `${program.title.slice(0, 18)}...`
-        : program.title,
+      name:
+        program.title.length > 18
+          ? `${program.title.slice(0, 18)}...`
+          : program.title,
       price: Number(program.pricePerStudent || 0),
     }));
   }, [programs]);
@@ -152,19 +127,19 @@ export default function CulturalInstitutionDashboardPage() {
     async function loadDashboardData() {
       try {
         setLoading(true);
-        setErrorMessage('');
+        setErrorMessage("");
 
         const meResponse = await fetch(`${API_URL}/me`, {
-          method: 'GET',
-          credentials: 'include',
-          cache: 'no-store',
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
           signal: controller.signal,
         });
 
         if (meResponse.status === 401 || meResponse.status === 403) {
           setCurrentUser(null);
           setPrograms([]);
-          setErrorMessage('Töölaua vaatamiseks pead olema sisse logitud.');
+          setErrorMessage("Töölaua vaatamiseks pead olema sisse logitud.");
           return;
         }
 
@@ -179,16 +154,16 @@ export default function CulturalInstitutionDashboardPage() {
 
         if (!organizationId) {
           setPrograms([]);
-          setErrorMessage('Kasutajaga ei ole seotud kultuuriasutust.');
+          setErrorMessage("Kasutajaga ei ole seotud kultuuriasutust.");
           return;
         }
 
         const programsResponse = await fetch(
           `${API_URL}/program?page=0&size=200&sort=id,desc`,
           {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
             signal: controller.signal,
           }
         );
@@ -212,8 +187,8 @@ export default function CulturalInstitutionDashboardPage() {
 
         setPrograms(ownPrograms);
       } catch (error) {
-        if (error instanceof Error && error.name !== 'AbortError') {
-          console.error('Töölaua andmete laadimine ebaõnnestus:', error);
+        if (error instanceof Error && error.name !== "AbortError") {
+          console.error("Töölaua andmete laadimine ebaõnnestus:", error);
           setErrorMessage(error.message);
         }
 
@@ -231,29 +206,125 @@ export default function CulturalInstitutionDashboardPage() {
   }, []);
 
   const handleDeleteProgram = async (id: number, title: string) => {
-    const confirmDelete = window.confirm(`Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`);
+    const confirmDelete = window.confirm(
+      `Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`
+    );
+
     if (!confirmDelete) return;
 
     try {
       const res = await fetch(`${API_URL}/program/${id}`, {
-        method: 'DELETE',
-        credentials: 'include', 
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (res.ok) {
-        setPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== id));
-        alert('Programm edukalt kustutatud!');
+        setPrograms((prevPrograms) =>
+          prevPrograms.filter((program) => program.id !== id)
+        );
+
+        alert("Programm edukalt kustutatud!");
       } else {
         const errorText = await res.text();
-        alert(`Kustutamine ebaõnnestus: ${errorText || 'Viga serveris'}`);
+        alert(`Kustutamine ebaõnnestus: ${errorText || "Viga serveris"}`);
       }
     } catch (error) {
-      console.error('Viga kustutamisel:', error);
-      alert('Võrguviga programmi kustutamisel.');
+      console.error("Viga kustutamisel:", error);
+      alert("Võrguviga programmi kustutamisel.");
     }
   };
 
-  const institutionName = currentUser?.organization?.name ?? 'Minu asutus';
+  const handleToggleProgramVisibility = async (
+    programToUpdate: InstitutionProgram
+  ) => {
+    const isCurrentlyPublished =
+      programToUpdate.status?.toLowerCase() === "active" ||
+      programToUpdate.status?.toLowerCase() === "published" ||
+      programToUpdate.status?.toLowerCase() === "avalikustatud";
+
+    const nextStatus = isCurrentlyPublished ? "inactive" : "active";
+
+    const confirmed = window.confirm(
+      isCurrentlyPublished
+        ? `Kas soovid muuta programmi "${programToUpdate.title}" mitteavalikuks?`
+        : `Kas soovid muuta programmi "${programToUpdate.title}" avalikuks?`
+    );
+
+    if (!confirmed) return;
+
+    if (!programToUpdate.imageName) {
+      alert(
+        "Seda programmi ei saa olemasoleva update endpointiga muuta, sest programmil puudub pilt. Backend ootab update päringus imageFile osa."
+      );
+      return;
+    }
+
+    try {
+      const imageResponse = await fetch(
+        `${API_URL}/program/${programToUpdate.id}/image`,
+        {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      if (!imageResponse.ok) {
+        alert("Olemasoleva pildi laadimine ebaõnnestus.");
+        return;
+      }
+
+      const imageBlob = await imageResponse.blob();
+
+      const updatedProgram = {
+        ...programToUpdate,
+        status: nextStatus,
+      };
+
+      const formData = new FormData();
+
+      formData.append(
+        "program",
+        new Blob([JSON.stringify(updatedProgram)], {
+          type: "application/json",
+        })
+      );
+
+      formData.append(
+        "imageFile",
+        imageBlob,
+        programToUpdate.imageName || `program-${programToUpdate.id}.jpg`
+      );
+
+      const res = await fetch(`${API_URL}/program/${programToUpdate.id}`, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert(`Staatuse muutmine ebaõnnestus: ${errorText || "Viga serveris"}`);
+        return;
+      }
+
+      setPrograms((prevPrograms) =>
+        prevPrograms.map((program) =>
+          program.id === programToUpdate.id
+            ? {
+                ...program,
+                status: nextStatus,
+              }
+            : program
+        )
+      );
+    } catch (error) {
+      console.error("Viga programmi staatuse muutmisel:", error);
+      alert("Võrguviga programmi staatuse muutmisel.");
+    }
+  };
+
+  const institutionName = currentUser?.organization?.name ?? "Minu asutus";
 
   const filteredPrograms = useMemo(() => {
     return programs.filter((program) => {
@@ -266,9 +337,9 @@ export default function CulturalInstitutionDashboardPage() {
         program.targetGroup.toLowerCase().includes(searchValue);
 
       const matchesPublished = publishedOnly
-        ? program.status?.toLowerCase() === 'active' ||
-        program.status?.toLowerCase() === 'published' ||
-        program.status?.toLowerCase() === 'avalikustatud'
+        ? program.status?.toLowerCase() === "active" ||
+          program.status?.toLowerCase() === "published" ||
+          program.status?.toLowerCase() === "avalikustatud"
         : true;
 
       return matchesSearch && matchesPublished;
@@ -289,9 +360,9 @@ export default function CulturalInstitutionDashboardPage() {
 
   const activeProgramsCount = programs.filter((program) => {
     return (
-      program.status?.toLowerCase() === 'active' ||
-      program.status?.toLowerCase() === 'published' ||
-      program.status?.toLowerCase() === 'avalikustatud'
+      program.status?.toLowerCase() === "active" ||
+      program.status?.toLowerCase() === "published" ||
+      program.status?.toLowerCase() === "avalikustatud"
     );
   }).length;
 
@@ -327,11 +398,12 @@ export default function CulturalInstitutionDashboardPage() {
           <div className="flex flex-wrap items-center gap-2 md:gap-6">
             <button
               type="button"
-              onClick={() => setActiveTab('programs')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'programs'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-                }`}
+              onClick={() => setActiveTab("programs")}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "programs"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <BookOpen className="w-4 h-4" />
               Programmid
@@ -342,11 +414,12 @@ export default function CulturalInstitutionDashboardPage() {
 
             <button
               type="button"
-              onClick={() => setActiveTab('feedback')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'feedback'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-                }`}
+              onClick={() => setActiveTab("feedback")}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "feedback"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <MessageSquare className="w-4 h-4" />
               Tagasiside
@@ -354,11 +427,12 @@ export default function CulturalInstitutionDashboardPage() {
 
             <button
               type="button"
-              onClick={() => setActiveTab('statistics')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'statistics'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-                }`}
+              onClick={() => setActiveTab("statistics")}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "statistics"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <BarChart3 className="w-4 h-4" />
               Statistika
@@ -374,7 +448,7 @@ export default function CulturalInstitutionDashboardPage() {
           </div>
         </div>
 
-        {activeTab === 'programs' && (
+        {activeTab === "programs" && (
           <>
             <div className="rounded-3xl bg-white border border-gray-200 p-4 md:p-5 shadow-sm mb-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -429,6 +503,7 @@ export default function CulturalInstitutionDashboardPage() {
                 <h2 className="text-xl font-extrabold text-gray-900 mb-2">
                   Programme ei saanud laadida
                 </h2>
+
                 <p className="text-red-600 text-sm">{errorMessage}</p>
               </div>
             )}
@@ -462,153 +537,15 @@ export default function CulturalInstitutionDashboardPage() {
 
             {!loading && paginatedPrograms.length > 0 && (
               <div className="space-y-5">
-                {paginatedPrograms.map((program) => {
-                  const isPublished =
-                    program.status?.toLowerCase() === 'active' ||
-                    program.status?.toLowerCase() === 'published' ||
-                    program.status?.toLowerCase() === 'avalikustatud';
-
-                  return (
-                    <article
-                      key={program.id}
-                      className="rounded-3xl bg-white border border-gray-300 shadow-sm overflow-hidden"
-                    >
-                      <div className="flex flex-col lg:flex-row">
-                        <div className="lg:w-[320px] xl:w-[340px] h-[220px] lg:h-auto bg-gray-100 overflow-hidden">
-                          {program.imageName ? (
-                            <img
-                              src={`${API_URL}/program/${program.id}/image`}
-                              alt={program.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">
-                              Pilt puudub
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex-1 p-6">
-                          <div className="flex flex-col gap-4 h-full">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                              <div>
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span
-                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${isPublished
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-gray-100 text-gray-600'
-                                      }`}
-                                  >
-                                    {isPublished
-                                      ? 'Avalikustatud'
-                                      : program.status || 'Staatus puudub'}
-                                  </span>
-                                </div>
-
-                                <h3 className="text-2xl font-extrabold text-gray-900 mb-4">
-                                  {program.title}
-                                </h3>
-                              </div>
-
-                              <div className="self-start rounded-xl bg-blue-50 px-4 py-2 text-blue-700 font-extrabold text-sm">
-                                {program.pricePerStudent}€
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 text-sm">
-                              <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-2">
-                                <span className="font-bold uppercase tracking-wide text-gray-400 text-xs">
-                                  Lühikirjeldus:
-                                </span>
-                                <p className="text-gray-700 line-clamp-2">
-                                  {program.description || '—'}
-                                </p>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-2">
-                                <span className="font-bold uppercase tracking-wide text-gray-400 text-xs">
-                                  Teema:
-                                </span>
-                                <div className="flex flex-wrap gap-2">
-                                  {program.category ? (
-                                    <span className="inline-flex rounded-xl border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 bg-white">
-                                      {program.category.name}
-                                    </span>
-                                  ) : (
-                                    <span className="text-gray-500">—</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-2">
-                                <span className="font-bold uppercase tracking-wide text-gray-400 text-xs">
-                                  Sihtgrupp:
-                                </span>
-                                <span className="inline-flex w-fit rounded-xl bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                                  {program.targetGroup || '—'}
-                                </span>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-2">
-                                <span className="font-bold uppercase tracking-wide text-gray-400 text-xs">
-                                  Toimumiskoht:
-                                </span>
-                                <div className="flex items-center gap-2 text-gray-700">
-                                  <MapPin className="w-4 h-4 text-gray-400" />
-                                  <span>{program.location || '—'}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="mt-auto pt-5 border-t border-gray-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-                              <div className="flex flex-wrap items-center gap-5 text-sm text-gray-500">
-                                <div className="inline-flex items-center gap-2">
-                                  <Clock3 className="w-4 h-4" />
-                                  <span>{program.durationMinutes} min</span>
-                                </div>
-
-                                <div className="inline-flex items-center gap-2">
-                                  <Users className="w-4 h-4" />
-                                  <span>
-                                    {program.minGroupSize} -{' '}
-                                    {program.maxGroupSize} õpilast
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex flex-wrap gap-3">
-                                <Link
-                                  href={`/programs/${program.id}/edit`}
-                                  className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition"
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                  Muuda
-                                </Link>
-
-                                <button
-                                  type="button"
-                                  className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition"
-                                >
-                                  <EyeOff className="w-4 h-4" />
-                                  Muuda mitteavalikuks
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteProgram(program.id, program.title)}
-                                  className="inline-flex items-center gap-2 rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  Kustuta
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
+                {paginatedPrograms.map((program) => (
+                  <InstitutionProgramCard
+                    key={program.id}
+                    program={program}
+                    apiUrl={API_URL}
+                    onDelete={handleDeleteProgram}
+                    onToggleVisibility={handleToggleProgramVisibility}
+                  />
+                ))}
               </div>
             )}
 
@@ -644,7 +581,7 @@ export default function CulturalInstitutionDashboardPage() {
           </>
         )}
 
-        {activeTab === 'feedback' && (
+        {activeTab === "feedback" && (
           <section className="rounded-3xl bg-white border border-gray-200 shadow-sm p-10">
             <div className="max-w-2xl">
               <h2 className="text-2xl font-extrabold text-gray-900 mb-3">
@@ -652,14 +589,14 @@ export default function CulturalInstitutionDashboardPage() {
               </h2>
 
               <p className="text-gray-500">
-                Siia saab hiljem kuvada kultuuriasutuse programmide kohta
-                jäetud tagasiside, hinnangud ja kommentaarid.
+                Siia saab hiljem kuvada kultuuriasutuse programmide kohta jäetud
+                tagasiside, hinnangud ja kommentaarid.
               </p>
             </div>
           </section>
         )}
 
-        {activeTab === 'statistics' && (
+        {activeTab === "statistics" && (
           <section className="space-y-6">
             <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-8">
               <h2 className="text-2xl font-extrabold text-gray-900 mb-3">
@@ -676,6 +613,7 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Programme kokku
                 </p>
+
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length}
                 </p>
@@ -685,6 +623,7 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Avalikustatud
                 </p>
+
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {activeProgramsCount}
                 </p>
@@ -694,16 +633,17 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
                   Keskmine hind
                 </p>
+
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length > 0
                     ? `${Math.round(
-                      programs.reduce(
-                        (sum, program) =>
-                          sum + Number(program.pricePerStudent || 0),
-                        0
-                      ) / programs.length
-                    )}€`
-                    : '—'}
+                        programs.reduce(
+                          (sum, program) =>
+                            sum + Number(program.pricePerStudent || 0),
+                          0
+                        ) / programs.length
+                      )}€`
+                    : "—"}
                 </p>
               </div>
             </div>
@@ -711,11 +651,14 @@ export default function CulturalInstitutionDashboardPage() {
             {programs.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
                 <BarChart3 className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+
                 <h3 className="text-xl font-extrabold text-gray-900 mb-2">
                   Statistikat pole veel kuvada
                 </h3>
+
                 <p className="text-gray-500">
-                  Kui kultuuriasutusel on programmid olemas, kuvatakse siin graafikud.
+                  Kui kultuuriasutusel on programmid olemas, kuvatakse siin
+                  graafikud.
                 </p>
               </div>
             ) : (
@@ -734,9 +677,13 @@ export default function CulturalInstitutionDashboardPage() {
                       <BarChart data={statusChartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis dataKey="name" stroke="#6b7280" />
-                        <YAxis allowDecimals={false} stroke="#6b7280"/>
+                        <YAxis allowDecimals={false} stroke="#6b7280" />
                         <Tooltip />
-                        <Bar dataKey="value" fill="#2563eb" radius={[8, 8, 0, 0]} />
+                        <Bar
+                          dataKey="value"
+                          fill="#2563eb"
+                          radius={[8, 8, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -765,8 +712,8 @@ export default function CulturalInstitutionDashboardPage() {
                         >
                           {categoryChartData.map((entry, index) => (
                             <Cell
-                            key={`category-${entry.name}-${index}`}
-                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              key={`category-${entry.name}-${index}`}
+                              fill={CHART_COLORS[index % CHART_COLORS.length]}
                             />
                           ))}
                         </Pie>
@@ -788,11 +735,15 @@ export default function CulturalInstitutionDashboardPage() {
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height={320}>
                       <BarChart data={priceChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"/>
-                        <XAxis dataKey="name" stroke="#6b7280"/>
-                        <YAxis stroke="#6b7280"/>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" />
                         <Tooltip />
-                        <Bar dataKey="price" fill="#16a34a" radius= {[8, 8, 0, 0]}/>
+                        <Bar
+                          dataKey="price"
+                          fill="#16a34a"
+                          radius={[8, 8, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
