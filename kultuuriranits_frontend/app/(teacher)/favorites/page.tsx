@@ -3,7 +3,6 @@ import { RemoveFavorites } from "../../../components/RemoveFavorites";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -36,7 +35,7 @@ async function getCurrentUser(): Promise<{ id: number } | null> {
 
         if (res.ok) return await res.json();
         return null;
-    } catch {
+    } catch (error) {
         return null;
     }
 }
@@ -69,7 +68,7 @@ export default async function GetFavoritesPage() {
                 </div>
                 <Link
                     href="/programs"
-                    className="border border-gray-300 rounded-xl px-5 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
+                    className="border border-gray-300 rounded-full px-5 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
                 >
                     Otsi uusi programme
                 </Link>
@@ -91,7 +90,7 @@ export default async function GetFavoritesPage() {
                     </p>
                     <Link
                         href="/programs"
-                        className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                        className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors"
                     >
                         Sirvi programme
                     </Link>
@@ -104,16 +103,14 @@ export default async function GetFavoritesPage() {
                     {favorites.map((fav) => {
                         const p = fav.program;
                         return (
-                            <div key={fav.id} className="border border-gray-200 rounded-xl overflow-hidden flex">
+                            <div key={fav.id} className="border border-gray-200 rounded-2xl overflow-hidden flex">
 
                                 {/* Pilt */}
                                 {p?.imageName ? (
-                                    <Image
+                                    <img
                                         src={`${API_URL}/program/${p.id}/image`}
                                         alt={p.title}
                                         className="w-48 h-full object-cover shrink-0"
-                                        width={192}
-                                        height={192}
                                     />
                                 ) : (
                                     <div className="w-48 shrink-0 bg-gray-100 flex items-center justify-center">
@@ -129,7 +126,7 @@ export default async function GetFavoritesPage() {
                                         <div className="flex items-start justify-between gap-4 mb-2">
                                             <h2 className="font-bold text-lg">{p?.title || "Nimetu programm"}</h2>
                                             {p?.category && (
-                                                <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full shrink-0">{p.category.name}</span>
+                                                <span className="text-xs font-semibold bg-blue-50 text-blue-600 px-3 py-1 rounded-full shrink-0">{p.category.name.toUpperCase()}</span>
                                             )}
                                         </div>
                                         {p?.description && (
@@ -182,7 +179,7 @@ export default async function GetFavoritesPage() {
 
                                     <div className="flex items-center justify-between mt-4">
                                         {p?.pricePerStudent != null && (
-                                            <span className="font-semibold text-gray-800">{p.pricePerStudent} € / õpilane</span>
+                                            <span className="text-sm font-semibold bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full">{p.pricePerStudent}€ / õpilane</span>
                                         )}
                                         <RemoveFavorites favoriteId={fav.id} apiUrl={API_URL} />
                                     </div>
