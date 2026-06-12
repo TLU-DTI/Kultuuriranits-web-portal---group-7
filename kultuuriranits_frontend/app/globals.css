@@ -12,7 +12,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -25,3 +25,12 @@ body {
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
+/* Avalehe avasta kategooriaid scrollbar eemaldus */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari ja uuem Edge */
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE ja vana Edge */
+    scrollbar-width: none;  /* Firefox */
+  }

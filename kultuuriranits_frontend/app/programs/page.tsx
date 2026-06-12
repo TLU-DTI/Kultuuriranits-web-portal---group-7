@@ -25,16 +25,20 @@ interface SearchParams {
     date?: string;
     county?: string;
     location?: string;
-    price?: string;
+    // price?: string;
     duration?: string;
-    groupSize?: string;
-    languages?: string;
+    minDurationMinutes?: string,
+    maxDurationMinutes?: string,
+    minGroupSize?: string;
+    maxGroupSize?: string;
+    language?: string;
     wheelchair?: string;
     specialNeeds?: string;
+    minPricePerStudent?: string;
+    maxPricePerStudent?: string;
     outdoor?: string;
 }
 
-// GET category
 async function getCategories(): Promise<Category[]> {
     try {
         const res = await fetch(`${API_URL}/category`, {
@@ -47,7 +51,6 @@ async function getCategories(): Promise<Category[]> {
     }
 }
 
-//Organization fetch
 async function getOrganizations() {
     try {
         const res = await fetch(`${API_URL}/organization`, {
@@ -61,7 +64,6 @@ async function getOrganizations() {
     }
 }
 
-// GET programs (või search)
 async function getPrograms(
     keyword?: string,
     page = 0,
@@ -73,16 +75,21 @@ async function getPrograms(
     date?: string,
     county?: string,
     location?: string,
-    price?: string,
+    // price?: string,
     duration?: string,
-    groupSize?: string,
-    languages?: string,
+    minDurationMinutes?: string,
+    maxDurationMinutes?: string,
+    minGroupSize?: string,
+    maxGroupSize?: string,
+    language?: string,
     wheelchair?: string,
     specialNeeds?: string,
+    minPricePerStudent?: string,
+    maxPricePerStudent?: string,
     outdoor?: string,
 ): Promise<FetchResult> {
     try {
-        const baseUrl = `${API_URL}/program${keyword ? "/search" : ""}`;
+        const baseUrl = `${API_URL}/program/searchall`;
 
         const params = new URLSearchParams({
             page: String(page),
@@ -97,19 +104,28 @@ async function getPrograms(
         if (date) params.set("date", date);
         if (county) params.set("county", county);
         if (location) params.set("location", location);
-        if (price) params.set("price", price);
-        if (duration) params.set("duration", duration);
-        if (groupSize) params.set("groupSize", groupSize);
-        if (languages) params.set("languages", languages);
+        //  if (price) params.set("price", price);
+        if (duration) params.set("durationMinutes", duration);
+        if (minDurationMinutes) params.set("minDurationMinutes", minDurationMinutes);
+        if (maxDurationMinutes) params.set("maxDurationMinutes", maxDurationMinutes);
+        if (minGroupSize) params.set("minGroupSize", minGroupSize);
+        if (maxGroupSize) params.set("maxGroupSize", maxGroupSize);
+        if (language) params.set("language", language);
         if (wheelchair) params.set("wheelchair", wheelchair);
         if (specialNeeds) params.set("specialNeeds", specialNeeds);
+        if (minPricePerStudent)
+          params.set("minPricePerStudent", minPricePerStudent);
+        if (maxPricePerStudent)
+          params.set("maxPricePerStudent", maxPricePerStudent);
         if (outdoor) params.set("outdoor", outdoor);
 
+
         const res = await fetch(
+          
             `${baseUrl}?${params.toString()}`,
             { cache: "no-store" }
         );
-
+        console.log(`${baseUrl}?${params.toString()}`)
         if (!res.ok) {
             console.error(`Backend tagastas vea staatuse: ${res.status}`);
             return { content: [], totalPages: 1 };
@@ -134,6 +150,7 @@ export default async function ProgramsPage({
 }) {
     const params = await searchParams;
 
+
     const keyword = params.keyword;
     const page = Number(params.page) || 0;
     const sort = params.sort || "id,desc";
@@ -143,76 +160,89 @@ export default async function ProgramsPage({
     const date = params.date;
     const county = params.county;
     const location = params.location;
-    const price = params.price;
+    // const price = params.pricePerStudent;
     const duration = params.duration;
-    const groupSize = params.groupSize;
-    const languages = params.languages;
+    const minDurationMinutes = params.minDurationMinutes;
+    const maxDurationMinutes = params.maxDurationMinutes;
+    const minGroupSize = params.minGroupSize;
+    const maxGroupSize = params.maxGroupSize;
+    const language = params.language;
+
     const wheelchair = params.wheelchair;
     const specialNeeds = params.specialNeeds;
+    const maxPricePerStudent = params.maxPricePerStudent;
+    const minPricePerStudent = params.minPricePerStudent;
     const outdoor = params.outdoor;
     const organizationId = params.organizationId;
     const [programData, categories, organizations] = await Promise.all([
-        getPrograms(keyword, page, sort, size, categoryId, organizationId, targetGroup, date, county, location, price, duration, groupSize, languages, wheelchair, specialNeeds, outdoor),
+        getPrograms(
+          keyword,
+          page,
+          sort,
+          size,
+          categoryId,
+          organizationId,
+          targetGroup,
+          date,
+          county,
+          location,
+          //   price,
+          duration,
+          minDurationMinutes,
+          maxDurationMinutes,
+          minGroupSize,
+          maxGroupSize,
+          language,
+          wheelchair,
+          specialNeeds,
+          minPricePerStudent,
+          maxPricePerStudent,
+          outdoor,
+        ),
         getCategories(),
         getOrganizations()
     ]);
 
     const { content: programs, totalPages } = programData;
 
-    return (
-        <main
-            style={{
-                padding: "20px",
-                maxWidth: "800px",
-                margin: "0 auto"
-            }}
-        >
-            <h1>Programmid</h1>
+    const resultsText = programs.length === 1 ? "1 tulemus" : `${programs.length} tulemust`;
 
-            {/* Otsing + sorteerimine + filter */}
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    marginBottom: "20px"
-                }}
-            >
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "10px",
-                        flexWrap: "wrap",
-                        alignItems: "center"
-                    }}
-                >
-                    <div style={{ flex: 1, minWidth: "200px" }}>
+    return (
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-8">
+                Programmid
+            </h1>
+
+            <div className="flex flex-col gap-4 mb-10">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                    <div className="shrink-0">
+                        <span className="text-sm font-bold text-gray-500 bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 block">
+                            {resultsText}
+                        </span>
+                    </div>
+                    
+                    <div className="flex-1 w-full max-w-xl">
                         <SearchBar />
                     </div>
-                    <Sort />
+                    
+                    <div className="shrink-0">
+                        <Sort />
+                    </div>
                 </div>
 
                 <AdvancedFilters
                     categories={categories}
                     organizations={organizations}
                 />
-
             </div>
 
-            {/* Tulemused */}
             {programs.length === 0 ? (
-                <p style={{ padding: "20px", background: "#f5f5f5", borderRadius: "5px" }}>
+                <div className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 text-center">
                     Andmeid ei õnnestunud laadida või ühtegi programmi ei leitud. Veendu, et andmebaas ja backend töötavad.
-                </p>
+                </div>
             ) : (
                 <>
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "20px"
-                        }}
-                    >
+                    <div className="flex flex-col gap-8">
                         {programs.map((program) => {
                             const details = [
                                 ["Hind", `${program.pricePerStudent}€`],
@@ -230,61 +260,63 @@ export default async function ProgramsPage({
                             return (
                                 <div
                                     key={program.id}
-                                    style={{
-                                        border: "1px solid gray",
-                                        padding: "16px",
-                                        borderRadius: "8px"
-                                    }}
+                                    className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-center hover:shadow-md transition-shadow duration-300"
                                 >
-                                    <h2>{program.title}</h2>
-                                    <img
-                                        src={`${API_URL}/program/${program.id}/image`}
-                                        alt={program.title}
-                                        style={{
-                                            width: "100%",
-                                            height: "250px",
-                                            objectFit: "cover",
-                                            borderRadius: "8px",
-                                            marginBottom: "12px"
-                                        }}
-                                    />
+                                    <div className="w-full md:w-2/5 shrink-0 flex items-center justify-center bg-gray-50 rounded-xl p-2 h-56 md:h-72">
+                                        <img
+                                            src={`${API_URL}/program/${program.id}/image`}
+                                            alt={program.title}
+                                            className="w-full h-full object-contain rounded-xl"
+                                        />
+                                    </div>
 
-                                    {program.category && (
-                                        <span
-                                            style={{
-                                                display: "inline-block",
-                                                backgroundColor: "#e0e0e0",
-                                                padding: "4px 8px",
-                                                borderRadius: "4px",
-                                                fontSize: "12px",
-                                                marginBottom: "10px",
-                                                fontWeight: "bold"
-                                            }}
-                                        >
-                                            {program.category.name ?? `Kategooria ${program.category.id}`}
-                                        </span>
-                                    )}
+                                    <div className="flex-1 w-full flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                                {program.category && (
+                                                    <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                                                        {program.category.name ?? `Kategooria ${program.category.id}`}
+                                                    </span>
+                                                )}
+                                            </div>
 
-                                    <p>{program.description}</p>
+                                            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-3">
+                                                {program.title}
+                                            </h2>
 
-                                    <Link href={`/programs/${program.id}`}>Detailvaade</Link>
+                                            <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3">
+                                                {program.description}
+                                            </p>
+                                        </div>
 
-                                    {details.map(([label, value]) => (
-                                        <p key={label}>
-                                            <strong>{label}:</strong> {value}
-                                        </p>
-                                    ))}
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs border-t border-gray-50 pt-4 mb-6">
+                                            {details.map(([label, value]) => (
+                                                <p key={label} className="text-gray-600">
+                                                    <strong className="text-gray-900 font-semibold">{label}:</strong> {value}
+                                                </p>
+                                            ))}
+                                        </div>
 
-                                    
+                                        <div className="pt-2">
+                                            <Link 
+                                                href={`/programs/${program.id}`}
+                                                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-colors shadow-sm cursor-pointer"
+                                            >
+                                                Detailvaade
+                                            </Link>
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
 
-                    <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                    />
+                    <div className="mt-12">
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                        />
+                    </div>
                 </>
             )}
         </main>
