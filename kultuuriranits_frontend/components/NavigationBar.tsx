@@ -37,7 +37,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
 
   TEACHER: [
     { name: 'Avaleht', href: '/' },
-    { name: 'Kultuuriprogrammid', href: '/programs_teacher' },
+    { name: 'Kultuuriprogrammid', href: '/programs' },
     { name: 'Lemmikud', href: '/favorites' },
     { name: 'Teated', href: '/notifications' },
     { name: 'Tagasiside', href: '/feedback' },

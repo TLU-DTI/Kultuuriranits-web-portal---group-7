@@ -1,44 +1,45 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Heart } from "lucide-react";
 
-interface RemoveFavoriteButtonProps {
-    favoriteId: number;
-    apiUrl: string | undefined;
-}
+type RemoveFavoritesProps = {
+  favoriteId: number;
+  apiUrl: string | undefined;
+};
 
-export function RemoveFavorites({ favoriteId, apiUrl }: RemoveFavoriteButtonProps) {
-    const router = useRouter();
+export function RemoveFavorites({
+  favoriteId,
+  apiUrl,
+}: RemoveFavoritesProps) {
+  const router = useRouter();
 
-    const handleRemove = async () => {
-        try {
-            const res = await fetch(`${apiUrl}/favorites/${favoriteId}`, {
-                method: "DELETE"
-            });
+  async function handleRemoveFavorite() {
+    try {
+      const res = await fetch(`${apiUrl}/favorites/${favoriteId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
-            if (res.ok) {
-                router.refresh();
-            } else {
-                alert("Lemmiku eemaldamine ebaõnnestus.");
-            }
-        } catch (error) {
-            console.error("Viga lemmiku eemaldamisel:", error);
-        }
-    };
+      if (!res.ok) {
+        throw new Error("Lemmikust eemaldamine ebaõnnestus");
+      }
 
-    return (
-        <button
-            onClick={handleRemove}
-            style={{
-                backgroundColor: "#ef4444",
-                color: "white",
-                border: "none",
-                padding: "6px 12px",
-                borderRadius: "4px",
-                cursor: "pointer"
-            }}
-        >
-            Kustuta lemmikust
-        </button>
-    );
+      router.refresh();
+    } catch (error) {
+      console.error("Viga lemmikust eemaldamisel:", error);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleRemoveFavorite}
+      aria-label="Eemalda lemmikutest"
+      title="Eemalda lemmikutest"
+      className="w-11 h-11 rounded-full bg-white/95 border border-red-100 shadow-md flex items-center justify-center hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
+    >
+      <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+    </button>
+  );
 }

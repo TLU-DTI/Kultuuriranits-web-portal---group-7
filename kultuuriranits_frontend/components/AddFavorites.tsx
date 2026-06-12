@@ -1,53 +1,54 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Heart } from "lucide-react";
 
-interface AddFavoriteButtonProps {
-    programId: number;
-    personId: number;
-    apiUrl: string | undefined;
-}
+type AddFavoritesProps = {
+  programId: number;
+  personId: number;
+  apiUrl: string | undefined;
+};
 
-export function AddFavorites({ programId, personId, apiUrl }: AddFavoriteButtonProps) {
-    const router = useRouter();
+export function AddFavorites({
+  programId,
+  personId,
+  apiUrl,
+}: AddFavoritesProps) {
+  const router = useRouter();
 
-    const handleAdd = async () => {
-        try {
-            const res = await fetch(`${apiUrl}/favorites`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    program: { id: programId },
-                    person: { id: personId }
-                })
-            });
+  async function handleAddFavorite() {
+    try {
+      const res = await fetch(`${apiUrl}/favorites`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          program: { id: programId },
+          person: { id: personId },
+        }),
+      });
 
-            if (res.ok) {
-                /* alert("Programm lisatud lemmikutesse!"); */
-                router.refresh();
-            } else {
-                alert("Lemmiku lisamine ebaõnnestus.");
-            }
-        } catch (error) {
-            console.error("Viga lemmiku lisamisel:", error);
-        }
-    };
+      if (!res.ok) {
+        throw new Error("Lemmikuks lisamine ebaõnnestus");
+      }
 
-    return (
-        <button
-            onClick={handleAdd}
-            style={{
-                backgroundColor: "#2263c5",
-                color: "white",
-                border: "none",
-                padding: "8px 12px",
-                borderRadius: "4px",
-                cursor: "pointer"
-            }}
-        >
-            Lisa lemmikuks
-        </button>
-    );
+      router.refresh();
+    } catch (error) {
+      console.error("Viga lemmikuks lisamisel:", error);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleAddFavorite}
+      aria-label="Lisa lemmikuks"
+      title="Lisa lemmikuks"
+      className="w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-md flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all cursor-pointer"
+    >
+      <Heart className="w-5 h-5 text-blue-600" />
+    </button>
+  );
 }
