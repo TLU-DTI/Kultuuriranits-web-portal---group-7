@@ -25,12 +25,17 @@ interface SearchParams {
     date?: string;
     county?: string;
     location?: string;
-    price?: string;
+    // price?: string;
     duration?: string;
-    groupSize?: string;
-    languages?: string;
+    minDurationMinutes?: string,
+    maxDurationMinutes?: string,
+    minGroupSize?: string;
+    maxGroupSize?: string;
+    language?: string;
     wheelchair?: string;
     specialNeeds?: string;
+    minPricePerStudent?: string;
+    maxPricePerStudent?: string;
     outdoor?: string;
 }
 
@@ -70,16 +75,21 @@ async function getPrograms(
     date?: string,
     county?: string,
     location?: string,
-    price?: string,
+    // price?: string,
     duration?: string,
-    groupSize?: string,
-    languages?: string,
+    minDurationMinutes?: string,
+    maxDurationMinutes?: string,
+    minGroupSize?: string,
+    maxGroupSize?: string,
+    language?: string,
     wheelchair?: string,
     specialNeeds?: string,
+    minPricePerStudent?: string,
+    maxPricePerStudent?: string,
     outdoor?: string,
 ): Promise<FetchResult> {
     try {
-        const baseUrl = `${API_URL}/program${keyword ? "/search" : ""}`;
+        const baseUrl = `${API_URL}/program/searchall`;
 
         const params = new URLSearchParams({
             page: String(page),
@@ -94,19 +104,28 @@ async function getPrograms(
         if (date) params.set("date", date);
         if (county) params.set("county", county);
         if (location) params.set("location", location);
-        if (price) params.set("price", price);
-        if (duration) params.set("duration", duration);
-        if (groupSize) params.set("groupSize", groupSize);
-        if (languages) params.set("languages", languages);
+        //  if (price) params.set("price", price);
+        if (duration) params.set("durationMinutes", duration);
+        if (minDurationMinutes) params.set("minDurationMinutes", minDurationMinutes);
+        if (maxDurationMinutes) params.set("maxDurationMinutes", maxDurationMinutes);
+        if (minGroupSize) params.set("minGroupSize", minGroupSize);
+        if (maxGroupSize) params.set("maxGroupSize", maxGroupSize);
+        if (language) params.set("language", language);
         if (wheelchair) params.set("wheelchair", wheelchair);
         if (specialNeeds) params.set("specialNeeds", specialNeeds);
+        if (minPricePerStudent)
+          params.set("minPricePerStudent", minPricePerStudent);
+        if (maxPricePerStudent)
+          params.set("maxPricePerStudent", maxPricePerStudent);
         if (outdoor) params.set("outdoor", outdoor);
 
+
         const res = await fetch(
+          
             `${baseUrl}?${params.toString()}`,
             { cache: "no-store" }
         );
-
+        console.log(`${baseUrl}?${params.toString()}`)
         if (!res.ok) {
             console.error(`Backend tagastas vea staatuse: ${res.status}`);
             return { content: [], totalPages: 1 };
@@ -131,6 +150,7 @@ export default async function ProgramsPage({
 }) {
     const params = await searchParams;
 
+
     const keyword = params.keyword;
     const page = Number(params.page) || 0;
     const sort = params.sort || "id,desc";
@@ -140,16 +160,45 @@ export default async function ProgramsPage({
     const date = params.date;
     const county = params.county;
     const location = params.location;
-    const price = params.price;
+    // const price = params.pricePerStudent;
     const duration = params.duration;
-    const groupSize = params.groupSize;
-    const languages = params.languages;
+    const minDurationMinutes = params.minDurationMinutes;
+    const maxDurationMinutes = params.maxDurationMinutes;
+    const minGroupSize = params.minGroupSize;
+    const maxGroupSize = params.maxGroupSize;
+    const language = params.language;
+
     const wheelchair = params.wheelchair;
     const specialNeeds = params.specialNeeds;
+    const maxPricePerStudent = params.maxPricePerStudent;
+    const minPricePerStudent = params.minPricePerStudent;
     const outdoor = params.outdoor;
     const organizationId = params.organizationId;
     const [programData, categories, organizations] = await Promise.all([
-        getPrograms(keyword, page, sort, size, categoryId, organizationId, targetGroup, date, county, location, price, duration, groupSize, languages, wheelchair, specialNeeds, outdoor),
+        getPrograms(
+          keyword,
+          page,
+          sort,
+          size,
+          categoryId,
+          organizationId,
+          targetGroup,
+          date,
+          county,
+          location,
+          //   price,
+          duration,
+          minDurationMinutes,
+          maxDurationMinutes,
+          minGroupSize,
+          maxGroupSize,
+          language,
+          wheelchair,
+          specialNeeds,
+          minPricePerStudent,
+          maxPricePerStudent,
+          outdoor,
+        ),
         getCategories(),
         getOrganizations()
     ]);

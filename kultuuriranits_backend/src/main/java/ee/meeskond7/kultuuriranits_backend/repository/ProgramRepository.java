@@ -33,30 +33,38 @@ public interface ProgramRepository extends JpaRepository<Program, Long> {
 
 
     @Query("""
-   SELECT p FROM Program p
-      WHERE
-      (:keyword IS NULL\s
-      OR p.title LIKE :keyword\s
-      OR p.description LIKE :keyword )
-      AND (:categoryId IS NULL OR p.category.id = :categoryId)
-      AND (:location IS NULL OR p.location = :location)
-      AND (:language IS NULL OR p.language = :language) \s
-      AND (:pricePerStudent IS NULL OR p.pricePerStudent = :pricePerStudent)
-      AND (:durationMinutes IS NULL OR p.durationMinutes = :durationMinutes)
-      AND (:targetGroup IS NULL OR p.targetGroup = :targetGroup)
-      AND (:minGroupSize IS NULL OR p.minGroupSize >= :minGroupSize)
-      AND (:maxGroupSize IS NULL OR p.maxGroupSize <= :maxGroupSize)
-    \s
-
-
+      SELECT p FROM Program p
+         WHERE
+         (:keyword IS NULL\s
+         OR p.title LIKE :keyword\s
+         OR p.description LIKE :keyword )
+         AND (:categoryId IS NULL OR p.category.id = :categoryId)
+         AND (:organizationId IS NULL OR p.organization.id = :organizationId)
+         AND (:location IS NULL OR p.location = :location)
+         AND (:language IS NULL OR p.language = :language) \s
+         AND (:pricePerStudent IS NULL OR p.pricePerStudent = :pricePerStudent)
+         AND (:maxPricePerStudent IS NULL OR p.pricePerStudent <= :maxPricePerStudent)
+         AND (:minPricePerStudent IS NULL OR p.pricePerStudent >= :minPricePerStudent)
+         AND (:durationMinutes IS NULL OR p.durationMinutes = :durationMinutes)
+         AND (:minDurationMinutes IS NULL OR p.durationMinutes >= :minDurationMinutes)
+         AND (:maxDurationMinutes IS NULL OR p.durationMinutes <= :maxDurationMinutes)
+         AND (:targetGroup IS NULL OR p.targetGroup = :targetGroup)
+         AND (:minGroupSize IS NULL OR p.minGroupSize >= :minGroupSize)
+         AND (:maxGroupSize IS NULL OR p.maxGroupSize <= :maxGroupSize)
+       \s
 """)
     Page<Program> searchProgramsAll(
             @Param("keyword") String keyword,
+            @Param("minPricePerStudent") BigDecimal minPricePerStudent,
+            @Param("maxPricePerStudent") BigDecimal maxPricePerStudent,
             @Param("categoryId") Long categoryId,
+            @Param("organizationId") Long organizationId,
             @Param("location") String location,
             @Param("language") String language,
             @Param("pricePerStudent") BigDecimal pricePerStudent,
             @Param("durationMinutes") Integer durationMinutes,
+            @Param("minDurationMinutes") Integer minDurationMinutes,
+            @Param("maxDurationMinutes") Integer maxDurationMinutes,
             @Param("targetGroup") String targetGroup,
             @Param("minGroupSize") Integer minGroupSize,
             @Param("maxGroupSize") Integer maxGroupSize,

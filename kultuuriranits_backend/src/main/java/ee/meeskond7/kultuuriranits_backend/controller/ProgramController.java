@@ -73,11 +73,16 @@ public class ProgramController {
     @GetMapping("/program/searchall")
     public ResponseEntity<Page<Program>> searchProgramsAll(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BigDecimal minPricePerStudent,
+            @RequestParam(required = false) BigDecimal maxPricePerStudent,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long organizationId,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String language,
             @RequestParam(required = false) BigDecimal pricePerStudent,
             @RequestParam(required = false) Integer durationMinutes,
+            @RequestParam(required = false) Integer minDurationMinutes,
+            @RequestParam(required = false) Integer maxDurationMinutes,
             @RequestParam(required = false) String targetGroup,
             @RequestParam(required = false) Integer minGroupSize,
             @RequestParam(required = false) Integer maxGroupSize,
@@ -86,8 +91,9 @@ public class ProgramController {
 
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
-        Page<Program> programs = programService.searchProgramsAll(keyword, categoryId, location, language, pricePerStudent,
-                durationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
+        Page<Program> programs = programService.searchProgramsAll(keyword, minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent,
+                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable
+        );
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
 
