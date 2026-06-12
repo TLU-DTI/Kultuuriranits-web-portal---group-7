@@ -28,9 +28,9 @@ public class ProgramService {
 
 
 
-    public Page<Program> searchProgramsAll(String keyword, Long categoryId, String location, String language, BigDecimal pricePerStudent, Integer durationMinutes, String targetGroup, Integer minGroupSize, Integer maxGroupSize, String status, Pageable pageable) {
-        
-        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%", categoryId, location, language, pricePerStudent, durationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
+    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, String language, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,String targetGroup, Integer minGroupSize, Integer maxGroupSize, String status, Pageable pageable) {
+
+        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
     }
 
 
