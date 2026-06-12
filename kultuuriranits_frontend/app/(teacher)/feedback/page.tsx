@@ -39,7 +39,7 @@ async function getCurrentUser(): Promise<{ id: number } | null> {
 }
 
 export default async function getFeedbackPage() {
-    const [currentUser, feedback] = await Promise.all([
+    const [currentUser, allFeedback] = await Promise.all([
         getCurrentUser(),
         getFeedback()
     ]);
@@ -47,6 +47,11 @@ export default async function getFeedbackPage() {
     if (!currentUser) {
         redirect("/login");
     }
+
+    const userFeedback = allFeedback.filter((fb) => {
+        const feedbackUserId = fb.person?.id
+        return feedbackUserId === currentUser.id;
+    });
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -63,7 +68,8 @@ export default async function getFeedbackPage() {
                     </p>
                 </div>
             </div>
-            {feedback.length === 0 ? (
+            
+            {userFeedback.length === 0 ? (
                 <div className="p-8 bg-gray-50 border border-gray-150 rounded-2xl text-center">
                     <p className="text-sm font-medium text-gray-500">
                         Sa ei ole veel ühelegi programmile tagasisidet jätnud.
@@ -71,7 +77,7 @@ export default async function getFeedbackPage() {
                 </div>
             ) : (
                 <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-                    {feedback.map((fb) => (
+                    {userFeedback.map((fb) => (
                         <div
                             key={fb.id}
                             className="bg-white rounded-2xl border border-gray-150 shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition-shadow duration-200"

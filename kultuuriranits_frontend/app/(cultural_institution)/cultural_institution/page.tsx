@@ -171,6 +171,29 @@ export default function CulturalInstitutionDashboardPage() {
     };
   }, []);
 
+  const handleDeleteProgram = async (id: number, title: string) => {
+    const confirmDelete = window.confirm(`Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`);
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`${API_URL}/program/${id}`, {
+        method: 'DELETE',
+        credentials: 'include', 
+      });
+
+      if (res.ok) {
+        setPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== id));
+        alert('Programm edukalt kustutatud!');
+      } else {
+        const errorText = await res.text();
+        alert(`Kustutamine ebaõnnestus: ${errorText || 'Viga serveris'}`);
+      }
+    } catch (error) {
+      console.error('Viga kustutamisel:', error);
+      alert('Võrguviga programmi kustutamisel.');
+    }
+  };
+
   const institutionName = currentUser?.organization?.name ?? 'Minu asutus';
 
   const filteredPrograms = useMemo(() => {
@@ -185,8 +208,8 @@ export default function CulturalInstitutionDashboardPage() {
 
       const matchesPublished = publishedOnly
         ? program.status?.toLowerCase() === 'active' ||
-          program.status?.toLowerCase() === 'published' ||
-          program.status?.toLowerCase() === 'avalikustatud'
+        program.status?.toLowerCase() === 'published' ||
+        program.status?.toLowerCase() === 'avalikustatud'
         : true;
 
       return matchesSearch && matchesPublished;
@@ -253,11 +276,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('programs')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'programs'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'programs'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
+                }`}
             >
               <BookOpen className="w-4 h-4" />
               Programmid
@@ -269,11 +291,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('feedback')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'feedback'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'feedback'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
+                }`}
             >
               <MessageSquare className="w-4 h-4" />
               Tagasiside
@@ -282,11 +303,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab('statistics')}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === 'statistics'
-                  ? 'text-blue-700 border-blue-600'
-                  : 'text-gray-500 border-transparent hover:text-gray-800'
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'statistics'
+                ? 'text-blue-700 border-blue-600'
+                : 'text-gray-500 border-transparent hover:text-gray-800'
+                }`}
             >
               <BarChart3 className="w-4 h-4" />
               Statistika
@@ -422,11 +442,10 @@ export default function CulturalInstitutionDashboardPage() {
                               <div>
                                 <div className="flex items-center gap-2 mb-3">
                                   <span
-                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
-                                      isPublished
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-gray-100 text-gray-600'
-                                    }`}
+                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${isPublished
+                                      ? 'bg-green-500 text-white'
+                                      : 'bg-gray-100 text-gray-600'
+                                      }`}
                                   >
                                     {isPublished
                                       ? 'Avalikustatud'
@@ -524,6 +543,7 @@ export default function CulturalInstitutionDashboardPage() {
 
                                 <button
                                   type="button"
+                                  onClick={() => handleDeleteProgram(program.id, program.title)}
                                   className="inline-flex items-center gap-2 rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -625,12 +645,12 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length > 0
                     ? `${Math.round(
-                        programs.reduce(
-                          (sum, program) =>
-                            sum + Number(program.pricePerStudent || 0),
-                          0
-                        ) / programs.length
-                      )}€`
+                      programs.reduce(
+                        (sum, program) =>
+                          sum + Number(program.pricePerStudent || 0),
+                        0
+                      ) / programs.length
+                    )}€`
                     : '—'}
                 </p>
               </div>
