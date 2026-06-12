@@ -40,10 +40,10 @@ export default function LoginPage() {
                     router.push("/admin");
                     break;
                 case "TEACHER":
-                    router.push("/teacher");
+                    router.push("/");
                     break;
                 case "CULTURAL_INSTITUTION":
-                    router.push("/cultural_institution");
+                    router.push("/");
                     break;
                 default:
                     router.push("/programs");
