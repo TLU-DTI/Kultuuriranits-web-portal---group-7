@@ -230,6 +230,29 @@ export default function CulturalInstitutionDashboardPage() {
     };
   }, []);
 
+  const handleDeleteProgram = async (id: number, title: string) => {
+    const confirmDelete = window.confirm(`Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`);
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`${API_URL}/program/${id}`, {
+        method: 'DELETE',
+        credentials: 'include', 
+      });
+
+      if (res.ok) {
+        setPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== id));
+        alert('Programm edukalt kustutatud!');
+      } else {
+        const errorText = await res.text();
+        alert(`Kustutamine ebaõnnestus: ${errorText || 'Viga serveris'}`);
+      }
+    } catch (error) {
+      console.error('Viga kustutamisel:', error);
+      alert('Võrguviga programmi kustutamisel.');
+    }
+  };
+
   const institutionName = currentUser?.organization?.name ?? 'Minu asutus';
 
   const filteredPrograms = useMemo(() => {
@@ -297,13 +320,6 @@ export default function CulturalInstitutionDashboardPage() {
               Siin saad hallata oma kultuuriasutuse programme, vaadata
               tagasisidet ja jälgida statistikat.
             </p>
-          </div>
-
-          <div className="flex items-center">
-            <span className="inline-flex items-center rounded-full bg-white border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">
-              <span className="w-2.5 h-2.5 rounded-full bg-green-400 mr-2" />
-              Kultuuriasutuse vaade
-            </span>
           </div>
         </div>
 
@@ -378,7 +394,7 @@ export default function CulturalInstitutionDashboardPage() {
                     />
                   </div>
 
-                  <label className="inline-flex items-center gap-3 text-sm font-semibold text-gray-700 whitespace-nowrap">
+                  <label className="inline-flex items-center gap-3 text-sm font-semibold text-gray-700 whitespace-nowrap cursor-pointer">
                     <input
                       type="checkbox"
                       checked={publishedOnly}
@@ -386,7 +402,7 @@ export default function CulturalInstitutionDashboardPage() {
                         setPublishedOnly(event.target.checked);
                         setCurrentPage(1);
                       }}
-                      className="w-5 h-5 rounded border-gray-300"
+                      className="w-5 h-5 rounded border-gray-300 accent-blue-600 cursor-pointer"
                     />
                     Avalikustatud
                   </label>
@@ -579,6 +595,7 @@ export default function CulturalInstitutionDashboardPage() {
 
                                 <button
                                   type="button"
+                                  onClick={() => handleDeleteProgram(program.id, program.title)}
                                   className="inline-flex items-center gap-2 rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition"
                                 >
                                   <Trash2 className="w-4 h-4" />

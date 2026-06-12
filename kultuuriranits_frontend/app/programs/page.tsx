@@ -146,6 +146,7 @@ export default async function ProgramsPage({
 }) {
     const params = await searchParams;
 
+
     const keyword = params.keyword;
     const page = Number(params.page) || 0;
     const sort = params.sort || "id,desc";

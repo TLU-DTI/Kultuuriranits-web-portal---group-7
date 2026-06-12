@@ -28,9 +28,9 @@ public class ProgramService {
 
 
 
-    public Page<Program> searchProgramsAll(String keyword, Long categoryId, String location, String language, BigDecimal pricePerStudent, Integer durationMinutes, String targetGroup, Integer minGroupSize, Integer maxGroupSize, String status, Pageable pageable) {
-        
-        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%", categoryId, location, language, pricePerStudent, durationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
+    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, String language, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,String targetGroup, Integer minGroupSize, Integer maxGroupSize, String status, Pageable pageable) {
+
+        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
     }
 
 
@@ -48,5 +48,40 @@ public class ProgramService {
     public Program getProgramById(Long id) {
         return programRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programmi ei leitud ID-ga: " + id));
+    }
+
+
+    public Program updateProgram(Long id, Program incomingProgram, MultipartFile imageFile) throws IOException {
+        Program existingProgram = programRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Programmi ei leitud ID-ga: " + id));
+        existingProgram.setUpdatedAt(LocalDateTime.now());
+
+        // programmi atribuudid
+        existingProgram.setTitle(incomingProgram.getTitle());
+        existingProgram.setDescription(incomingProgram.getDescription());
+        existingProgram.setPricePerStudent(incomingProgram.getPricePerStudent());
+        existingProgram.setDurationMinutes(incomingProgram.getDurationMinutes());
+        existingProgram.setTargetGroup(incomingProgram.getTargetGroup());
+        existingProgram.setMinGroupSize(incomingProgram.getMinGroupSize());
+        existingProgram.setMaxGroupSize(incomingProgram.getMaxGroupSize());
+        existingProgram.setLocation(incomingProgram.getLocation());
+        existingProgram.setLanguage(incomingProgram.getLanguage());
+        existingProgram.setStatus(incomingProgram.getStatus());
+
+        if (incomingProgram.getCategory() != null) {
+            existingProgram.setCategory(incomingProgram.getCategory());
+        }
+
+        if (incomingProgram.getOrganization() != null) {
+            existingProgram.setOrganization(incomingProgram.getOrganization());
+        }
+
+        // 5. Pildifaili uuendamise kontroll
+        if (imageFile != null && !imageFile.isEmpty()) {
+            existingProgram.setImageName(imageFile.getOriginalFilename());
+            existingProgram.setImageType(imageFile.getContentType());
+            existingProgram.setImageData(imageFile.getBytes());
+        }
+        return programRepository.save(existingProgram);
     }
 }

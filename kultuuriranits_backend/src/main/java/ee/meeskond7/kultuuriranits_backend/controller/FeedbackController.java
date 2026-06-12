@@ -22,12 +22,7 @@ public class FeedbackController {
     @GetMapping("feedback")
     public List<Feedback> getFeedback(HttpSession session){
         Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Selle tegevuse jaoks pead olema sisselogitud!"
-            );
-        }
-        return feedbackRepository.findByPersonId(userId);
+        return feedbackRepository.findAll();
     }
 
     @PostMapping("feedback")

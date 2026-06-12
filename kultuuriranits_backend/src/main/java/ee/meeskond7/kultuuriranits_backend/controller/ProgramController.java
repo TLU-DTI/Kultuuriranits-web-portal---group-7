@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class ProgramController {
 
     // pildid programmidele
     @GetMapping("/program/{programId}/image")
-    public ResponseEntity<byte[]> getImageByProductId(@PathVariable Long programId){
+    public ResponseEntity<byte[]> getImageByProductId(@PathVariable Long programId) {
 
         Program program = programService.getProgramById(programId);
         byte[] imageFile = program.getImageData();
@@ -62,7 +63,7 @@ public class ProgramController {
     public ResponseEntity<Page<Program>> searchPrograms(
             @RequestParam String keyword,
             @RequestParam(required = false) Long categoryId,
-            Pageable pageable){
+            Pageable pageable) {
 
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
@@ -73,35 +74,41 @@ public class ProgramController {
     @GetMapping("/program/searchall")
     public ResponseEntity<Page<Program>> searchProgramsAll(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BigDecimal minPricePerStudent,
+            @RequestParam(required = false) BigDecimal maxPricePerStudent,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long organizationId,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String language,
             @RequestParam(required = false) BigDecimal pricePerStudent,
             @RequestParam(required = false) Integer durationMinutes,
+            @RequestParam(required = false) Integer minDurationMinutes,
+            @RequestParam(required = false) Integer maxDurationMinutes,
             @RequestParam(required = false) String targetGroup,
             @RequestParam(required = false) Integer minGroupSize,
             @RequestParam(required = false) Integer maxGroupSize,
             @RequestParam(required = false) String status,
-            Pageable pageable){
+            Pageable pageable) {
 
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
-        Page<Program> programs = programService.searchProgramsAll(keyword, categoryId, location, language, pricePerStudent,
-                durationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
+        Page<Program> programs = programService.searchProgramsAll(keyword, minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent,
+                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable
+        );
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
 
     // Yks programm id kaudu
     @GetMapping("/program/{id}")
-    public Program getOneProgram(@PathVariable Long id){
+    public Program getOneProgram(@PathVariable Long id) {
         return programRepository.findById(id).orElseThrow();
     }
 
 
     // Programmi lisamine
     @PostMapping("/program")
-    public ResponseEntity<?> addProgram (@RequestPart Program program,
-                                         @RequestPart MultipartFile imageFile, HttpSession session){
+    public ResponseEntity<?> addProgram(@RequestPart Program program,
+                                        @RequestPart MultipartFile imageFile, HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
 
@@ -116,30 +123,42 @@ public class ProgramController {
 
             Program program1 = programService.addProgram(program, imageFile);
             return new ResponseEntity<>(program1, HttpStatus.CREATED);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Programmi kustutamine
     @DeleteMapping("/program/{id}")
-    public List<Program> deleteProgram(@PathVariable Long id){
+    public List<Program> deleteProgram(@PathVariable Long id) {
         programRepository.deleteById(id);
         return programRepository.findAll();
     }
 
     // Programmi update
-    @PutMapping("/program")
-    public List<Program> editProgram(@RequestBody Program program){
-        if (program.getId() == null){
-            throw new RuntimeException("Cannot edit without ID");
-        }
-        if (!programRepository.existsById(program.getId())){
-            throw new RuntimeException("Booking ID doesn't exist");
-        }
-        programRepository.save(program);
-        return programRepository.findAll();
-    }
+    @PutMapping("/program/{id}")
+    public ResponseEntity<?> updateProgram(@PathVariable Long id,
+                                           @RequestPart Program program,
+                                           @RequestPart MultipartFile imageFile,
+                                           HttpSession session) {
+        try {
+            Long orgId = (Long) session.getAttribute("organization_id");
 
+            if (orgId == null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Sessioon puudub või sul pole õigust seda programmi muuta.");
+            }
+            Organization org = new Organization();
+            org.setId(orgId);
+            program.setOrganization(org);
+
+            Program updatedProgram = programService.updateProgram(id, program, imageFile);
+
+            return new ResponseEntity<>("Successfully updated", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to update: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
