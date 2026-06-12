@@ -36,8 +36,8 @@ public class SecurityConfig {
                 // Logout
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .invalidateHttpSession(true) // Kustutab sessiooni serveri mälust
-                        .clearAuthentication(true)   // Puhastab turvakonteksti
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                 );
 

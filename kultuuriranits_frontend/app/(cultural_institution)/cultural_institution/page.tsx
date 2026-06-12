@@ -230,6 +230,29 @@ export default function CulturalInstitutionDashboardPage() {
     };
   }, []);
 
+  const handleDeleteProgram = async (id: number, title: string) => {
+    const confirmDelete = window.confirm(`Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`);
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`${API_URL}/program/${id}`, {
+        method: 'DELETE',
+        credentials: 'include', 
+      });
+
+      if (res.ok) {
+        setPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== id));
+        alert('Programm edukalt kustutatud!');
+      } else {
+        const errorText = await res.text();
+        alert(`Kustutamine ebaõnnestus: ${errorText || 'Viga serveris'}`);
+      }
+    } catch (error) {
+      console.error('Viga kustutamisel:', error);
+      alert('Võrguviga programmi kustutamisel.');
+    }
+  };
+
   const institutionName = currentUser?.organization?.name ?? 'Minu asutus';
 
   const filteredPrograms = useMemo(() => {
@@ -579,6 +602,7 @@ export default function CulturalInstitutionDashboardPage() {
 
                                 <button
                                   type="button"
+                                  onClick={() => handleDeleteProgram(program.id, program.title)}
                                   className="inline-flex items-center gap-2 rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition"
                                 >
                                   <Trash2 className="w-4 h-4" />
