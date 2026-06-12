@@ -321,13 +321,6 @@ export default function CulturalInstitutionDashboardPage() {
               tagasisidet ja jälgida statistikat.
             </p>
           </div>
-
-          <div className="flex items-center">
-            <span className="inline-flex items-center rounded-full bg-white border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">
-              <span className="w-2.5 h-2.5 rounded-full bg-green-400 mr-2" />
-              Kultuuriasutuse vaade
-            </span>
-          </div>
         </div>
 
         <div className="border-b border-gray-200 mb-8">
@@ -401,7 +394,7 @@ export default function CulturalInstitutionDashboardPage() {
                     />
                   </div>
 
-                  <label className="inline-flex items-center gap-3 text-sm font-semibold text-gray-700 whitespace-nowrap">
+                  <label className="inline-flex items-center gap-3 text-sm font-semibold text-gray-700 whitespace-nowrap cursor-pointer">
                     <input
                       type="checkbox"
                       checked={publishedOnly}
@@ -409,7 +402,7 @@ export default function CulturalInstitutionDashboardPage() {
                         setPublishedOnly(event.target.checked);
                         setCurrentPage(1);
                       }}
-                      className="w-5 h-5 rounded border-gray-300"
+                      className="w-5 h-5 rounded border-gray-300 accent-blue-600 cursor-pointer"
                     />
                     Avalikustatud
                   </label>
