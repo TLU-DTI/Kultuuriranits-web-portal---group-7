@@ -173,29 +173,45 @@ export default async function ProgramsPage({
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-8">
-        Programmid
-      </h1>
+      <section className="text-center max-w-4xl mx-auto mb-12">
+        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight mb-4">
+          Leia klassile{" "}
+          <span className="text-blue-600">sobivaim</span>{" "}
+          kultuuriprogramm
+        </h1>
 
-      <div className="flex flex-col gap-4 mb-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-          <div className="shrink-0">
-            <span className="text-sm font-bold text-gray-500 bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 block">
-              {resultsText}
-            </span>
-          </div>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          Leia kiiresti koolile sobivad kultuuriprogrammid. Tutvu programmidega
+          ning vali klassile sobivaim õppekäik.
+        </p>
+      </section>
 
-          <div className="flex-1 w-full max-w-xl">
+      <section className="max-w-4xl mx-auto mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
+          <div className="w-full">
             <SearchBar />
           </div>
 
-          <div className="shrink-0">
-            <Sort />
-          </div>
+          <AdvancedFilters
+            categories={categories}
+            organizations={organizations}
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+            Kõik programmid
+          </h2>
+
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">
+            Näitan {resultsText}
+          </p>
         </div>
 
-        <AdvancedFilters categories={categories} organizations={organizations} />
-      </div>
+        <Sort />
+      </section>
 
       {programs.length === 0 ? (
         <div className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 text-center">
