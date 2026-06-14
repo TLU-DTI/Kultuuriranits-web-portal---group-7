@@ -13,6 +13,19 @@ export default async function getProgram(programId: string) {
     }
 }
 
+export async function getPrograms() {
+ 
+    const res = await fetch(`${API_URL}/program`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return null;
+    } else {
+        return await res.json();
+    }
+}
+
 export async function getPopularPrograms(): Promise<any> {
     try {
         const res = await fetch(`${API_URL}/program`, {
