@@ -37,7 +37,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
 
   TEACHER: [
     { name: 'Avaleht', href: '/' },
-    { name: 'Kultuuriprogrammid', href: '/programs_teacher' },
+    { name: 'Kultuuriprogrammid', href: '/programs' },
     { name: 'Lemmikud', href: '/favorites' },
     { name: 'Teated', href: '/notifications' },
     { name: 'Tagasiside', href: '/feedback' },
@@ -269,6 +269,15 @@ export function Navbar() {
                           {getRoleLabel(user.role.name)}
                         </p>
                       </div>
+
+                      <Link
+                        href="/account"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        Minu konto
+                      </Link>
 
                       <button
                         type="button"
