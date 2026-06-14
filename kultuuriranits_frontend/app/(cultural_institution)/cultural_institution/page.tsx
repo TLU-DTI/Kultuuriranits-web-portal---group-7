@@ -1,5 +1,5 @@
 "use client";
-
+import { DeleteProgramButton } from '@/components/DeleteProgramButton';
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -735,9 +735,9 @@ export default function CulturalInstitutionDashboardPage() {
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height={320}>
                       <BarChart data={priceChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="name" stroke="#6b7280" />
-                        <YAxis stroke="#6b7280" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"  />
+                        <XAxis dataKey="name" stroke="#6b7280"  />
+                        <YAxis stroke="#6b7280"  />
                         <Tooltip />
                         <Bar
                           dataKey="price"

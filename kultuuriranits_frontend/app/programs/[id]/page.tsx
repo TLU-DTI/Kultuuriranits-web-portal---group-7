@@ -1,4 +1,5 @@
 import getProgram from "@/app/lib/program";
+import { ProgramFeedbackList } from "@/components/ProgramFeedbackList";
 import { getCurrentUser } from "../../lib/auth";
 import { AddFeedback } from "../../../components/AddFeedback";
 
@@ -69,6 +70,10 @@ export default async function ProgramPage({
       </div>
     );
   }
+
+  const avgRating = program.averageRating || 0;
+  const roundedRating = Math.round(avgRating);
+  const starsString = "★".repeat(roundedRating) + "☆".repeat(5 - roundedRating);
 
   return (
     <div>
@@ -316,7 +321,19 @@ export default async function ProgramPage({
                 apiUrl={API_URL}
               />
             </div>
+          )}          {/* average rating */}
+          {program.averageRating !== null && program.averageRating !== undefined && (
+            <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-lg select-none">
+              <span className="text-amber-500 font-bold text-sm tracking-tight">
+                {starsString}
+              </span>
+              <span className="text-xs font-black text-amber-700 ml-0.5">
+                {avgRating.toFixed(1)}/5
+              </span>
+            </div>
           )}
+          {/* FEEDBACK */}
+          <ProgramFeedbackList programId={program.id} />
         </div>
       </div>
     </div>

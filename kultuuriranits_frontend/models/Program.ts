@@ -15,6 +15,7 @@ export interface Program {
     location: string;
     language: string;
     status: string;
+    averageRating?: number;
     createdAt: string;
     updatedAt: string;
 

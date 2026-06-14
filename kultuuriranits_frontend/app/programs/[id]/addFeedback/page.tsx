@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft, MessageSquare } from "lucide-react";
 import { AddFeedback } from "@/components/AddFeedback";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -36,6 +37,9 @@ export default async function AddFeedbackPage({ params }: PageProps) {
     const currentUser = await getCurrentUser();
     const currentUserId = currentUser ? currentUser.id : null;
 
+    if (!currentUserId) {
+        redirect("/login");
+    }
     return (
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             {/* Tagasi nupp */}
