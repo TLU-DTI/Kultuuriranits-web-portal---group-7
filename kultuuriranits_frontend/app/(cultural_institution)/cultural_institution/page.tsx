@@ -29,6 +29,8 @@ import {
   InstitutionProgramCard,
   type InstitutionProgram,
 } from "@/components/InstitutionProgramCard";
+import { ProgramAddForm } from "@/components/ProgramAddForm";
+import { getCategories } from "@/app/lib/category";
 
 const CHART_COLORS = [
   "#2563eb",
@@ -39,7 +41,7 @@ const CHART_COLORS = [
   "#0891b2",
 ];
 
-type DashboardTab = "programs" | "feedback" | "statistics";
+type DashboardTab = "programs" | "feedback" | "statistics" | "addProgram";
 
 type Organization = {
   id: number;
@@ -72,6 +74,8 @@ type ProgramResponse = {
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
 
 const PROGRAMS_PER_PAGE = 4;
+
+ const categories = await getCategories();
 
 export default function CulturalInstitutionDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("programs");
@@ -204,6 +208,8 @@ export default function CulturalInstitutionDashboardPage() {
       controller.abort();
     };
   }, []);
+
+  const organizationId = currentUser?.organization?.id;
 
   const handleDeleteProgram = async (id: number, title: string) => {
     const confirmDelete = window.confirm(
@@ -437,14 +443,18 @@ export default function CulturalInstitutionDashboardPage() {
               <BarChart3 className="w-4 h-4" />
               Statistika
             </button>
-
-            <Link
-              href="/addPrograms"
-              className="inline-flex items-center gap-2 px-1 py-4 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-800"
+            <button
+             type="button"
+              onClick={() => setActiveTab("addProgram")}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "addProgram"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <PlusCircle className="w-4 h-4" />
               Lisa uus programm
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -481,14 +491,14 @@ export default function CulturalInstitutionDashboardPage() {
                     Avalikustatud
                   </label>
                 </div>
-
-                <Link
-                  href="/addPrograms"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  Lisa uus programm
-                </Link>
+                <button
+                  type="button"
+                    onClick={() => setActiveTab("addProgram")}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    Lisa uus programm
+                </button>
               </div>
             </div>
 
@@ -523,14 +533,14 @@ export default function CulturalInstitutionDashboardPage() {
                     Selle kultuuriasutusega seotud programme ei leitud või need
                     ei vasta filtritele.
                   </p>
-
-                  <Link
-                    href="/addPrograms"
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition"
-                  >
+                   <button
+                      type="button"
+                        onClick={() => setActiveTab("addProgram")}
+                        className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition"
+                    >                  
                     <PlusCircle className="w-4 h-4" />
                     Lisa esimene programm
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}
@@ -593,6 +603,12 @@ export default function CulturalInstitutionDashboardPage() {
                 tagasiside, hinnangud ja kommentaarid.
               </p>
             </div>
+          </section>
+        )}
+
+        {activeTab === "addProgram" && (
+          <section className="rounded-3xl bg-white border border-gray-200 shadow-sm p-10">
+           <ProgramAddForm categories = {categories} organizationId={organizationId}/>
           </section>
         )}
 
