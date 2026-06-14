@@ -1,5 +1,5 @@
 "use client";
-import { DeleteProgramButton } from '@/components/DeleteProgramButton';
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -73,6 +73,21 @@ const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
 
 const PROGRAMS_PER_PAGE = 4;
 
+const STATUS_ACTIVE = "Active";
+const STATUS_INACTIVE = "Inactive";
+
+const isProgramPublished = (status?: string | null) => {
+  return (
+    status?.toLowerCase() === "active" ||
+    status?.toLowerCase() === "published" ||
+    status?.toLowerCase() === "avalikustatud"
+  );
+};
+
+const getNormalizedStatus = (status?: string | null) => {
+  return isProgramPublished(status) ? STATUS_ACTIVE : STATUS_INACTIVE;
+};
+
 export default function CulturalInstitutionDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("programs");
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -87,7 +102,7 @@ export default function CulturalInstitutionDashboardPage() {
     const counts: Record<string, number> = {};
 
     programs.forEach((program) => {
-      const status = program.status || "Staatus puudub";
+      const status = getNormalizedStatus(program.status);
       counts[status] = (counts[status] || 0) + 1;
     });
 
@@ -237,12 +252,11 @@ export default function CulturalInstitutionDashboardPage() {
   const handleToggleProgramVisibility = async (
     programToUpdate: InstitutionProgram
   ) => {
-    const isCurrentlyPublished =
-      programToUpdate.status?.toLowerCase() === "active" ||
-      programToUpdate.status?.toLowerCase() === "published" ||
-      programToUpdate.status?.toLowerCase() === "avalikustatud";
+    const isCurrentlyPublished = isProgramPublished(programToUpdate.status);
 
-    const nextStatus = isCurrentlyPublished ? "inactive" : "active";
+    const nextStatus = isCurrentlyPublished
+      ? STATUS_INACTIVE
+      : STATUS_ACTIVE;
 
     const confirmed = window.confirm(
       isCurrentlyPublished
@@ -337,9 +351,7 @@ export default function CulturalInstitutionDashboardPage() {
         program.targetGroup.toLowerCase().includes(searchValue);
 
       const matchesPublished = publishedOnly
-        ? program.status?.toLowerCase() === "active" ||
-          program.status?.toLowerCase() === "published" ||
-          program.status?.toLowerCase() === "avalikustatud"
+        ? isProgramPublished(program.status)
         : true;
 
       return matchesSearch && matchesPublished;
@@ -358,13 +370,9 @@ export default function CulturalInstitutionDashboardPage() {
     return filteredPrograms.slice(start, end);
   }, [filteredPrograms, currentPage]);
 
-  const activeProgramsCount = programs.filter((program) => {
-    return (
-      program.status?.toLowerCase() === "active" ||
-      program.status?.toLowerCase() === "published" ||
-      program.status?.toLowerCase() === "avalikustatud"
-    );
-  }).length;
+  const activeProgramsCount = programs.filter((program) =>
+    isProgramPublished(program.status)
+  ).length;
 
   function goToPreviousPage() {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -735,9 +743,9 @@ export default function CulturalInstitutionDashboardPage() {
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height={320}>
                       <BarChart data={priceChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"  />
-                        <XAxis dataKey="name" stroke="#6b7280"  />
-                        <YAxis stroke="#6b7280"  />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" />
                         <Tooltip />
                         <Bar
                           dataKey="price"
