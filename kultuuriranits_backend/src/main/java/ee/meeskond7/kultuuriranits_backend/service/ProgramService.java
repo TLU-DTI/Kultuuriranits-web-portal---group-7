@@ -1,5 +1,6 @@
 package ee.meeskond7.kultuuriranits_backend.service;
 
+import ee.meeskond7.kultuuriranits_backend.entity.Material;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -34,14 +36,29 @@ public class ProgramService {
     }
 
 
+
     // Programmide lisamine
-    public Program addProgram(Program program, MultipartFile imageFile) throws IOException {
+    public Program addProgram(Program program, MultipartFile imageFile, List<MultipartFile> materialFiles) throws IOException {
         program.setCreatedAt(LocalDateTime.now());
         program.setUpdatedAt(LocalDateTime.now());
 
         program.setImageName(imageFile.getOriginalFilename());
         program.setImageType(imageFile.getContentType());
         program.setImageData(imageFile.getBytes());
+
+        if (materialFiles != null && !materialFiles.isEmpty()) {
+            System.out.println("Received files: " + materialFiles.size());
+
+            for (MultipartFile file : materialFiles) {
+                Material m = new Material();
+                m.setName(file.getOriginalFilename());
+                m.setFileType(file.getContentType());
+                m.setFileData(file.getBytes());
+
+                program.addMaterial(m); // IMPORTANT
+
+            }
+        }
 
         return programRepository.save(program);
     }

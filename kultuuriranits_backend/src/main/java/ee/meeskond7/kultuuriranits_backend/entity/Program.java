@@ -1,6 +1,7 @@
 package ee.meeskond7.kultuuriranits_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import java.math.BigDecimal;
 import java.sql.Types;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,6 +31,34 @@ public class Program {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String shortDescription;
+
+    private String connection;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "program_connection_keys",
+            joinColumns = @JoinColumn(name = "program_id")
+    )
+    @Column(name = "connection_key")
+    private List<String> connectionKeys = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "program_languages",
+            joinColumns = @JoinColumn(name = "program_id")
+    )
+    @Column(name = "language1")
+    private List<String> languages = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "program_target_groups",
+            joinColumns = @JoinColumn(name = "program_id")
+    )
+    @Column(name = "connection_group1")
+    private List<String> targetGroups = new ArrayList<>();
+
     private BigDecimal pricePerStudent;
 
     private Integer durationMinutes;
@@ -43,6 +74,24 @@ public class Program {
     private String language;
 
     private String status;
+
+    private Boolean wheelchair;
+
+    private Boolean outdoor;
+
+    private Boolean hev;
+
+    private Boolean lak;
+
+    private String addInfo;
+
+    private String contactEmail;
+
+    private String contactPhone;
+
+    private String address;
+
+    private String county;
 
     private LocalDateTime createdAt;
 
@@ -60,4 +109,21 @@ public class Program {
 
     @ManyToOne
     private Organization organization;
+
+    @OneToMany(mappedBy = "program", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Material> materials;
+
+    public void addMaterial(Material material) {
+        if (materials == null) {
+            materials = new ArrayList<>();
+        }
+        materials.add(material);
+        material.setProgram(this);
+    }
+
+//    public void removeMaterial(Material material) {
+//        materials.remove(material);
+//        material.setProgram(null);
+//    }
 }

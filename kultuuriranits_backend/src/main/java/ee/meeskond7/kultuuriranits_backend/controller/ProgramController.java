@@ -1,5 +1,6 @@
 package ee.meeskond7.kultuuriranits_backend.controller;
 
+import ee.meeskond7.kultuuriranits_backend.entity.Material;
 import ee.meeskond7.kultuuriranits_backend.entity.Organization;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
@@ -108,7 +109,9 @@ public class ProgramController {
     // Programmi lisamine
     @PostMapping("/program")
     public ResponseEntity<?> addProgram(@RequestPart Program program,
-                                        @RequestPart MultipartFile imageFile, HttpSession session) {
+                                        @RequestPart MultipartFile imageFile,
+                                        @RequestPart(value = "materialFiles", required = false)  List<MultipartFile> materialFiles,
+                                        HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
 
@@ -121,7 +124,11 @@ public class ProgramController {
             org.setId(orgId);
             program.setOrganization(org);
 
-            Program program1 = programService.addProgram(program, imageFile);
+            System.out.println("materialFiles = " + materialFiles);
+
+
+
+            Program program1 = programService.addProgram(program, imageFile, materialFiles);
             return new ResponseEntity<>(program1, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
