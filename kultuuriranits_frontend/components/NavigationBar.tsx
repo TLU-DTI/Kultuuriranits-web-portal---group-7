@@ -48,7 +48,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
   CULTURAL_INSTITUTION: [
     { name: 'Avaleht', href: '/' },
     { name: 'Töölaud', href: '/cultural_institution' },
-    { name: 'Kultuuriprogrammid', href: '/admin/programs' },
+    { name: 'Kultuuriprogrammid', href: '/programs' },
     { name: 'Teated', href: '/cultural_institution/notifications' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
