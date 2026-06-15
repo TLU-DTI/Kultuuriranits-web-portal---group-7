@@ -81,7 +81,7 @@ export function CategoryCarousel() {
                 className="flex-[0_0_9rem] min-w-0 pl-4"
               >
                 <Link
-                  href={`/otsi?category=${category.query}`}
+                  href={`/programs?category=${category.query}`}
                   className="block h-full group"
                 >
                   <div className="flex h-full flex-col items-center gap-3 w-32 p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all transform hover:-translate-y-1">
