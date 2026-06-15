@@ -78,13 +78,13 @@ export default async function AccountPage() {
             {/* Nupud */}
             <div className="flex gap-4">
                 <Link
-                    href="/account/edit"
+                    href="/cultural_institution/account/edit"
                     className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
                 >
                     Muuda kontaktandmeid
                 </Link>
                 <Link
-                    href="/account/edit"
+                    href="/cultural_institution/account/password"
                     className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
                 >
                     Muuda parool

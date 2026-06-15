@@ -41,7 +41,7 @@ export default function RegisterPage() {
     }, [API_URL]);
 
     const filteredOrganizations = organizations.filter((org) => {
-        if (selectedRoleId === 1) {
+        if (selectedRoleId === 3) {
             return org.type === "kooliasutus";
         } else if (selectedRoleId === 2) {
             return org.type === "kultuuriasutus";
