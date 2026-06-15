@@ -31,16 +31,16 @@ function getRoleLabel(roleName?: string) {
         case "ADMIN":
             return "Admin";
         default:
-            return "";
+            return "TEACHER";
     }
 }
 
 export default async function AccountPage() {
     const user = await getCurrentUser();
 
-    if (!user) {
-        redirect("/login");
-    }
+    /*     if (!user) {
+            redirect("/login");
+        } */
 
     const fullName = user.name ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
 

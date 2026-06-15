@@ -13,6 +13,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
     const [firstName, setFirstName] = useState(user.firstName || "");
     const [lastName, setLastName] = useState(user.lastName || "");
     const [email, setEmail] = useState(user.email || "");
+    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -24,10 +25,11 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
             firstName,
             lastName,
             email,
+            password: password
         };
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/profile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,6 +40,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
 
             if (res.ok) {
                 alert("Andmed edukalt uuendatud!");
+                setPassword("");
                 router.push("/account");
                 router.refresh();
             } else {
@@ -98,7 +101,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
                     </div>
 
                     <div>
-                        <label className={labelClass}>Kool</label>
+                        <label className={labelClass}>Asutus</label>
                         <input
                             type="text"
                             value={user.organization?.name || ""}
