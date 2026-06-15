@@ -13,6 +13,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
     const [firstName, setFirstName] = useState(user.firstName || "");
     const [lastName, setLastName] = useState(user.lastName || "");
     const [email, setEmail] = useState(user.email || "");
+    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -24,10 +25,11 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
             firstName,
             lastName,
             email,
+            password: password
         };
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/profile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,6 +40,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
 
             if (res.ok) {
                 alert("Andmed edukalt uuendatud!");
+                setPassword("");
                 router.push("/account");
                 router.refresh();
             } else {
@@ -58,7 +61,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">
 
-            <h1 className="text-center text-5xl font-bold mb-16">Kontakt andmete muutmine</h1>
+            <h1 className="text-center text-5xl font-bold mb-16">Kontaktandmete muutmine</h1>
 
             <form onSubmit={handleUpdate}>
 
@@ -98,7 +101,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
                     </div>
 
                     <div>
-                        <label className={labelClass}>Kool</label>
+                        <label className={labelClass}>Asutus</label>
                         <input
                             type="text"
                             value={user.organization?.name || ""}
@@ -130,7 +133,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                     {loading ? "Salvestab..." : "Kinnita muudatused"}
                 </button>

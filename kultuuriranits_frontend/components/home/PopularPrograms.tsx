@@ -11,7 +11,7 @@ export function PopularPrograms() {
   const [loading, setLoading] = useState<boolean>(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACK_URL;
+  const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
   useEffect(() => {
     const loadDatabaseData = async () => {
@@ -90,7 +90,7 @@ export function PopularPrograms() {
         >
           {popularPrograms.map((program) => {
             const displayImage = program.imageName 
-              ? `${BACKEND_URL}/uploads/${program.imageName}` 
+              ? `${API_URL}/uploads/${program.imageName}` 
               : 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=800';
 
             return (
@@ -98,11 +98,17 @@ export function PopularPrograms() {
                 
                 {/* Pildi ala */}
                 <div className="relative h-48 overflow-hidden shrink-0 bg-gray-50">
-                  <img 
-                    src={displayImage} 
-                    alt={program.title} 
-                    className="w-full h-full object-cover group-hover/card:scale-[1.02] transition-transform duration-500"
-                  />
+              <img
+                src={`${API_URL}/program/${program.id}/image`}
+                alt={program.title}
+                style={{
+                  width: "100%",
+                  height: "250px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginBottom: "12px",
+                }}
+              />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
                   <div className="absolute top-4 left-4 flex gap-1.5">
                     <span className="bg-blue-600/90 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm border border-blue-500/20 flex items-center gap-1">

@@ -11,12 +11,14 @@ async function getFeedback(): Promise<Feedback[]> {
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
+
     const res = await fetch(`${API_URL}/feedback`, {
       headers: {
         Cookie: cookieString,
       },
       cache: "no-store",
     });
+
 
     return res.ok ? await res.json() : [];
   } catch (error) {

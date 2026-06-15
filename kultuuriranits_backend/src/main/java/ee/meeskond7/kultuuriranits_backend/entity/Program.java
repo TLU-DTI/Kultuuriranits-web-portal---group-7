@@ -92,6 +92,7 @@ public class Program {
     private String address;
 
     private String county;
+    private Double averageRating;
 
     private LocalDateTime createdAt;
 

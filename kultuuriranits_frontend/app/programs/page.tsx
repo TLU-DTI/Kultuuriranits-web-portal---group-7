@@ -72,6 +72,8 @@ async function getPrograms(
   date?: string,
   county?: string,
   location?: string,
+  status?: string,
+  averageRating?: string,
   duration?: string,
   minDurationMinutes?: string,
   maxDurationMinutes?: string,
@@ -95,6 +97,7 @@ async function getPrograms(
     if (date) params.set("date", date);
     if (county) params.set("county", county);
     if (location) params.set("location", location);
+    if (status) params.set("status", status);
     if (duration) params.set("durationMinutes", duration);
     if (minDurationMinutes) params.set("minDurationMinutes", minDurationMinutes);
     if (maxDurationMinutes) params.set("maxDurationMinutes", maxDurationMinutes);
@@ -151,6 +154,8 @@ export default async function ProgramsPage({
   const maxPricePerStudent = params.maxPricePerStudent;
   const outdoor = params.outdoor;
 
+
+
   const [programData, categories, organizations, currentUser] = await Promise.all([
     getPrograms(
       keyword, page, sort, size, categoryId, organizationId, targetGroup,
@@ -165,6 +170,10 @@ export default async function ProgramsPage({
 
   const isTeacher = currentUser?.role?.name === "TEACHER";
   const userFavorites = isTeacher ? await getUserFavorites() : [];
+
+  const activePrograms = programData.content.filter(
+    (p) => p.status === "Active" || p.status === "ACTIVE"
+  );
 
   const { content: programs, totalPages } = programData;
 
@@ -221,7 +230,7 @@ export default async function ProgramsPage({
       ) : (
         <>
           <div className="flex flex-col gap-8">
-            {programs.map((program) => (
+            {activePrograms.map((program) => (
               <ProgramCard
                 key={program.id}
                 program={program}

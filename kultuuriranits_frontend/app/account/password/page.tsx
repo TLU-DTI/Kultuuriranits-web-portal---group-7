@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import AccountEditForm from "../../../../components/AccountEditForm";
+import PasswordEditForm from "../../../components/PasswordEditForm";
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
 async function getCurrentUser() {
@@ -20,12 +20,12 @@ async function getCurrentUser() {
     }
 }
 
-export default async function AccountEditPage() {
+export default async function PasswordEditPage() {
     const user = await getCurrentUser();
 
     if (!user) {
         redirect("/login");
     }
 
-    return <AccountEditForm user={user} />;
+    return <PasswordEditForm user={user} />;
 }
