@@ -88,9 +88,9 @@ function getUserDisplayName(user: CurrentUser) {
 function getNotificationsHref(role: NavbarRole) {
   switch (role) {
     case 'TEACHER':
-      return '/teacher/notifications';
+      return '/notifications';
     case 'CULTURAL_INSTITUTION':
-      return '/cultural_institution/notifications';
+      return '/notifications';
     case 'ADMIN':
       return '/admin';
     default:
@@ -214,8 +214,8 @@ export function Navbar() {
                     key={`${link.name}-${link.href}`}
                     href={link.href}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${isActive
-                        ? 'bg-blue-50 text-blue-700 font-semibold'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'bg-blue-50 text-blue-700 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                   >
                     <span>{link.name}</span>
@@ -321,8 +321,8 @@ export function Navbar() {
                 key={`${link.name}-${link.href}-mobile`}
                 href={link.href}
                 className={`text-sm ${isActive
-                    ? 'text-blue-700 font-semibold'
-                    : 'text-gray-700 hover:text-blue-700'
+                  ? 'text-blue-700 font-semibold'
+                  : 'text-gray-700 hover:text-blue-700'
                   }`}
               >
                 {link.name}
