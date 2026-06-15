@@ -61,7 +61,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">
 
-            <h1 className="text-center text-5xl font-bold mb-16">Kontakt andmete muutmine</h1>
+            <h1 className="text-center text-5xl font-bold mb-16">Kontaktandmete muutmine</h1>
 
             <form onSubmit={handleUpdate}>
 
@@ -133,7 +133,7 @@ export default function AccountEditForm({ user }: AccountEditFormProps) {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                     {loading ? "Salvestab..." : "Kinnita muudatused"}
                 </button>
