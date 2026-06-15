@@ -93,9 +93,9 @@ function getUserDisplayName(user: CurrentUser) {
 function getNotificationsHref(role: NavbarRole) {
   switch (role) {
     case 'TEACHER':
-      return '/teacher/notifications';
+      return '/notifications';
     case 'CULTURAL_INSTITUTION':
-      return '/cultural_institution/notifications';
+      return '/notifications';
     case 'ADMIN':
       return '/admin';
     default:
