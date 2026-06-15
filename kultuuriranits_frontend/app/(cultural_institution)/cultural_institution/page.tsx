@@ -1,5 +1,5 @@
 "use client";
-import { DeleteProgramButton } from '@/components/DeleteProgramButton';
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -10,6 +10,9 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Star,
+  UserRound,
+  CalendarDays
 } from "lucide-react";
 
 import {
@@ -69,9 +72,40 @@ type ProgramResponse = {
   totalPages?: number;
 };
 
+type FeedbackPerson = {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+
+type Feedback = {
+  id: number;
+  text: string;
+  rating: number;
+  createdAt?: string;
+  program?: InstitutionProgram | null;
+  person?: FeedbackPerson | null;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
 
 const PROGRAMS_PER_PAGE = 4;
+
+const STATUS_ACTIVE = "Active";
+const STATUS_INACTIVE = "Inactive";
+
+const isProgramPublished = (status?: string | null) => {
+  return (
+    status?.toLowerCase() === "active" ||
+    status?.toLowerCase() === "published" ||
+    status?.toLowerCase() === "avalikustatud"
+  );
+};
+
+const getNormalizedStatus = (status?: string | null) => {
+  return isProgramPublished(status) ? STATUS_ACTIVE : STATUS_INACTIVE;
+};
 
 export default function CulturalInstitutionDashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("programs");
@@ -82,12 +116,17 @@ export default function CulturalInstitutionDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [feedbackSearch, setFeedbackSearch] = useState("");
+  const [feedbackProgramFilter, setFeedbackProgramFilter] = useState("all");
+  const [feedbackRatingFilter, setFeedbackRatingFilter] = useState("all");
+  const [feedbackSort, setFeedbackSort] = useState("newest");
 
   const statusChartData = useMemo(() => {
     const counts: Record<string, number> = {};
 
     programs.forEach((program) => {
-      const status = program.status || "Staatus puudub";
+      const status = getNormalizedStatus(program.status);
       counts[status] = (counts[status] || 0) + 1;
     });
 
@@ -186,6 +225,20 @@ export default function CulturalInstitutionDashboardPage() {
         });
 
         setPrograms(ownPrograms);
+
+        const feedbackResponse = await fetch(`${API_URL}/feedback`, {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (feedbackResponse.ok) {
+          const feedbackData: Feedback[] = await feedbackResponse.json();
+          setFeedbacks(feedbackData);
+        } else {
+          setFeedbacks([]);
+        }
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Töölaua andmete laadimine ebaõnnestus:", error);
@@ -237,12 +290,11 @@ export default function CulturalInstitutionDashboardPage() {
   const handleToggleProgramVisibility = async (
     programToUpdate: InstitutionProgram
   ) => {
-    const isCurrentlyPublished =
-      programToUpdate.status?.toLowerCase() === "active" ||
-      programToUpdate.status?.toLowerCase() === "published" ||
-      programToUpdate.status?.toLowerCase() === "avalikustatud";
+    const isCurrentlyPublished = isProgramPublished(programToUpdate.status);
 
-    const nextStatus = isCurrentlyPublished ? "inactive" : "active";
+    const nextStatus = isCurrentlyPublished
+      ? STATUS_INACTIVE
+      : STATUS_ACTIVE;
 
     const confirmed = window.confirm(
       isCurrentlyPublished
@@ -312,9 +364,9 @@ export default function CulturalInstitutionDashboardPage() {
         prevPrograms.map((program) =>
           program.id === programToUpdate.id
             ? {
-                ...program,
-                status: nextStatus,
-              }
+              ...program,
+              status: nextStatus,
+            }
             : program
         )
       );
@@ -337,9 +389,7 @@ export default function CulturalInstitutionDashboardPage() {
         program.targetGroup.toLowerCase().includes(searchValue);
 
       const matchesPublished = publishedOnly
-        ? program.status?.toLowerCase() === "active" ||
-          program.status?.toLowerCase() === "published" ||
-          program.status?.toLowerCase() === "avalikustatud"
+        ? isProgramPublished(program.status)
         : true;
 
       return matchesSearch && matchesPublished;
@@ -358,13 +408,148 @@ export default function CulturalInstitutionDashboardPage() {
     return filteredPrograms.slice(start, end);
   }, [filteredPrograms, currentPage]);
 
-  const activeProgramsCount = programs.filter((program) => {
-    return (
-      program.status?.toLowerCase() === "active" ||
-      program.status?.toLowerCase() === "published" ||
-      program.status?.toLowerCase() === "avalikustatud"
+  const activeProgramsCount = programs.filter((program) =>
+    isProgramPublished(program.status)
+  ).length;
+
+  const ownProgramIds = useMemo(() => {
+    return new Set(programs.map((program) => program.id));
+  }, [programs]);
+
+  const institutionFeedbacks = useMemo(() => {
+    return feedbacks
+      .filter((feedback) => {
+        const feedbackProgramId = feedback.program?.id;
+
+        if (!feedbackProgramId) return false;
+
+        return ownProgramIds.has(feedbackProgramId);
+      })
+      .sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+        return dateB - dateA;
+      });
+  }, [feedbacks, ownProgramIds]);
+
+  const filteredFeedbacks = useMemo(() => {
+    let result = [...institutionFeedbacks];
+
+    if (feedbackSearch.trim()) {
+      const searchValue = feedbackSearch.toLowerCase();
+
+      result = result.filter((feedback) => {
+        const programTitle = feedback.program?.title?.toLowerCase() || "";
+        const feedbackText = feedback.text?.toLowerCase() || "";
+        const author = getFeedbackAuthor(feedback.person).toLowerCase();
+
+        return (
+          programTitle.includes(searchValue) ||
+          feedbackText.includes(searchValue) ||
+          author.includes(searchValue)
+        );
+      });
+    }
+
+    if (feedbackProgramFilter !== "all") {
+      result = result.filter(
+        (feedback) => String(feedback.program?.id) === feedbackProgramFilter
+      );
+    }
+
+    if (feedbackRatingFilter !== "all") {
+      const rating = Number(feedbackRatingFilter);
+
+      result = result.filter((feedback) => Number(feedback.rating) === rating);
+    }
+
+    result.sort((a, b) => {
+      if (feedbackSort === "oldest") {
+        return (
+          new Date(a.createdAt || "").getTime() -
+          new Date(b.createdAt || "").getTime()
+        );
+      }
+
+      if (feedbackSort === "rating-high") {
+        return Number(b.rating || 0) - Number(a.rating || 0);
+      }
+
+      if (feedbackSort === "rating-low") {
+        return Number(a.rating || 0) - Number(b.rating || 0);
+      }
+
+      if (feedbackSort === "program-az") {
+        return (a.program?.title || "").localeCompare(b.program?.title || "");
+      }
+
+      return (
+        new Date(b.createdAt || "").getTime() -
+        new Date(a.createdAt || "").getTime()
+      );
+    });
+
+    return result;
+  }, [
+    institutionFeedbacks,
+    feedbackSearch,
+    feedbackProgramFilter,
+    feedbackRatingFilter,
+    feedbackSort,
+  ]);
+
+  const feedbackProgramOptions = useMemo(() => {
+    const map = new Map<number, string>();
+
+    institutionFeedbacks.forEach((feedback) => {
+      if (feedback.program?.id && feedback.program?.title) {
+        map.set(feedback.program.id, feedback.program.title);
+      }
+    });
+
+    return Array.from(map.entries()).map(([id, title]) => ({
+      id,
+      title,
+    }));
+  }, [institutionFeedbacks]);
+
+  const averageFeedbackRating = useMemo(() => {
+    if (institutionFeedbacks.length === 0) return 0;
+
+    const sum = institutionFeedbacks.reduce(
+      (total, feedback) => total + Number(feedback.rating || 0),
+      0
     );
-  }).length;
+
+    return sum / institutionFeedbacks.length;
+  }, [institutionFeedbacks]);
+
+  const programsWithFeedbackCount = useMemo(() => {
+    return new Set(
+      institutionFeedbacks
+        .map((feedback) => feedback.program?.id)
+        .filter(Boolean)
+    ).size;
+  }, [institutionFeedbacks]);
+
+  const formatFeedbackDate = (date?: string) => {
+    if (!date) return "Kuupäev puudub";
+
+    return new Date(date).toLocaleDateString("et-EE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const getFeedbackAuthor = (person?: FeedbackPerson | null) => {
+    if (!person) return "Anonüümne kasutaja";
+
+    const fullName = `${person.firstName || ""} ${person.lastName || ""}`.trim();
+
+    return fullName || person.email || "Anonüümne kasutaja";
+  };
 
   function goToPreviousPage() {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -399,11 +584,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("programs")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === "programs"
-                  ? "text-blue-700 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-800"
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "programs"
+                ? "text-blue-700 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
             >
               <BookOpen className="w-4 h-4" />
               Programmid
@@ -415,11 +599,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("feedback")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === "feedback"
-                  ? "text-blue-700 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-800"
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "feedback"
+                ? "text-blue-700 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
             >
               <MessageSquare className="w-4 h-4" />
               Tagasiside
@@ -428,11 +611,10 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("statistics")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
-                activeTab === "statistics"
-                  ? "text-blue-700 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-800"
-              }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "statistics"
+                ? "text-blue-700 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
             >
               <BarChart3 className="w-4 h-4" />
               Statistika
@@ -582,17 +764,226 @@ export default function CulturalInstitutionDashboardPage() {
         )}
 
         {activeTab === "feedback" && (
-          <section className="rounded-3xl bg-white border border-gray-200 shadow-sm p-10">
-            <div className="max-w-2xl">
+          <section className="space-y-6">
+            <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-8">
               <h2 className="text-2xl font-extrabold text-gray-900 mb-3">
                 Tagasiside
               </h2>
 
               <p className="text-gray-500">
-                Siia saab hiljem kuvada kultuuriasutuse programmide kohta jäetud
-                tagasiside, hinnangud ja kommentaarid.
+                Siin näed tagasisidet, mis on jäetud sinu kultuuriasutuse programmidele.
               </p>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
+                  Tagasisidet kokku
+                </p>
+
+                <p className="mt-5 text-5xl font-extrabold text-gray-900">
+                  {institutionFeedbacks.length}
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
+                  Keskmine hinne
+                </p>
+
+                <div className="mt-5 flex items-end gap-2">
+                  <p className="text-5xl font-extrabold text-gray-900">
+                    {institutionFeedbacks.length > 0
+                      ? averageFeedbackRating.toFixed(1)
+                      : "—"}
+                  </p>
+
+                  {institutionFeedbacks.length > 0 && (
+                    <div className="pb-2 flex items-center gap-1 text-yellow-500">
+                      <Star className="w-5 h-5 fill-yellow-500" />
+                      <span className="text-sm font-bold text-gray-500">/ 5</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-wide">
+                  Programme tagasisidega
+                </p>
+
+                <p className="mt-5 text-5xl font-extrabold text-gray-900">
+                  {programsWithFeedbackCount}
+                </p>
+              </div>
+            </div>
+
+            {institutionFeedbacks.length === 0 ? (
+              <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-12 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-5">
+                  <MessageSquare className="w-8 h-8" />
+                </div>
+
+                <h3 className="text-2xl font-extrabold text-gray-900 mb-3">
+                  Tagasisidet pole veel
+                </h3>
+
+                <p className="text-gray-500 max-w-xl mx-auto">
+                  Kui õpetajad jätavad sinu kultuuriasutuse programmidele hinnanguid või
+                  kommentaare, kuvatakse need siin.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-4 md:p-5">
+                  <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-4">
+                    <div className="relative">
+                      <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+
+                      <input
+                        type="text"
+                        placeholder="Otsi tagasisidet, programmi või õpetajat..."
+                        value={feedbackSearch}
+                        onChange={(event) => setFeedbackSearch(event.target.value)}
+                        className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                      />
+                    </div>
+
+                    <select
+                      value={feedbackProgramFilter}
+                      onChange={(event) => setFeedbackProgramFilter(event.target.value)}
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                    >
+                      <option value="all">Kõik programmid</option>
+
+                      {feedbackProgramOptions.map((program) => (
+                        <option key={program.id} value={program.id}>
+                          {program.title}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={feedbackRatingFilter}
+                      onChange={(event) => setFeedbackRatingFilter(event.target.value)}
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                    >
+                      <option value="all">Kõik hinded</option>
+                      <option value="5">5 tärni</option>
+                      <option value="4">4 tärni</option>
+                      <option value="3">3 tärni</option>
+                      <option value="2">2 tärni</option>
+                      <option value="1">1 tärn</option>
+                    </select>
+
+                    <select
+                      value={feedbackSort}
+                      onChange={(event) => setFeedbackSort(event.target.value)}
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                    >
+                      <option value="newest">Uuemad enne</option>
+                      <option value="oldest">Vanemad enne</option>
+                      <option value="rating-high">Kõrgem hinne enne</option>
+                      <option value="rating-low">Madalam hinne enne</option>
+                      <option value="program-az">Programm A-Z</option>
+                    </select>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-gray-500">
+                      Kuvan{" "}
+                      <span className="font-bold text-gray-900">
+                        {filteredFeedbacks.length}
+                      </span>{" "}
+                      tagasisidet
+                    </p>
+
+                    {(feedbackSearch ||
+                      feedbackProgramFilter !== "all" ||
+                      feedbackRatingFilter !== "all" ||
+                      feedbackSort !== "newest") && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFeedbackSearch("");
+                            setFeedbackProgramFilter("all");
+                            setFeedbackRatingFilter("all");
+                            setFeedbackSort("newest");
+                          }}
+                          className="text-sm font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                        >
+                          Puhasta filtrid
+                        </button>
+                      )}
+                  </div>
+                </div>
+
+                {filteredFeedbacks.length === 0 ? (
+                  <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-12 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-5">
+                      <MessageSquare className="w-8 h-8" />
+                    </div>
+
+                    <h3 className="text-2xl font-extrabold text-gray-900 mb-3">
+                      Filtritele vastavat tagasisidet ei leitud
+                    </h3>
+
+                    <p className="text-gray-500 max-w-xl mx-auto">
+                      Proovi otsingut muuta või puhasta filtrid, et näha kõiki
+                      tagasisidesid.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    {filteredFeedbacks.map((feedback) => (
+                      <article
+                        key={feedback.id}
+                        className="bg-white border-2 border-black rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out overflow-hidden p-6 md:p-8"
+                      >
+                        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5 mb-6">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 text-yellow-700 px-3 py-1 text-xs font-extrabold">
+                                <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                                {feedback.rating}/5
+                              </span>
+
+                              {feedback.program?.title && (
+                                <span className="inline-flex rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-extrabold uppercase tracking-wider">
+                                  {feedback.program.title}
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                              {feedback.program?.title || "Programm puudub"}
+                            </h3>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                            <div className="inline-flex items-center gap-2">
+                              <UserRound className="w-4 h-4" />
+                              <span>{getFeedbackAuthor(feedback.person)}</span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2">
+                              <CalendarDays className="w-4 h-4" />
+                              <span>{formatFeedbackDate(feedback.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+                          <p className="text-gray-700 leading-relaxed">
+                            {feedback.text || "Kommentaar puudub."}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </section>
         )}
 
@@ -637,12 +1028,12 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length > 0
                     ? `${Math.round(
-                        programs.reduce(
-                          (sum, program) =>
-                            sum + Number(program.pricePerStudent || 0),
-                          0
-                        ) / programs.length
-                      )}€`
+                      programs.reduce(
+                        (sum, program) =>
+                          sum + Number(program.pricePerStudent || 0),
+                        0
+                      ) / programs.length
+                    )}€`
                     : "—"}
                 </p>
               </div>
@@ -735,9 +1126,9 @@ export default function CulturalInstitutionDashboardPage() {
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height={320}>
                       <BarChart data={priceChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"  />
-                        <XAxis dataKey="name" stroke="#6b7280"  />
-                        <YAxis stroke="#6b7280"  />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" />
                         <Tooltip />
                         <Bar
                           dataKey="price"

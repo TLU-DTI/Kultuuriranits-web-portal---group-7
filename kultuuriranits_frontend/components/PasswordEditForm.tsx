@@ -81,7 +81,7 @@ export default function PasswordEditForm({ user }: PasswordEditFormProps) {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                     {loading ? "Salvestab..." : "Kinnita muudatused"}
                 </button>
