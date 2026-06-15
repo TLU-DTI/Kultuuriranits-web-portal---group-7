@@ -8,6 +8,10 @@ export type CurrentUser = {
     id: number;
     name: DatabaseRole;
   };
+  organization?: {
+    id: number;
+    name: string;
+  };
   firstName?: string;
   lastName?: string;
   email?: string;
