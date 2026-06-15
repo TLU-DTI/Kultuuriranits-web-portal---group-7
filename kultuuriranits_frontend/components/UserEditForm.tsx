@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Person } from "../models/Person";
-import { useEffect } from "react";
 import { Organization } from "@/models/Organization";
 
 
@@ -87,6 +86,8 @@ export default function UserEditForm({ user, organizations }: UserEditFormProps)
                 id: organizationId
             }
         };
+
+
 
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}`, {

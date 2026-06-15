@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -90,10 +91,13 @@ public class PersonController {
         if (loggedInUserId == null || !loggedInUserId.equals(person.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        //personService.validate(person, false);
+        Person existingPerson = personRepository.findById(person.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kasutajat ei leitud"));
         if (person.getPassword() != null && !person.getPassword().isBlank()) {
             String hashedPassword = personService.hashPassword(person.getPassword());
             person.setPassword(hashedPassword);
+        } else {
+            person.setPassword(existingPerson.getPassword());
         }
         return ResponseEntity.ok(personRepository.save(person));
     }
