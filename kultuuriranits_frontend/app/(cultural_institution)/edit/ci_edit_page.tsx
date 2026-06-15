@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import AccountEditForm from "../../components/AccountEditForm";
+import AccountEditForm from "../../../components/AccountEditForm";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
