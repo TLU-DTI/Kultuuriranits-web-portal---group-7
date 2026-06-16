@@ -26,7 +26,7 @@ export async function getPrograms() {
     }
 }
 
-export async function getPopularPrograms(): Promise<any> {
+export async function getPopularPrograms() {
     try {
         const res = await fetch(`${API_URL}/program`, {
             cache: "no-store"
