@@ -81,19 +81,23 @@ export default function NotificationList({
                         }`}
                 >
                     <div className="flex-1">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex justify-between items-baseline mb-2 gap-3">
                             <h3 className={`text-lg font-bold ${currentStatusFilter === "read" ? "text-gray-600" : "text-gray-900"}`}>
                                 {notification.title || "Süsteemne teade"}
                             </h3>
 
                             {notification.createdAt && (
-                                <span className="text-xs text-gray-400">
-                                    {new Date(notification.createdAt).toLocaleDateString("et-EE")}
+                                <span className="text-xs text-gray-400 shrink-0 whitespace-nowrap">
+                                    {new Date(notification.createdAt).toLocaleDateString("et-EE")}{" "}
+                                    {new Date(notification.createdAt).toLocaleTimeString("et-EE", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
                                 </span>
                             )}
                         </div>
 
-                        <p className={`text-sm leading-relaxed whitespace-pre-line ${currentStatusFilter === "read" ? "text-gray-500" : "text-gray-600"}`}>
+                        <p className={`text-sm leading-relaxed whitespace-pre-line mt-1 ${currentStatusFilter === "read" ? "text-gray-500" : "text-gray-600"}`}>
                             {notification.message}
                         </p>
                     </div>
@@ -103,7 +107,7 @@ export default function NotificationList({
                         {showMarkAsReadButton && (
                             <button
                                 onClick={() => handleMarkAsRead(notification)}
-                                className="px-4 py-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors whitespace-nowrap"
+                                className="px-4 py-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors whitespace-nowrap cursor-pointer"
                             >
                                 Märgi loetuks
                             </button>
@@ -111,7 +115,7 @@ export default function NotificationList({
 
                         <button
                             onClick={() => handleValueDelete(notification.id)}
-                            className="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors whitespace-nowrap"
+                            className="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors whitespace-nowrap cursor-pointer"
                         >
                             {currentStatusFilter === "read" ? "Kustuta ajaloost" : "Kustuta"}
                         </button>

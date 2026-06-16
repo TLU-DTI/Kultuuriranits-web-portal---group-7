@@ -182,8 +182,8 @@ export default function RegisterPage() {
             )}
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-                    <div className="hidden lg:block">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+                    <div className="hidden lg:block lg:mt-12">
                         <h1 className="text-4xl xl:text-5xl font-black text-gray-900 tracking-tight leading-tight">
                             Loo konto ja alusta Kultuuriranitsa kasutamist
                         </h1>
@@ -221,7 +221,10 @@ export default function RegisterPage() {
                                 <form onSubmit={handleSubmit} className="space-y-5">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                            <label 
+                                                htmlFor="first-name-input"
+                                                className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                            >
                                                 Eesnimi
                                             </label>
 
@@ -229,11 +232,13 @@ export default function RegisterPage() {
                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
                                                 <input
+                                                    id="first-name-input"
                                                     type="text"
                                                     name="firstName"
                                                     value={formData.firstName}
                                                     onChange={handleChange}
                                                     required
+                                                    autoComplete="given-name"
                                                     placeholder="Eesnimi"
                                                     className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                                 />
@@ -241,7 +246,10 @@ export default function RegisterPage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                            <label 
+                                                htmlFor="last-name-input"
+                                                className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                            >
                                                 Perekonnanimi
                                             </label>
 
@@ -249,11 +257,13 @@ export default function RegisterPage() {
                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
                                                 <input
+                                                    id="last-name-input"
                                                     type="text"
                                                     name="lastName"
                                                     value={formData.lastName}
                                                     onChange={handleChange}
                                                     required
+                                                    autoComplete="family-name"
                                                     placeholder="Perekonnanimi"
                                                     className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                                 />
@@ -262,7 +272,10 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                        <label 
+                                            htmlFor="email-input"
+                                            className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                        >
                                             E-mail
                                         </label>
 
@@ -270,11 +283,13 @@ export default function RegisterPage() {
                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
                                             <input
+                                                id="email-input"
                                                 type="email"
                                                 name="email"
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 required
+                                                autoComplete="email"
                                                 placeholder="nimi@email.ee"
                                                 className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                             />
@@ -282,7 +297,10 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                        <label 
+                                            htmlFor="password-input"
+                                            className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                        >
                                             Parool
                                         </label>
 
@@ -290,11 +308,13 @@ export default function RegisterPage() {
                                             <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
                                             <input
+                                                id="password-input"
                                                 type={showPassword ? "text" : "password"}
                                                 name="password"
                                                 value={formData.password}
                                                 onChange={handleChange}
                                                 required
+                                                autoComplete="new-password"
                                                 placeholder="Sisesta parool"
                                                 className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-12 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                             />
@@ -302,9 +322,7 @@ export default function RegisterPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                aria-label={
-                                                    showPassword ? "Peida parool" : "Näita parooli"
-                                                }
+                                                aria-label={showPassword ? "Peida parool" : "Näita parooli"}
                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
                                             >
                                                 {showPassword ? (
@@ -317,7 +335,10 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                        <label 
+                                            htmlFor="personal-code-input"
+                                            className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                        >
                                             Isikukood
                                         </label>
 
@@ -325,6 +346,7 @@ export default function RegisterPage() {
                                             <IdCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
                                             <input
+                                                id="personal-code-input"
                                                 type="text"
                                                 name="personalCode"
                                                 value={formData.personalCode}
@@ -336,12 +358,12 @@ export default function RegisterPage() {
                                         </div>
                                     </div>
 
-                                    <div
-                                        className={`grid grid-cols-1 ${selectedRoleId === 3 ? "" : "sm:grid-cols-2"
-                                            } gap-4`}
-                                    >
+                                    <div className={`grid grid-cols-1 ${selectedRoleId === 3 ? "" : "sm:grid-cols-2"} gap-4`}>
                                         <div>
-                                            <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                                            <label 
+                                                htmlFor="role-select"
+                                                className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                            >
                                                 Konto tüüp
                                             </label>
 
@@ -355,35 +377,46 @@ export default function RegisterPage() {
                                                 )}
 
                                                 <select
+                                                    id="role-select"
                                                     value={selectedRoleId}
-                                                    onChange={(e) =>
-                                                        handleRoleChange(Number(e.target.value))
-                                                    }
-                                                    className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                                    onChange={(e) => handleRoleChange(Number(e.target.value))}
+                                                    className="w-full appearance-none cursor-pointer rounded-2xl border border-gray-200 bg-white pl-12 pr-10 py-3.5 text-gray-900 outline-none transition-all hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                                 >
                                                     <option value={1}>Õpetaja</option>
                                                     <option value={2}>Kultuuriasutus</option>
                                                     <option value={3}>Admin</option>
                                                 </select>
+
+                                                <svg
+                                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                    strokeWidth={2}
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
                                             </div>
                                         </div>
 
                                         {selectedRoleId !== 3 && (
                                             <div>
-                                                <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                                                    {selectedRoleId === 1
-                                                        ? "Kooliasutus"
-                                                        : "Kultuuriasutus"}
+                                                <label 
+                                                    htmlFor="org-select"
+                                                    className="block text-sm font-extrabold text-gray-700 mb-2 cursor-pointer"
+                                                >
+                                                    {selectedRoleId === 1 ? "Kooliasutus" : "Kultuuriasutus"}
                                                 </label>
 
                                                 <div className="relative">
                                                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
 
                                                     <select
+                                                        id="org-select"
                                                         value={selectedOrgId}
                                                         onChange={(e) => setSelectedOrgId(e.target.value)}
                                                         required={selectedRoleId !== 3}
-                                                        className="w-full rounded-2xl border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                                        className="w-full appearance-none cursor-pointer rounded-2xl border border-gray-200 bg-white pl-12 pr-10 py-3.5 text-gray-900 outline-none transition-all hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                                     >
                                                         <option value="">Vali asutus</option>
 
@@ -393,6 +426,16 @@ export default function RegisterPage() {
                                                             </option>
                                                         ))}
                                                     </select>
+
+                                                    <svg
+                                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        strokeWidth={2}
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                    </svg>
                                                 </div>
                                             </div>
                                         )}
@@ -401,7 +444,7 @@ export default function RegisterPage() {
                                     <button
                                         type="submit"
                                         disabled={loading || success}
-                                        className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 text-white font-extrabold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none active:scale-[0.99]"
+                                        className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 text-white font-extrabold shadow-md transition-all cursor-pointer hover:bg-blue-700 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none active:scale-[0.99]"
                                     >
                                         {success ? (
                                             <>

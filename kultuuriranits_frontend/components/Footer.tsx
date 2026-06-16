@@ -59,19 +59,19 @@ export function Footer() {
                     Kultuuriprogrammid
                   </Link>
                 </li>
-              </ul>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/70">
-                Kasutajale
-              </h3>
-              <ul className="space-y-2 text-sm">
                 <li>
                   <Link href="/materials" className="text-white/80 hover:text-white transition-colors">
                     Õppematerjalid
                   </Link>
                 </li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/70">
+                Juurdepääsetavus
+              </h3>
+              <ul className="space-y-2 text-sm">
               </ul>
             </div>
 

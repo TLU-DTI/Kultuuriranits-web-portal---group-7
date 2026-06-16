@@ -62,7 +62,7 @@ export function PopularPrograms() {
           <p className="text-gray-500 font-medium">Enim broneeritud ja kõrgelt hinnatud kultuuriprogrammid õpilastele</p>
         </div>
         <Link href="/programs" className="text-blue-600 font-extrabold hover:text-blue-800 transition-colors flex items-center gap-1">
-          Vaata kõiki <span className="text-lg leading-none">&rarr;</span>
+          Vaata kõiki <span className="text-lg leading-none -translate-y-0.5 inline-block">&rarr;</span>
         </Link>
       </div>
 
@@ -140,7 +140,7 @@ export function PopularPrograms() {
                         <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-blue-600 shrink-0">
                           <GraduationCap className="w-4 h-4" />
                         </div>
-                        <span className="truncate">{program.targetGroup}</span>
+                        <span className="truncate">{program.targetGroups}</span>
                       </div>
                       {/* Grupi suurus (min - max) */}
                       <div className="flex items-center gap-2.5 text-xs font-bold text-gray-600">
