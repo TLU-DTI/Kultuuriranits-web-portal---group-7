@@ -131,7 +131,6 @@ export default async function ProgramsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
-
   const keyword = params.keyword;
   const page = Number(params.page) || 0;
   const sort = params.sort || "id,desc";
@@ -153,9 +152,6 @@ export default async function ProgramsPage({
   const minPricePerStudent = params.minPricePerStudent;
   const maxPricePerStudent = params.maxPricePerStudent;
   const outdoor = params.outdoor;
-
-
-
   const [programData, categories, organizations, currentUser] = await Promise.all([
     getPrograms(
       keyword, page, sort, size, categoryId, organizationId, targetGroup,
@@ -170,13 +166,11 @@ export default async function ProgramsPage({
 
   const isTeacher = currentUser?.role?.name === "TEACHER";
   const userFavorites = isTeacher ? await getUserFavorites() : [];
-
   const activePrograms = programData.content.filter(
     (p) => p.status === "Active" || p.status === "ACTIVE"
   );
 
   const { content: programs, totalPages } = programData;
-
   const resultsText =
     programs.length === 1 ? "1 tulemus" : `${programs.length} tulemust`;
 

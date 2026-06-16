@@ -10,7 +10,6 @@ async function getCurrentUser(): Promise<{ id: number } | null> {
     try {
         const cookieStore = await cookies();
         const cookieString = cookieStore.toString();
-
         const res = await fetch(`${API_URL}/me`, {
             headers: {
                 Cookie: cookieString,
