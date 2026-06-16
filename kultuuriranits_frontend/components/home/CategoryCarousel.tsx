@@ -19,16 +19,16 @@ import {
 import Link from "next/link";
 
 const categories = [
-  { name: "Muuseumid", icon: Landmark, color: "bg-orange-100 text-orange-600", query: "muuseumid", },
-  { name: "Galeriid", icon: Palette, color: "bg-pink-100 text-pink-600", query: "galeriid", },
-  { name: "Teatrid", icon: Theater, color: "bg-purple-100 text-purple-600", query: "teatrid", },
-  { name: "Kino", icon: Clapperboard, color: "bg-blue-100 text-blue-600", query: "kino", },
-  { name: "Kontserdid", icon: Music, color: "bg-indigo-100 text-indigo-600", query: "kontserdid", },
-  { name: "Raamatukogud", icon: Library, color: "bg-green-100 text-green-600", query: "raamatukogud", },
-  { name: "Ajalugu", icon: History, color: "bg-amber-100 text-amber-600", query: "ajalugu", },
-  { name: "Teaduskeskused", icon: Atom, color: "bg-cyan-100 text-cyan-600", query: "teaduskeskused", },
-  { name: "Loodus", icon: Leaf, color: "bg-emerald-100 text-emerald-600", query: "loodus", },
-  { name: "Töötoad", icon: Wrench, color: "bg-slate-100 text-slate-600", query: "tootoad", },
+  { id: 1, name: "Muuseumid", icon: Landmark, color: "bg-orange-100 text-orange-600", query: "muuseumid", },
+  { id: 2, name: "Galeriid", icon: Palette, color: "bg-pink-100 text-pink-600", query: "galeriid", },
+  { id: 3, name: "Teatrid", icon: Theater, color: "bg-purple-100 text-purple-600", query: "teatrid", },
+  { id: 4, name: "Kino", icon: Clapperboard, color: "bg-blue-100 text-blue-600", query: "kino", },
+  { id: 3, name: "Kontserdid", icon: Music, color: "bg-indigo-100 text-indigo-600", query: "kontserdid", },
+  { id: 5, name: "Raamatukogud", icon: Library, color: "bg-green-100 text-green-600", query: "raamatukogud", },
+  { id: 1, name: "Ajalugu", icon: History, color: "bg-amber-100 text-amber-600", query: "ajalugu", },
+  { id: 8, name: "Teaduskeskused", icon: Atom, color: "bg-cyan-100 text-cyan-600", query: "teaduskeskused", },
+  { id: 9, name: "Loodus", icon: Leaf, color: "bg-emerald-100 text-emerald-600", query: "loodus", },
+  { id: 10, name: "Töötoad", icon: Wrench, color: "bg-slate-100 text-slate-600", query: "tootoad", },
 ];
 
 export function CategoryCarousel() {
@@ -77,11 +77,11 @@ export function CategoryCarousel() {
           <div className="flex pb-4 -ml-4">
             {categories.map((category) => (
               <div
-                key={category.query}
+                key={category.id}
                 className="flex-[0_0_9rem] min-w-0 pl-4"
               >
                 <Link
-                  href={`/programs?category=${category.query}`}
+                  href={`/programs?categoryId=${category.id}&page=0`}
                   className="block h-full group"
                 >
                   <div className="flex h-full flex-col items-center gap-3 w-32 p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all transform hover:-translate-y-1">

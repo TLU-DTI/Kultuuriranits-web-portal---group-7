@@ -6,7 +6,7 @@ export default function ContactPage() {
                     Õppematerjalid
                 </h1>
                 <p className="text-lg text-gray-600">
-                    Siit leiad kõikide kultuuriprogrammide juurde kuuluvad õppematerjalid, töölehed ja abistavad juhendid nii õpetajale kui ka õpilasele.
+                    Siit leiad kõikide kultuuriprogrammide juurde kuuluvad õppematerjalid, töölehed ja abistavad juhendid nii õpetajatele kui ka õpilastele.
                 </p>
             </div>
         </main>

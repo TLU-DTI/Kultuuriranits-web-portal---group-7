@@ -24,21 +24,23 @@ interface SearchParams {
   size?: string;
   categoryId?: string;
   organizationId?: string;
-  targetGroup?: string;
+  targetGroups?: string;
   date?: string;
   county?: string;
   location?: string;
+  status?: string;
   duration?: string;
   minDurationMinutes?: string;
   maxDurationMinutes?: string;
   minGroupSize?: string;
   maxGroupSize?: string;
-  language?: string;
+  languages?: string;
   wheelchair?: string;
-  specialNeeds?: string;
+  hev?: string;
   minPricePerStudent?: string;
   maxPricePerStudent?: string;
   outdoor?: string;
+  lak?: string;
 }
 
 async function getCategories(): Promise<Category[]> {
@@ -73,18 +75,19 @@ async function getPrograms(
   county?: string,
   location?: string,
   status?: string,
-  averageRating?: string,
+  //averageRating?: string,
   duration?: string,
   minDurationMinutes?: string,
   maxDurationMinutes?: string,
   minGroupSize?: string,
   maxGroupSize?: string,
-  language?: string,
+  languages?: string,
   wheelchair?: string,
   specialNeeds?: string,
   minPricePerStudent?: string,
   maxPricePerStudent?: string,
-  outdoor?: string
+  outdoor?: string,
+  lak?: string
 ): Promise<FetchResult> {
   try {
     const baseUrl = `${API_URL}/program/searchall`;
@@ -93,7 +96,7 @@ async function getPrograms(
     if (keyword) params.set("keyword", keyword);
     if (categoryId) params.set("categoryId", categoryId);
     if (organizationId) params.set("organizationId", organizationId);
-    if (targetGroup) params.set("targetGroup", targetGroup);
+    if (targetGroup) params.set("targetGroups", targetGroup);
     if (date) params.set("date", date);
     if (county) params.set("county", county);
     if (location) params.set("location", location);
@@ -103,21 +106,30 @@ async function getPrograms(
     if (maxDurationMinutes) params.set("maxDurationMinutes", maxDurationMinutes);
     if (minGroupSize) params.set("minGroupSize", minGroupSize);
     if (maxGroupSize) params.set("maxGroupSize", maxGroupSize);
-    if (language) params.set("language", language);
+    if (languages) {
+      languages
+        .split(",")
+        .map(l => l.trim())
+        .filter(Boolean)
+        .forEach(l => params.append("languages", l));
+    }
     if (wheelchair) params.set("wheelchair", wheelchair);
-    if (specialNeeds) params.set("specialNeeds", specialNeeds);
+    if (specialNeeds) params.set("hev", specialNeeds);
     if (minPricePerStudent) params.set("minPricePerStudent", minPricePerStudent);
     if (maxPricePerStudent) params.set("maxPricePerStudent", maxPricePerStudent);
     if (outdoor) params.set("outdoor", outdoor);
+    if (lak) params.set("lak", lak);
 
     const res = await fetch(`${baseUrl}?${params.toString()}`, { cache: "no-store" });
 
     if (!res.ok) {
+      console.log(`${baseUrl}?${params.toString()}`)
       console.error(`Backend tagastas vea staatuse: ${res.status}`);
       return { content: [], totalPages: 1 };
     }
-
+    console.log(`${baseUrl}?${params.toString()}`);
     const data = await res.json();
+    console.log(data);
     return { content: data.content ?? [], totalPages: data.totalPages ?? 1 };
   } catch (error) {
     console.error("Ei saanud Spring Boot backendiga ühendust (getPrograms):", error);
@@ -137,27 +149,30 @@ export default async function ProgramsPage({
   const size = Number(params.size) || 3;
   const categoryId = params.categoryId;
   const organizationId = params.organizationId;
-  const targetGroup = params.targetGroup;
+  const targetGroup = params.targetGroups;
   const date = params.date;
   const county = params.county;
   const location = params.location;
+  const status = params.status;
   const duration = params.duration;
   const minDurationMinutes = params.minDurationMinutes;
   const maxDurationMinutes = params.maxDurationMinutes;
   const minGroupSize = params.minGroupSize;
   const maxGroupSize = params.maxGroupSize;
-  const language = params.language;
+  const languages = params.languages;
   const wheelchair = params.wheelchair;
-  const specialNeeds = params.specialNeeds;
+  const specialNeeds = params.hev;
   const minPricePerStudent = params.minPricePerStudent;
   const maxPricePerStudent = params.maxPricePerStudent;
   const outdoor = params.outdoor;
+  const lak = params.lak;
+
   const [programData, categories, organizations, currentUser] = await Promise.all([
     getPrograms(
       keyword, page, sort, size, categoryId, organizationId, targetGroup,
-      date, county, location, duration, minDurationMinutes, maxDurationMinutes,
-      minGroupSize, maxGroupSize, language, wheelchair, specialNeeds,
-      minPricePerStudent, maxPricePerStudent, outdoor
+      date, county, location, status, duration, minDurationMinutes, maxDurationMinutes,
+      minGroupSize, maxGroupSize, languages, wheelchair, specialNeeds,
+      minPricePerStudent, maxPricePerStudent, outdoor, lak
     ),
     getCategories(),
     getOrganizations(),
@@ -184,8 +199,7 @@ export default async function ProgramsPage({
         </h1>
 
         <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Leia kiiresti koolile sobivad kultuuriprogrammid. Tutvu programmidega
-          ning vali klassile sobivaim õppekäik.
+          Tutvu programmidega ning vali klassile sobivaim õppekäik.
         </p>
       </section>
 
@@ -208,9 +222,7 @@ export default async function ProgramsPage({
             Kõik programmid
           </h2>
 
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">
-            Näitan {resultsText}
-          </p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">{resultsText}</p>
         </div>
 
         <Sort />
@@ -218,8 +230,7 @@ export default async function ProgramsPage({
 
       {programs.length === 0 ? (
         <div className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 text-center">
-          Andmeid ei õnnestunud laadida või ühtegi programmi ei leitud. Veendu,
-          et andmebaas ja backend töötavad.
+          Sinu otsingule vastavaid kultuuriprogramme ei leitud.
         </div>
       ) : (
         <>
