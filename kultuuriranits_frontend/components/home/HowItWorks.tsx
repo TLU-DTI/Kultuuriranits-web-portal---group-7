@@ -16,7 +16,7 @@ const steps = [
   {
     icon: CalendarDays,
     title: '3. Broneeri',
-    description: 'Broneeri ühe klikiga.Kultuuriasutus kinnitab hiljem',
+    description: 'Broneeri ühe klikiga. Kultuuriasutus kinnitab hiljem',
     color: 'bg-purple-50 text-purple-600'
   }
 ];
