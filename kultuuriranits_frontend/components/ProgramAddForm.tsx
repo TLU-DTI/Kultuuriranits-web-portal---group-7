@@ -88,6 +88,9 @@ export function ProgramAddForm({
         setFormCounty('');
         setFormAddress('');
         setOutdoor(false);
+        setWheelchair(false);
+        setHev(false);
+        setLak(false);
         setFormEmail('');
         setFormPhone('');
         setFormTargetGroups([]);
@@ -126,6 +129,7 @@ export function ProgramAddForm({
             outdoor: outdoor,
             hev: hev,
             lak: lak,
+            wheelchair: wheelchair,
             contactEmail: formEmail,
             contactPhone: formPhone,
             status: formPublished,
@@ -712,8 +716,35 @@ export function ProgramAddForm({
                     </div>
 
                 </div>
+                <div className="space-y-4 pt-4 border-t border-gray-100 animate-fade-in">
+                      <p className="text-sm font-semibold text-gray-500 leading-relaxed">
+                        Täida allolevad kontaktandmed, mille kaudu õpetajad saavad Teiega ühendust võtta.
+                      </p>
 
-                <div className="border-t border-gray-100 my-8 pt-8"></div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-base font-extrabold text-gray-800 block">Email *</label>
+                          <input
+                            type="email"
+                            placeholder="kultuuri@asutus.ee"
+                            value={formEmail}
+                            onChange={(e) => setFormEmail(e.target.value)}
+                            className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-base font-extrabold text-gray-800 block">Telefon *</label>
+                          <input
+                            type="text"
+                            placeholder="+372 ..."
+                            value={formPhone}
+                            onChange={(e) => setFormPhone(e.target.value)}
+                            className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                          />
+                        </div>
+                      </div>
+                      </div>
 
                 {/* Section 6: Avalikustamise olek */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-150">
@@ -748,7 +779,7 @@ export function ProgramAddForm({
                         type="submit"
                         className="bg-blue-600 text-white px-10 py-3.5 rounded-xl text-base font-bold hover:bg-blue-700 transition-all shadow-xs flex items-center gap-2 cursor-pointer transform active:scale-98"
                     >
-                        Järgmine samm: Eelvaade
+                        Salvesta
                         <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
