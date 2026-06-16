@@ -25,11 +25,12 @@ const counties = [
 const targetGroups = [
   "Vali...",
   "Lasteaed",
-  "I kooliaste",
-  "II kooliaste",
-  "III kooliaste",
+  "1. - 3. klass",
+  "4. - 6. klass",
+  "7. - 9. klass",
   "Gümnaasium",
 ];
+
 
 const prices = [
   { label: "Kõik hinnad", min: undefined, max: undefined },
@@ -79,7 +80,7 @@ export function AdvancedFilters({
   const searchParams = useSearchParams();
 
   const isOpen = searchParams.get("filters") === "open";
-  const selectedLanguage = searchParams.get("language")?.split(",").filter(Boolean) || [];
+  //const selectedLanguage = searchParams.get("language")?.split(",").filter(Boolean) || [];
 
   const pushParams = (params: URLSearchParams) => {
     params.set("page", "0");
@@ -133,27 +134,27 @@ export function AdvancedFilters({
     pushParams(params);
   };
 
-  const updateLanguage = (language: string, checked: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const currentLanguage =
-      params.get("language")?.split(",").filter(Boolean) || [];
+ const updateLanguage = (language: string, checked: boolean) => {
+  const params = new URLSearchParams(searchParams.toString());
 
-    let newLanguage: string[];
+  const currentLanguages = params.getAll("languages");
 
-    if (checked) {
-      newLanguage = [...currentLanguage, language];
-    } else {
-      newLanguage = currentLanguage.filter((item) => item !== language);
-    }
+  let newLanguages: string[];
 
-    if (newLanguage.length > 0) {
-      params.set("language", newLanguage.join(","));
-    } else {
-      params.delete("language");
-    }
+  if (checked) {
+    newLanguages = [...currentLanguages, language];
+  } else {
+    newLanguages = currentLanguages.filter((item) => item !== language);
+  }
 
-    pushParams(params);
-  };
+  params.delete("languages");
+
+  newLanguages.forEach((lang) => {
+    params.append("languages", lang);
+  });
+
+  pushParams(params);
+};
 
   const updateRange = (
     minKey: string,
@@ -285,8 +286,11 @@ export function AdvancedFilters({
 
               <select
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                value={searchParams.get("targetGroup") || "Vali..."}
-                onChange={(e) => updateParam("targetGroup", e.target.value)}
+                value={searchParams.get("targetGroups") || "Vali..."}
+                onChange={(e) => 
+                 
+                  updateParam("targetGroups", e.target.value)
+                }
               >
                 {targetGroups.map((group) => (
                   <option key={group} value={group}>
@@ -440,19 +444,23 @@ export function AdvancedFilters({
                   className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer"
                 >
                   <input
-                    type="checkbox"
-                    checked={selectedLanguage.includes(language)}
-                    onChange={(e) =>
-                      updateLanguage(language, e.target.checked)
-                    }
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
+                      type="checkbox"
+                      checked={searchParams.getAll("languages").includes(language)}
+                      onChange={(e) =>
+                        updateLanguage(language, e.target.checked)
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+
                   {language}
                 </label>
               ))}
             </div>
           </div>
-
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            <p className="mb-4 text-sm font-bold text-gray-900">
+              Ligipääsetavus
+            </p>
           <div className="mt-6 flex flex-wrap gap-5">
             <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
               <input
@@ -467,9 +475,9 @@ export function AdvancedFilters({
             <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
               <input
                 type="checkbox"
-                checked={searchParams.get("specialNeeds") === "true"}
+                checked={searchParams.get("hev") === "true"}
                 onChange={(e) =>
-                  updateCheckbox("specialNeeds", e.target.checked)
+                  updateCheckbox("hev", e.target.checked)
                 }
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
@@ -485,6 +493,16 @@ export function AdvancedFilters({
               />
               Välitingimustes
             </label>
+            <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={searchParams.get("lak") === "true"}
+                onChange={(e) => updateCheckbox("lak", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              LAK
+            </label>
+            </div>
           </div>
         </div>
       )}
