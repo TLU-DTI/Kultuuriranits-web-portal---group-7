@@ -143,7 +143,6 @@ export default async function ProgramsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
-
   const keyword = params.keyword;
   const page = Number(params.page) || 0;
   const sort = params.sort || "id,desc";
@@ -182,13 +181,11 @@ export default async function ProgramsPage({
 
   const isTeacher = currentUser?.role?.name === "TEACHER";
   const userFavorites = isTeacher ? await getUserFavorites() : [];
-
   const activePrograms = programData.content.filter(
     (p) => p.status === "Active" || p.status === "ACTIVE"
   );
 
   const { content: programs, totalPages } = programData;
-
   const resultsText =
     programs.length === 1 ? "1 tulemus" : `${programs.length} tulemust`;
 
@@ -202,8 +199,7 @@ export default async function ProgramsPage({
         </h1>
 
         <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Leia kiiresti koolile sobivad kultuuriprogrammid. Tutvu programmidega
-          ning vali klassile sobivaim õppekäik.
+          Tutvu programmidega ning vali klassile sobivaim õppekäik.
         </p>
       </section>
 
@@ -226,9 +222,7 @@ export default async function ProgramsPage({
             Kõik programmid
           </h2>
 
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">
-            Näitan {resultsText}
-          </p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">{resultsText}</p>
         </div>
 
         <Sort />
@@ -236,8 +230,7 @@ export default async function ProgramsPage({
 
       {programs.length === 0 ? (
         <div className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 text-center">
-          Andmeid ei õnnestunud laadida või ühtegi programmi ei leitud. Veendu,
-          et andmebaas ja backend töötavad.
+          Sinu otsingule vastavaid kultuuriprogramme ei leitud.
         </div>
       ) : (
         <>

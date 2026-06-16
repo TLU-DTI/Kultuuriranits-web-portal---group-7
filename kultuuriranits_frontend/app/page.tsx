@@ -33,12 +33,7 @@ export default function Home() {
             Liitu tuhandete õpetajatega, kes juba kasutavad Kultuuriranitsat oma õppetöö rikastamiseks.
           </p>
           <div className="relative z-10">
-            <a
-              href="/programs"
-              className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
-            >
-              Alusta otsingut
-            </a>
+            <a href="/programs" className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg">Alusta otsingut</a>
           </div>
         </div>
       </div>

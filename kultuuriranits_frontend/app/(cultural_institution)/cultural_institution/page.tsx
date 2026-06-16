@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Star,
   UserRound,
-  CalendarDays
+  CalendarDays,
 } from "lucide-react";
 
 import {
@@ -88,7 +88,7 @@ type Feedback = {
   createdAt?: string;
   program?: InstitutionProgram | null;
   person?: FeedbackPerson | null;
-}
+};
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
 
@@ -208,12 +208,12 @@ export default function CulturalInstitutionDashboardPage() {
             credentials: "include",
             cache: "no-store",
             signal: controller.signal,
-          }
+          },
         );
 
         if (!programsResponse.ok) {
           throw new Error(
-            `Programmide päring ebaõnnestus: ${programsResponse.status}`
+            `Programmide päring ebaõnnestus: ${programsResponse.status}`,
           );
         }
 
@@ -222,7 +222,7 @@ export default function CulturalInstitutionDashboardPage() {
 
         const allPrograms = Array.isArray(programsData)
           ? programsData
-          : programsData.content ?? [];
+          : (programsData.content ?? []);
 
         const ownPrograms = allPrograms.filter((program) => {
           return program.organization?.id === organizationId;
@@ -266,7 +266,7 @@ export default function CulturalInstitutionDashboardPage() {
 
   const handleDeleteProgram = async (id: number, title: string) => {
     const confirmDelete = window.confirm(
-      `Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`
+      `Kas oled kindel, et soovid programmi "${title}" jäädavalt kustutada?`,
     );
 
     if (!confirmDelete) return;
@@ -279,7 +279,7 @@ export default function CulturalInstitutionDashboardPage() {
 
       if (res.ok) {
         setPrograms((prevPrograms) =>
-          prevPrograms.filter((program) => program.id !== id)
+          prevPrograms.filter((program) => program.id !== id),
         );
 
         alert("Programm edukalt kustutatud!");
@@ -294,25 +294,23 @@ export default function CulturalInstitutionDashboardPage() {
   };
 
   const handleToggleProgramVisibility = async (
-    programToUpdate: InstitutionProgram
+    programToUpdate: InstitutionProgram,
   ) => {
     const isCurrentlyPublished = isProgramPublished(programToUpdate.status);
 
-    const nextStatus = isCurrentlyPublished
-      ? STATUS_INACTIVE
-      : STATUS_ACTIVE;
+    const nextStatus = isCurrentlyPublished ? STATUS_INACTIVE : STATUS_ACTIVE;
 
     const confirmed = window.confirm(
       isCurrentlyPublished
         ? `Kas soovid muuta programmi "${programToUpdate.title}" mitteavalikuks?`
-        : `Kas soovid muuta programmi "${programToUpdate.title}" avalikuks?`
+        : `Kas soovid muuta programmi "${programToUpdate.title}" avalikuks?`,
     );
 
     if (!confirmed) return;
 
     if (!programToUpdate.imageName) {
       alert(
-        "Seda programmi ei saa olemasoleva update endpointiga muuta, sest programmil puudub pilt. Backend ootab update päringus imageFile osa."
+        "Seda programmi ei saa olemasoleva update endpointiga muuta, sest programmil puudub pilt. Backend ootab update päringus imageFile osa.",
       );
       return;
     }
@@ -324,7 +322,7 @@ export default function CulturalInstitutionDashboardPage() {
           method: "GET",
           credentials: "include",
           cache: "no-store",
-        }
+        },
       );
 
       if (!imageResponse.ok) {
@@ -345,13 +343,13 @@ export default function CulturalInstitutionDashboardPage() {
         "program",
         new Blob([JSON.stringify(updatedProgram)], {
           type: "application/json",
-        })
+        }),
       );
 
       formData.append(
         "imageFile",
         imageBlob,
-        programToUpdate.imageName || `program-${programToUpdate.id}.jpg`
+        programToUpdate.imageName || `program-${programToUpdate.id}.jpg`,
       );
 
       const res = await fetch(`${API_URL}/program/${programToUpdate.id}`, {
@@ -370,11 +368,11 @@ export default function CulturalInstitutionDashboardPage() {
         prevPrograms.map((program) =>
           program.id === programToUpdate.id
             ? {
-              ...program,
-              status: nextStatus,
-            }
-            : program
-        )
+                ...program,
+                status: nextStatus,
+              }
+            : program,
+        ),
       );
     } catch (error) {
       console.error("Viga programmi staatuse muutmisel:", error);
@@ -392,7 +390,9 @@ export default function CulturalInstitutionDashboardPage() {
         program.title.toLowerCase().includes(searchValue) ||
         program.description.toLowerCase().includes(searchValue) ||
         program.location.toLowerCase().includes(searchValue) ||
-        program.targetGroup.toLowerCase().includes(searchValue);
+        program.targetGroups.some((group) =>
+          group.toLowerCase().includes(searchValue.toLowerCase()),
+        );
 
       const matchesPublished = publishedOnly
         ? isProgramPublished(program.status)
@@ -404,7 +404,7 @@ export default function CulturalInstitutionDashboardPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredPrograms.length / PROGRAMS_PER_PAGE)
+    Math.ceil(filteredPrograms.length / PROGRAMS_PER_PAGE),
   );
 
   const paginatedPrograms = useMemo(() => {
@@ -415,7 +415,7 @@ export default function CulturalInstitutionDashboardPage() {
   }, [filteredPrograms, currentPage]);
 
   const activeProgramsCount = programs.filter((program) =>
-    isProgramPublished(program.status)
+    isProgramPublished(program.status),
   ).length;
 
   const ownProgramIds = useMemo(() => {
@@ -460,7 +460,7 @@ export default function CulturalInstitutionDashboardPage() {
 
     if (feedbackProgramFilter !== "all") {
       result = result.filter(
-        (feedback) => String(feedback.program?.id) === feedbackProgramFilter
+        (feedback) => String(feedback.program?.id) === feedbackProgramFilter,
       );
     }
 
@@ -525,7 +525,7 @@ export default function CulturalInstitutionDashboardPage() {
 
     const sum = institutionFeedbacks.reduce(
       (total, feedback) => total + Number(feedback.rating || 0),
-      0
+      0,
     );
 
     return sum / institutionFeedbacks.length;
@@ -535,7 +535,7 @@ export default function CulturalInstitutionDashboardPage() {
     return new Set(
       institutionFeedbacks
         .map((feedback) => feedback.program?.id)
-        .filter(Boolean)
+        .filter(Boolean),
     ).size;
   }, [institutionFeedbacks]);
 
@@ -552,7 +552,8 @@ export default function CulturalInstitutionDashboardPage() {
   const getFeedbackAuthor = (person?: FeedbackPerson | null) => {
     if (!person) return "Anonüümne kasutaja";
 
-    const fullName = `${person.firstName || ""} ${person.lastName || ""}`.trim();
+    const fullName =
+      `${person.firstName || ""} ${person.lastName || ""}`.trim();
 
     return fullName || person.email || "Anonüümne kasutaja";
   };
@@ -590,10 +591,11 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("programs")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "programs"
-                ? "text-blue-700 border-blue-600"
-                : "text-gray-500 border-transparent hover:text-gray-800"
-                }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "programs"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <BookOpen className="w-4 h-4" />
               Programmid
@@ -605,10 +607,11 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("feedback")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "feedback"
-                ? "text-blue-700 border-blue-600"
-                : "text-gray-500 border-transparent hover:text-gray-800"
-                }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "feedback"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <MessageSquare className="w-4 h-4" />
               Tagasiside
@@ -617,16 +620,17 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("statistics")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${activeTab === "statistics"
-                ? "text-blue-700 border-blue-600"
-                : "text-gray-500 border-transparent hover:text-gray-800"
-                }`}
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+                activeTab === "statistics"
+                  ? "text-blue-700 border-blue-600"
+                  : "text-gray-500 border-transparent hover:text-gray-800"
+              }`}
             >
               <BarChart3 className="w-4 h-4" />
               Statistika
             </button>
             <button
-             type="button"
+              type="button"
               onClick={() => setActiveTab("addProgram")}
               className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
                 activeTab === "addProgram"
@@ -675,11 +679,11 @@ export default function CulturalInstitutionDashboardPage() {
                 </div>
                 <button
                   type="button"
-                    onClick={() => setActiveTab("addProgram")}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
-                  >
-                    <PlusCircle className="w-4 h-4" />
-                    Lisa uus programm
+                  onClick={() => setActiveTab("addProgram")}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Lisa uus programm
                 </button>
               </div>
             </div>
@@ -715,11 +719,11 @@ export default function CulturalInstitutionDashboardPage() {
                     Selle kultuuriasutusega seotud programme ei leitud või need
                     ei vasta filtritele.
                   </p>
-                   <button
-                      type="button"
-                        onClick={() => setActiveTab("addProgram")}
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition"
-                    >                  
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("addProgram")}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition"
+                  >
                     <PlusCircle className="w-4 h-4" />
                     Lisa esimene programm
                   </button>
@@ -781,7 +785,8 @@ export default function CulturalInstitutionDashboardPage() {
               </h2>
 
               <p className="text-gray-500">
-                Siin näed tagasisidet, mis on jäetud sinu kultuuriasutuse programmidele.
+                Siin näed tagasisidet, mis on jäetud sinu kultuuriasutuse
+                programmidele.
               </p>
             </div>
 
@@ -811,7 +816,9 @@ export default function CulturalInstitutionDashboardPage() {
                   {institutionFeedbacks.length > 0 && (
                     <div className="pb-2 flex items-center gap-1 text-yellow-500">
                       <Star className="w-5 h-5 fill-yellow-500" />
-                      <span className="text-sm font-bold text-gray-500">/ 5</span>
+                      <span className="text-sm font-bold text-gray-500">
+                        / 5
+                      </span>
                     </div>
                   )}
                 </div>
@@ -839,8 +846,8 @@ export default function CulturalInstitutionDashboardPage() {
                 </h3>
 
                 <p className="text-gray-500 max-w-xl mx-auto">
-                  Kui õpetajad jätavad sinu kultuuriasutuse programmidele hinnanguid või
-                  kommentaare, kuvatakse need siin.
+                  Kui õpetajad jätavad sinu kultuuriasutuse programmidele
+                  hinnanguid või kommentaare, kuvatakse need siin.
                 </p>
               </div>
             ) : (
@@ -854,14 +861,18 @@ export default function CulturalInstitutionDashboardPage() {
                         type="text"
                         placeholder="Otsi tagasisidet, programmi või õpetajat..."
                         value={feedbackSearch}
-                        onChange={(event) => setFeedbackSearch(event.target.value)}
+                        onChange={(event) =>
+                          setFeedbackSearch(event.target.value)
+                        }
                         className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
                       />
                     </div>
 
                     <select
                       value={feedbackProgramFilter}
-                      onChange={(event) => setFeedbackProgramFilter(event.target.value)}
+                      onChange={(event) =>
+                        setFeedbackProgramFilter(event.target.value)
+                      }
                       className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
                     >
                       <option value="all">Kõik programmid</option>
@@ -875,7 +886,9 @@ export default function CulturalInstitutionDashboardPage() {
 
                     <select
                       value={feedbackRatingFilter}
-                      onChange={(event) => setFeedbackRatingFilter(event.target.value)}
+                      onChange={(event) =>
+                        setFeedbackRatingFilter(event.target.value)
+                      }
                       className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
                     >
                       <option value="all">Kõik hinded</option>
@@ -912,19 +925,19 @@ export default function CulturalInstitutionDashboardPage() {
                       feedbackProgramFilter !== "all" ||
                       feedbackRatingFilter !== "all" ||
                       feedbackSort !== "newest") && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFeedbackSearch("");
-                            setFeedbackProgramFilter("all");
-                            setFeedbackRatingFilter("all");
-                            setFeedbackSort("newest");
-                          }}
-                          className="text-sm font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                        >
-                          Puhasta filtrid
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFeedbackSearch("");
+                          setFeedbackProgramFilter("all");
+                          setFeedbackRatingFilter("all");
+                          setFeedbackSort("newest");
+                        }}
+                        className="text-sm font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                      >
+                        Puhasta filtrid
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -978,7 +991,9 @@ export default function CulturalInstitutionDashboardPage() {
 
                             <div className="inline-flex items-center gap-2">
                               <CalendarDays className="w-4 h-4" />
-                              <span>{formatFeedbackDate(feedback.createdAt)}</span>
+                              <span>
+                                {formatFeedbackDate(feedback.createdAt)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -999,7 +1014,10 @@ export default function CulturalInstitutionDashboardPage() {
 
         {activeTab === "addProgram" && (
           <section className="rounded-3xl bg-white border border-gray-200 shadow-sm p-10">
-           <ProgramAddForm categories = {categories} organizationId={organizationId}/>
+            <ProgramAddForm
+              categories={categories}
+              organizationId={organizationId}
+            />
           </section>
         )}
 
@@ -1044,12 +1062,12 @@ export default function CulturalInstitutionDashboardPage() {
                 <p className="mt-5 text-5xl font-extrabold text-gray-900">
                   {programs.length > 0
                     ? `${Math.round(
-                      programs.reduce(
-                        (sum, program) =>
-                          sum + Number(program.pricePerStudent || 0),
-                        0
-                      ) / programs.length
-                    )}€`
+                        programs.reduce(
+                          (sum, program) =>
+                            sum + Number(program.pricePerStudent || 0),
+                          0,
+                        ) / programs.length,
+                      )}€`
                     : "—"}
                 </p>
               </div>

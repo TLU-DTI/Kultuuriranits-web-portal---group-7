@@ -18,7 +18,7 @@ async function getProgramData(id: string): Promise<Program | null> {
     try {
         const cookieStore = await cookies();
         const cookieString = cookieStore.toString();
-
+        
         // 1. Kultuurirajatise kontroll
         const meRes = await fetch(`${API_URL}/me`, {
             headers: { Cookie: cookieString },
