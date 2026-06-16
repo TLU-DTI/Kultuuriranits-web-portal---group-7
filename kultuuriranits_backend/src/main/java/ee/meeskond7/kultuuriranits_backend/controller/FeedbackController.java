@@ -2,10 +2,13 @@ package ee.meeskond7.kultuuriranits_backend.controller;
 
 
 import ee.meeskond7.kultuuriranits_backend.entity.Feedback;
+import ee.meeskond7.kultuuriranits_backend.entity.Organization;
+import ee.meeskond7.kultuuriranits_backend.entity.Person;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
 import ee.meeskond7.kultuuriranits_backend.repository.FeedbackRepository;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import ee.meeskond7.kultuuriranits_backend.service.FeedbackService;
+import ee.meeskond7.kultuuriranits_backend.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,8 @@ public class FeedbackController {
     private final ProgramRepository programRepository;
 
     private final FeedbackService feedbackService;
+
+    private final NotificationService notificationService;
 
     @GetMapping("feedback")
     public List<Feedback> getFeedback(HttpSession session){
@@ -62,6 +67,27 @@ public class FeedbackController {
         }
 
         feedbackRepository.save(feedback);
+
+        try {
+            if (feedback.getProgram() != null && feedback.getProgram().getId() != null) {
+                Program program = programRepository.findById(feedback.getProgram().getId()).orElse(null);
+
+                if (program != null) {
+                    Organization organization = program.getOrganization();
+
+                    if (organization != null) {
+                        String title = "Uus tagasiside!";
+                        String userComment = feedback.getText() != null ? feedback.getText() : "Kommentaar puudub.";
+                        String message = String.format("Sinu programmile '%s' kirjutati uus tagasiside (Hinnang: %d/5). \n\nKommentaar: \"%s\"",
+                                program.getTitle(), feedback.getRating(), userComment);
+                        notificationService.createNotification(organization, title, message);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Ei saanud organisatsioonile teavitust luua: " + e.getMessage());
+        }
+
         return feedbackRepository.findAll();
     }
 

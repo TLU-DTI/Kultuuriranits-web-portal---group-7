@@ -33,11 +33,129 @@ body {
 }
 
 /* Avalehe avasta kategooriaid scrollbar eemaldus */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari ja uuem Edge */
-  }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
-  .no-scrollbar {
-    -ms-overflow-style: none;  /* IE ja vana Edge */
-    scrollbar-width: none;  /* Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.accessibility-high-contrast,
+.accessibility-high-contrast body {
+  background: #000000 !important;
+  color: #ffff00 !important;
+}
+
+.accessibility-high-contrast * {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.accessibility-high-contrast a,
+.accessibility-high-contrast button {
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+  text-decoration: underline;
+}
+
+.accessibility-high-contrast button,
+.accessibility-high-contrast input,
+.accessibility-high-contrast select,
+.accessibility-high-contrast textarea {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.accessibility-high-contrast input::placeholder,
+.accessibility-high-contrast textarea::placeholder {
+  color: #ffff00 !important;
+  opacity: 0.8;
+}
+
+.accessibility-high-contrast svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+.accessibility-high-contrast img {
+  filter: grayscale(100%) contrast(130%) !important;
+}
+
+.accessibility-high-contrast .bg-white,
+.accessibility-high-contrast .bg-gray-50,
+.accessibility-high-contrast .bg-gray-100,
+.accessibility-high-contrast .bg-blue-50,
+.accessibility-high-contrast .bg-blue-100 {
+  background-color: #000000 !important;
+}
+
+@keyframes accessibilityOverlayIn {
+  from {
+    opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes accessibilityOverlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes accessibilityPanelIn {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes accessibilityPanelOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+.accessibility-overlay-in {
+  animation: accessibilityOverlayIn 180ms ease-out forwards;
+}
+
+.accessibility-overlay-out {
+  animation: accessibilityOverlayOut 180ms ease-in forwards;
+}
+
+.accessibility-panel-in {
+  animation: accessibilityPanelIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.accessibility-panel-out {
+  animation: accessibilityPanelOut 180ms ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accessibility-overlay-in,
+  .accessibility-overlay-out,
+  .accessibility-panel-in,
+  .accessibility-panel-out {
+    animation: none;
+  }
+}

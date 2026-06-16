@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Bell, ChevronDown, LogOut, User } from 'lucide-react';
+import { AccessibilityButton } from '@/components/AccessibilityButton';
 
 type DatabaseRole = 'TEACHER' | 'CULTURAL_INSTITUTION' | 'ADMIN';
 type NavbarRole = 'GUEST' | DatabaseRole;
@@ -40,7 +41,6 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
     { name: 'Avaleht', href: '/' },
     { name: 'Kultuuriprogrammid', href: '/programs' },
     { name: 'Lemmikud', href: '/favorites' },
-    { name: 'Teated', href: '/notifications' },
     { name: 'Tagasiside', href: '/feedback' },
     { name: 'Õppematerjalid', href: '/materials' },
     { name: 'Info', href: '/info' },
@@ -51,7 +51,6 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
     { name: 'Avaleht', href: '/' },
     { name: 'Töölaud', href: '/cultural_institution' },
     { name: 'Kultuuriprogrammid', href: '/programs' },
-    { name: 'Teated', href: '/cultural_institution/notifications' },
     { name: 'Õppematerjalid', href: '/materials' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
@@ -92,9 +91,9 @@ function getUserDisplayName(user: CurrentUser) {
 function getNotificationsHref(role: NavbarRole) {
   switch (role) {
     case 'TEACHER':
-      return '/teacher/notifications';
+      return '/notifications';
     case 'CULTURAL_INSTITUTION':
-      return '/cultural_institution/notifications';
+      return '/notifications';
     case 'ADMIN':
       return '/admin';
     default:
@@ -195,11 +194,15 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
+        <div className="h-16 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-8 min-w-0">
+            <div className="hidden lg:block shrink-0">
+              <AccessibilityButton />
+            </div>
+
             <Link
               href="/"
-              className="flex items-center text-xl font-bold text-gray-900 hover:text-blue-700 transition-colors"
+              className="flex items-center text-xl font-bold text-gray-900 hover:text-blue-700 transition-colors shrink-0"
             >
               <img
                 src="/images/logo2.png"
@@ -217,10 +220,11 @@ export function Navbar() {
                   <Link
                     key={`${link.name}-${link.href}`}
                     href={link.href}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${isActive
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                      isActive
                         ? 'bg-blue-50 text-blue-700 font-semibold'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                      }`}
+                    }`}
                   >
                     <span>{link.name}</span>
                   </Link>
@@ -229,7 +233,7 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 shrink-0">
             {isLoadingUser ? null : user ? (
               <>
                 <Link
@@ -246,7 +250,7 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
                       <User className="w-5 h-5" />
@@ -257,8 +261,9 @@ export function Navbar() {
                     </span>
 
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''
-                        }`}
+                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                        isProfileOpen ? 'rotate-180' : ''
+                      }`}
                     />
                   </button>
 
@@ -286,7 +291,7 @@ export function Navbar() {
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         Logi välja
@@ -299,7 +304,7 @@ export function Navbar() {
               <>
                 <Link
                   href="/signup"
-                  className="text-sm font-semibold text-gray-700 hover:text-blue-700 transition-colors"
+                  className="hidden sm:block text-sm font-semibold text-gray-700 hover:text-blue-700 transition-colors"
                 >
                   Registreerimine
                 </Link>
@@ -316,7 +321,11 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="md:hidden flex flex-col gap-2 pb-4">
+        <div className="md:hidden flex flex-col gap-3 pb-4">
+          <div className="pt-2">
+            <AccessibilityButton />
+          </div>
+
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
 
@@ -324,10 +333,11 @@ export function Navbar() {
               <Link
                 key={`${link.name}-${link.href}-mobile`}
                 href={link.href}
-                className={`text-sm ${isActive
+                className={`text-sm ${
+                  isActive
                     ? 'text-blue-700 font-semibold'
                     : 'text-gray-700 hover:text-blue-700'
-                  }`}
+                }`}
               >
                 {link.name}
               </Link>
