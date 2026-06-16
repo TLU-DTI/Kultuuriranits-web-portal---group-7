@@ -61,7 +61,6 @@ export default async function NotificationsPage() {
 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <div>
-                        <p className="text-sm font-extrabold uppercase tracking-wider text-blue-700 mb-2">Kasutaja paneel</p>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Minu teated</h1>
                     </div>
                     <Link href="/notifications/read" className="px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">

@@ -68,7 +68,7 @@ export default async function ReadNotificationsPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <div>
                         <p className="text-sm font-extrabold uppercase tracking-wider text-gray-500 mb-2">
-                            Kasutaja paneel / Arhiiv
+                            Arhiiv
                         </p>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-700 tracking-tight">
                             Loetud teated
