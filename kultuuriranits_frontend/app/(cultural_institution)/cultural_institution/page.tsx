@@ -591,7 +591,7 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("programs")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition cursor-pointer active:scale-95 ${
                 activeTab === "programs"
                   ? "text-blue-700 border-blue-600"
                   : "text-gray-500 border-transparent hover:text-gray-800"
@@ -607,7 +607,7 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("feedback")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition cursor-pointer active:scale-95 ${
                 activeTab === "feedback"
                   ? "text-blue-700 border-blue-600"
                   : "text-gray-500 border-transparent hover:text-gray-800"
@@ -620,7 +620,7 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("statistics")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition cursor-pointer active:scale-95 ${
                 activeTab === "statistics"
                   ? "text-blue-700 border-blue-600"
                   : "text-gray-500 border-transparent hover:text-gray-800"
@@ -632,7 +632,7 @@ export default function CulturalInstitutionDashboardPage() {
             <button
               type="button"
               onClick={() => setActiveTab("addProgram")}
-              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition ${
+              className={`inline-flex items-center gap-2 px-1 py-4 text-sm font-bold border-b-2 transition cursor-pointer active:scale-95 ${
                 activeTab === "addProgram"
                   ? "text-blue-700 border-blue-600"
                   : "text-gray-500 border-transparent hover:text-gray-800"
@@ -680,7 +680,7 @@ export default function CulturalInstitutionDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("addProgram")}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm cursor-pointer active:scale-95"
                 >
                   <PlusCircle className="w-4 h-4" />
                   Lisa uus programm
