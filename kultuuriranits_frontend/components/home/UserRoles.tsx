@@ -59,7 +59,7 @@ export function UserRoles() {
                 ))}
               </ul>
 
-              <button className={`w-full py-4 rounded-2xl font-bold text-white transition-all transform active:scale-95 ${role.color} hover:opacity-90`}>
+              <button className={`w-full py-4 rounded-2xl font-bold text-white transition-all duration-300 ease-out transform active:scale-95 hover:scale-[1.02] hover:shadow-lg cursor-pointer ${role.color} hover:opacity-90`}>
                 {role.buttonText}
               </button>
             </div>
