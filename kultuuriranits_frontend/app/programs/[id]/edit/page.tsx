@@ -19,7 +19,6 @@ async function getProgramData(id: string): Promise<Program | null> {
         const cookieStore = await cookies();
         const cookieString = cookieStore.toString();
         
-        // 1. Kultuurirajatise kontroll
         const meRes = await fetch(`${API_URL}/me`, {
             headers: { Cookie: cookieString },
             cache: "no-store",
@@ -28,7 +27,6 @@ async function getProgramData(id: string): Promise<Program | null> {
         const currentUser = await meRes.json();
         if (!currentUser.role || currentUser.role.name !== "CULTURAL_INSTITUTION") return null;
 
-        // 2. Küsime vana programmi andmed
         const res = await fetch(`${API_URL}/program/${id}`, { cache: "no-store" });
         if (!res.ok) return null;
         return await res.json();
