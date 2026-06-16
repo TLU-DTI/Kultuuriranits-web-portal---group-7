@@ -25,6 +25,7 @@ public class Material {
     private String fileType;
     @Lob
     @JsonIgnore
+    //@Column(columnDefinition = "LONGBLOB") <--- mysql jaoks
     @JdbcTypeCode(Types.BINARY)
     private byte[] fileData;
 

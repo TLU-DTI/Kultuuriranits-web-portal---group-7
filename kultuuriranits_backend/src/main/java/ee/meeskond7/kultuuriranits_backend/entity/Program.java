@@ -28,7 +28,7 @@ public class Program {
 
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     private String shortDescription;
@@ -63,7 +63,7 @@ public class Program {
 
     private Integer durationMinutes;
 
-    private String targetGroup;
+    //private String targetGroup;
 
     private Integer minGroupSize;
 
@@ -71,7 +71,7 @@ public class Program {
 
     private String location;
 
-    private String language;
+    //private String language;
 
     private String status;
 
@@ -103,6 +103,7 @@ public class Program {
     @Lob
     @JsonIgnore
     @JdbcTypeCode(Types.BINARY)
+    //@Column(columnDefinition = "LONGBLOB") <--- mysql jaoks
     private byte[] imageData;
 
     @ManyToOne

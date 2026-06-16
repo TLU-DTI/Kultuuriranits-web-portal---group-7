@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Program } from "@/models/Program";
 import { Category } from "@/models/Category";
+import { Material } from "@/models/Material"; // Veendu, et sul on see mudel
+import { ArrowRight, Trash, PlusCircle, FileText, ImageIcon, X } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 interface Props {
@@ -11,24 +13,71 @@ interface Props {
     categories: Category[];
 }
 
+const ESTONIAN_COUNTIES = [
+    'Harjumaa', 'Tartumaa', 'Pärnumaa', 'Viljandimaa', 'Lääne-Virumaa',
+    'Ida-Virumaa', 'Saaremaa', 'Hiiumaa', 'Raplamaa', 'Järvamaa',
+    'Jõgevamaa', 'Põlvamaa', 'Valgamaa', 'Võrumaa', 'Läänemaa'
+];
+
+const CURRICULUM_PRESETS = [
+    'Ajalugu', 'Ühiskonnaõpetus', 'Kultuuriteadlikkus', 'Kunst',
+    'Muusika', 'Tehnoloogia', 'Bioloogia', 'Loodusõpetus', 'Emakeel'
+];
+
 export function ProgramEditForm({ program, categories }: Props) {
     const router = useRouter();
 
     const [title, setTitle] = useState(program.title ?? "");
     const [description, setDescription] = useState(program.description ?? "");
+    const [shortDescription, setShortDescription] = useState(program.shortDescription ?? "");
+    const [connection, setConnection] = useState(program.connection ?? "");
+    const [connectionKeys, setConnectionKeys] = useState(program.connectionKeys ?? []);
     const [price, setPrice] = useState(program.pricePerStudent?.toString() ?? "0");
     const [duration, setDuration] = useState(program.durationMinutes?.toString() ?? "0");
-    const [targetGroup, setTargetGroup] = useState(program.targetGroup ?? "");
+    //const [targetGroup, setTargetGroup] = useState(program.targetGroup ?? "");
+    const [targetGroups, setTargetGroups] = useState(program.targetGroups ?? []);
+    //const [language, setLanguage] = useState(program.language ?? "Eesti");
+    const [languages, setLanguages] = useState(program.languages ?? ["Eesti"]);
     const [minGroupSize, setMinGroupSize] = useState(program.minGroupSize?.toString() ?? "1");
     const [maxGroupSize, setMaxGroupSize] = useState(program.maxGroupSize?.toString() ?? "25");
     const [location, setLocation] = useState(program.location ?? "");
-    const [language, setLanguage] = useState(program.language ?? "Eesti");
-    const [status, setStatus] = useState(program.status ?? "PENDING");
+
+    const [materialFile, setMaterialFile] = useState<File | null>(null);
+    const [materialName, setMaterialName] = useState("");
+    const [materials, setMaterials] = useState<{ file: File; name: string }[]>([]);
+
+    const [status, setStatus] = useState(program.status ?? "INACTIVE");
+    const [wheelchair, setWheelchair] = useState<boolean>(program?.wheelchair ?? false);
+    const [outdoor, setOutdoor] = useState<boolean>(program?.outdoor ?? false);
+    const [hev, setHEV] = useState<boolean>(program?.hev ?? false);
+    const [lak, setLAK] = useState<boolean>(program?.lak ?? false);
+    const [addInfo, setAddInfo] = useState(program.addInfo ?? "");
+    const [contactEmail, setContactEmail] = useState(program.contactEmail ?? "");
+    const [contactPhone, setContactPhone] = useState(program.contactPhone ?? "");
+    const [address, setAddress] = useState(program.address ?? "");
+    const [county, setCounty] = useState(program.county ?? "");
     const [categoryId, setCategoryId] = useState(program.category?.id?.toString() ?? "");
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+
+    // Materjalide haldus
+    const [existingMaterials, setExistingMaterials] = useState<Material[]>(program.materials ?? []);
+    const [newMaterialFiles, setNewMaterialFiles] = useState<File[]>([]);
+
+    const handleAddMaterialFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setNewMaterialFiles([...newMaterialFiles, ...Array.from(e.target.files)]);
+        }
+    };
+    const handleRemoveNewMaterial = (index: number) => {
+        setNewMaterialFiles(newMaterialFiles.filter((_, i) => i !== index));
+    };
+    const handleRemoveExistingMaterial = (id: number) => {
+        setExistingMaterials(existingMaterials.filter(mat => mat.id !== id));
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,15 +91,33 @@ export function ProgramEditForm({ program, categories }: Props) {
                 id: program.id,
                 title: title,
                 description: description,
+                shortDescription: shortDescription,
+                connection: connection,
+                connectionKeys: connectionKeys,
                 pricePerStudent: parseFloat(price),
                 durationMinutes: parseInt(duration),
-                targetGroup: targetGroup,
+                //targetGroup: targetGroup,
+                targetGroups: targetGroups,
+                //language: language,
+                languages: languages,
                 minGroupSize: parseInt(minGroupSize),
                 maxGroupSize: parseInt(maxGroupSize),
                 location: location,
-                language: language,
+
                 status: status,
-                category: categoryId ? { id: parseInt(categoryId) } : null
+                wheelchair: wheelchair,
+                outdoor: outdoor,
+                hev: hev,
+                lak: lak,
+
+                addInfo: addInfo,
+                contactEmail: contactEmail,
+                contactPhone: contactPhone,
+                address: address,
+                county: county,
+                category: categoryId ? { id: parseInt(categoryId) } : null,
+
+                materials: existingMaterials
             };
 
             formData.append(
@@ -62,6 +129,12 @@ export function ProgramEditForm({ program, categories }: Props) {
                 formData.append("imageFile", imageFile);
             } else {
                 formData.append("imageFile", new Blob([], { type: "application/octet-stream" }));
+            }
+
+            if (newMaterialFiles.length > 0) {
+                newMaterialFiles.forEach((file) => {
+                    formData.append("materialFiles", file);
+                });
             }
 
             const res = await fetch(`${API_URL}/program/${program.id}`, {
@@ -87,92 +160,573 @@ export function ProgramEditForm({ program, categories }: Props) {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "20px", paddingBottom: "4px" }}>
-            {message && <div style={{ padding: "10px", borderRadius: "4px", backgroundColor: "#f0f0f0", fontWeight: "bold" }}>{message}</div>}
+        <div>
+            <form onSubmit={handleSubmit} className="space-y-8 mt-6">
+                {/* Modern Frameless Larger Single-Column Sequential Layout */}
+                <div className="max-w-6xl mx-auto space-y-12">
 
-            {/* Pealkiri ja Staatus kõrvuti */}
-            <div style={{ display: "flex", gap: "15px" }}>
-                <div style={{ display: "flex", flexDirection: "column", flex: 2 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Programmi pealkiri</label>
-                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Staatus</label>
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", backgroundColor: "white" }}>
-                        <option value="Active">ACTIVE</option>
-                        <option value="Inactive">INACTIVE</option>
-                    </select>
-                </div>
-            </div>
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            Programmi põhiinfo
+                        </h3>
 
-            {/* Kategooria valik */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
-                <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Kategooria</label>
-                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", backgroundColor: "white" }}>
-                    <option value="">-- Vali kategooria --</option>
-                    {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                </select>
-            </div>
+                        {/* Program Title */}
+                        <div className="space-y-2">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kultuuriprogrammi nimetus *</label>
+                            <input
+                                type="text"
+                                required
+                                placeholder="nt. Ajarännak minevikku"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-850 shadow-xs"
+                            />
+                        </div>
 
-            {/* Kirjeldus */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
-                <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Kirjeldus</label>
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows={4} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-            </div>
+                        {/* Short Description */}
+                        <div className="space-y-2">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kultuuriprogrammi lühikirjeldus (1-2 lauset) *</label>
+                            <input
+                                type="text"
+                                required
+                                placeholder="Maksimaalselt 150 tähemärki"
+                                value={shortDescription}
+                                onChange={(e) => setShortDescription(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
+                            />
+                        </div>
 
-            {/* Hind, Kestus, Keel */}
-            <div style={{ display: "flex", gap: "15px" }}>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Hind õpilasele (€)</label>
-                    <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Kestus (min)</label>
-                    <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Keel</label>
-                    <input type="text" value={language} onChange={(e) => setLanguage(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-            </div>
+                        {/* Full Description */}
+                        <div className="space-y-2">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kultuuriprogrammi kirjeldus *</label>
+                            <textarea
+                                required
+                                rows={6}
+                                placeholder="Kirjelda siin programmi sisu, tegevusi, tulemusi jne..."
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
+                            ></textarea>
+                        </div>
 
-            {/* Sihtgrupp ja Asukoht */}
-            <div style={{ display: "flex", gap: "15px" }}>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Sihtgrupp (nt: 1.-3. klass)</label>
-                    <input type="text" value={targetGroup} onChange={(e) => setTargetGroup(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Asukoht / Aadress</label>
-                    <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-            </div>
+                        {/* Keeled (Language checkboxes) */}
+                        <div className="space-y-2.5">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Keeled *</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-50 p-5 rounded-xl border border-gray-150">
+                                {['Eesti', 'Inglise', 'Vene', 'Muu'].map((lang) => (
+                                    <label key={lang} className="flex items-center gap-3 cursor-pointer text-base font-bold text-gray-700 select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={languages.includes(lang)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setLanguages([...languages, lang]);
+                                                } else {
+                                                    setLanguages(languages.filter(l => l !== lang));
+                                                }
+                                            }}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                        />
+                                        {lang}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Grupi suurused */}
-            <div style={{ display: "flex", gap: "15px" }}>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Minimaalne grupi suurus</label>
-                    <input type="number" value={minGroupSize} onChange={(e) => setMinGroupSize(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Maksimaalne grupi suurus</label>
-                    <input type="number" value={maxGroupSize} onChange={(e) => setMaxGroupSize(e.target.value)} required style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }} />
-                </div>
-            </div>
+                    <div className="border-t border-gray-100 my-8 pt-8"></div>
 
-            {/* Pildifaili üleslaadimine */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontWeight: "bold" }}>Programmi pilt</label>
-                <input type="file" accept="image/*" onChange={(e) => e.target.files && setImageFile(e.target.files[0])} style={{ padding: "5px" }} />
-                <small style={{ color: "#666" }}>Vali uus pilt ainult siis, kui soovid vana asendada.</small>
-            </div>
+                    {/* Section 2: Teemad ja sihtgrupp */}
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            Teemad ja sihtgrupp
+                        </h3>
 
-            {/* Nupp */}
-            <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: loading ? "#94d3a2" : "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: loading ? "not-allowed" : "pointer", fontWeight: "bold", marginTop: "10px" }}>
-                {loading ? "Salvestab..." : "Salvesta muudatused"}
-            </button>
-        </form>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Categories (Kategooriad) Dropdown Select */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kategooriad *</label>
+                                <select
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa teema / kategooria...</option>
+                                    {categories?.map(cat => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Target Groups Dropdown Select */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Sihtgrupp *</label>
+                                <select
+                                    value=""
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val && !targetGroups.includes(val)) {
+                                            setTargetGroups([...targetGroups, val]);
+                                        }
+                                        e.target.value = "";
+                                    }}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa sihtgrupp...</option>
+                                    {['Lasteaed', '1. - 3. klass', '4. - 6. klass', '7. - 9. klass', 'Gümnaasium'].map(grp => (
+                                        <option key={grp} value={grp} disabled={targetGroups.includes(grp)}>
+                                            {grp}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
+                                    {targetGroups.map(grp => (
+                                        <span key={grp} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-blue-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                            {grp}
+                                            <button
+                                                type="button"
+                                                onClick={() => setTargetGroups(targetGroups.filter(g => g !== grp))}
+                                                className="text-blue-500 hover:text-blue-700 font-extrabold cursor-pointer text-sm ml-1"
+                                            >
+                                                &times;
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {targetGroups.length === 0 && (
+                                        <span className="text-sm text-gray-455 italic">Ühtegi sihtgruppi pole valitud</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Õppekavaga seos kirjeldus */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaga seos lühikirjeldus (1-2 lauset) *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="Maksimaalselt 150 tähemärki"
+                                    value={connection}
+                                    onChange={(e) => setConnection(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
+                                />
+                            </div>
+
+                            {/* Õppekavaseosed Dropdown Select */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaseosed</label>
+                                <select
+                                    value={""}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        // Kasutame connectionKeys massiivi connection asemel
+                                        if (val && !connectionKeys.includes(val)) {
+                                            setConnectionKeys(prev => [...prev, val]);
+                                        }
+                                        e.target.value = "";
+                                    }}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa õppekavaseos...</option>
+                                    {CURRICULUM_PRESETS.map(conn => (
+                                        <option key={conn} value={conn} disabled={connectionKeys.includes(conn)}>
+                                            {conn}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
+                                    {connectionKeys.map(conn => (
+                                        <span key={conn} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                            {conn}
+                                            <button
+                                                type="button"
+                                                onClick={() => setConnectionKeys(connectionKeys.filter(c => c !== conn))}
+                                                className="text-gray-400 hover:text-gray-700 font-extrabold cursor-pointer text-sm ml-1"
+                                            >
+                                                &times;
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {connectionKeys.length === 0 && (
+                                        <span className="text-sm text-gray-455 italic">Õppekavaseoseid pole lisatud</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div className="border-t border-gray-100 my-8 pt-8"></div>
+
+                    {/* Section 3: Toimumise info */}
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            Toimumise info
+                        </h3>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                            {/* Price input */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Hind õpilase kohta *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="nt. 10€"
+                                    value={price}
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+
+                            {/* Duration */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Kestus *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="nt. 90 min"
+                                    value={duration}
+                                    onChange={(e) => setDuration(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+
+                            {/* Min group size */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Minimaalne grupp *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="10"
+                                    value={minGroupSize}
+                                    onChange={(e) => setMinGroupSize(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+
+                            {/* Max group size */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Maksimaalne grupp *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="30"
+                                    value={maxGroupSize}
+                                    onChange={(e) => setMaxGroupSize(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                            {/* County select */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Maakond *</label>
+                                <select
+                                    value={county}
+                                    onChange={(e) => setCounty(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 cursor-pointer h-[54px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                >
+                                    {ESTONIAN_COUNTIES.map(cnt => (
+                                        <option key={cnt} value={cnt}>{cnt}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Location name */}
+                            <div className="space-y-1.5 sm:col-span-2">
+                                <label className="text-base font-extrabold text-gray-800 block">Toimumiskoht *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="nt. Eesti Rahva Muuseum"
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Address */}
+                        <div className="space-y-1.5">
+                            <label className="text-base font-extrabold text-gray-800 block">Täpne aadress *</label>
+                            <input
+                                type="text"
+                                required
+                                placeholder="nt. Muuseumi tee 2, 60532 Tartu"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                            />
+                        </div>
+
+                        {/* Accessibility & outdoor checkboxes */}
+                        <div className="space-y-2">
+                            <label className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Muu toimumisinfo</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-150 text-base font-bold text-gray-700">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={wheelchair}
+                                        onChange={(e) => setWheelchair(e.target.checked)}
+                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                    />
+                                    Ligipääs ratastooliga
+                                </label>
+
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={hev}
+                                        onChange={(e) => setHEV(e.target.checked)}
+                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                    />
+                                    HEV
+                                </label>
+
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={lak}
+                                        onChange={(e) => setLAK(e.target.checked)}
+                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                    />
+                                    LAK
+                                </label>
+
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={outdoor}
+                                        onChange={(e) => setOutdoor(e.target.checked)}
+                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                    />
+                                    Toimub välitingimustes
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-gray-100 my-8 pt-8"></div>
+
+                    {/* Section 4: Meedia ja õppematerjalid */}
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            Meedia ja õppematerjalid
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Kaanefoto (Image Box Preview) */}
+                            <div className="space-y-3">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Programmi kaanefoto *</label>
+                                <div className="border border-gray-200 bg-gray-50 rounded-2xl overflow-hidden h-48 flex flex-col items-center justify-center relative group shadow-xs">
+                                    {imageFile ? (
+                                        <>
+                                            <img
+                                                src={URL.createObjectURL(imageFile)}
+                                                alt="Programmi kaanefoto eelvaade"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <span className="text-white text-xs font-bold bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/30">
+                                                    Kaanefoto valitud
+                                                </span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center p-4">
+                                            <ImageIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                            <span className="text-base text-gray-450 font-semibold">Pilti pole veel valitud</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Image upload zone */}
+                                <div className="space-y-3 pt-2">
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <label className="flex-1 bg-white border border-gray-300 rounded-xl px-5 py-3.5 text-base font-bold text-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all cursor-pointer shadow-xs active:scale-98 border-dashed border-2 hover:border-blue-400">
+                                            <PlusCircle className="w-5 h-5 text-gray-400" />
+                                            Vali fail arvutist
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    if (e.target.files?.[0]) {
+                                                        setImageFile(e.target.files[0]);
+                                                    }
+                                                }}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SECTION 4: Meedia ja parandatud ÕPPEMATERJALID */}
+                            <div className="space-y-6">
+                                <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                    Meedia ja õppematerjalid
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                                    {/* Õppematerjalide Uuendamine */}
+                                    <div className="space-y-3">
+                                        <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppematerjalid (failid)</label>
+
+                                        <div className="border border-gray-200 bg-gray-50 rounded-2xl p-5 space-y-4 shadow-xs">
+                                            {/* Faili lisamise nupp */}
+                                            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl p-4 bg-white hover:bg-gray-50 cursor-pointer transition">
+                                                <PlusCircle className="w-5 h-5 text-blue-600" />
+                                                <span className="text-sm font-bold text-gray-700">Vali failid arvutist...</span>
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    onChange={handleAddMaterialFile}
+                                                    className="hidden"
+                                                />
+                                            </label>
+
+                                            {/* Materjalide nimekiri */}
+                                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                                {/* Osa A: Juba andmebaasis olevad materjalid */}
+                                                {existingMaterials.map((mat) => (
+                                                    <div key={mat.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-3 shadow-2xs">
+                                                        <div className="flex items-center gap-2.5 truncate">
+                                                            <FileText className="w-5 h-5 text-emerald-600 shrink-0" />
+                                                            <span className="text-sm font-semibold text-gray-700 truncate">{mat.name}</span>
+                                                            <span className="text-2xs bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Serveris</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveExistingMaterial(mat.id)}
+                                                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
+                                                            title="Kustuta fail andmebaasist"
+                                                        >
+                                                            <Trash className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+
+                                                {/* Osa B: Kasutaja poolt uuesti valitud failid */}
+                                                {newMaterialFiles.map((file, index) => (
+                                                    <div key={index} className="flex items-center justify-between bg-blue-50/40 border border-blue-100 rounded-xl p-3 shadow-2xs">
+                                                        <div className="flex items-center gap-2.5 truncate">
+                                                            <FileText className="w-5 h-5 text-blue-600 shrink-0" />
+                                                            <span className="text-sm font-semibold text-blue-800 truncate">{file.name}</span>
+                                                            <span className="text-2xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Uus</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveNewMaterial(index)}
+                                                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+
+                                                {existingMaterials.length === 0 && newMaterialFiles.length === 0 && (
+                                                    <p className="text-sm text-gray-455 text-center py-4 italic">Programmil puuduvad lisatud õppematerjalid.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Additional Info */}
+                        <div className="space-y-1.5">
+                            <label className="text-base font-extrabold text-gray-800 block">Lisainfo</label>
+                            <textarea
+                                rows={3}
+                                placeholder="Täiendav info programmi kohta..."
+                                value={addInfo}
+                                onChange={(e) => setAddInfo(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-gray-100 my-8 pt-8"></div>
+
+                    {/* Section 5: Kontaktandmed */}
+                    <div className="space-y-4 animate-fade-in">
+                        <p className="text-sm font-semibold text-gray-500 leading-relaxed">
+                            Täida allolevad kontaktandmed, mille kaudu õpetajad saavad Teiega ühendust võtta.
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Email *</label>
+                                <input
+                                    type="email"
+                                    placeholder="kultuuri@asutus.ee"
+                                    value={contactEmail}
+                                    onChange={(e) => setContactEmail(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Telefon *</label>
+                                <input
+                                    type="text"
+                                    placeholder="+372 ..."
+                                    value={contactPhone}
+                                    onChange={(e) => setContactPhone(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 6: Avalikustamise olek */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-150">
+                        <div>
+                            <span className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Avalikustamise olek</span>
+                            <span className="text-xs sm:text-sm text-gray-500 font-semibold block mt-0.5">Kas programm on salvestamise järel õpetajatele nähtav?</span>
+                        </div>
+
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="bg-white border border-gray-300 rounded-xl px-5 py-3.5 text-base font-extrabold text-gray-800 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 h-[54px]"
+                        >
+                            <option value="Active">Avalik (nähtav)</option>
+                            <option value="Inactive">Mitteavalik (draft)</option>
+                        </select>
+                    </div>
+
+                    {/* FORM FOOTER BUTTONS */}
+                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onClick={() => { }}
+                            className="bg-white border border-gray-300 text-gray-700 px-8 py-3.5 rounded-xl text-base font-bold hover:bg-gray-50 transition-all cursor-pointer shadow-xs active:scale-98"
+                        >
+                            Tühista
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="bg-blue-600 text-white px-10 py-3.5 rounded-xl text-base font-bold hover:bg-blue-700 transition-all shadow-xs flex items-center gap-2 cursor-pointer transform active:scale-98"
+                        >
+                            Salvesta
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     );
 }

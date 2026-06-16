@@ -55,7 +55,7 @@ public class ProgramService {
                 m.setFileType(file.getContentType());
                 m.setFileData(file.getBytes());
 
-                program.addMaterial(m); // IMPORTANT
+                program.addMaterial(m);
 
             }
         }
@@ -76,6 +76,14 @@ public class ProgramService {
         // programmi atribuudid
         existingProgram.setTitle(incomingProgram.getTitle());
         existingProgram.setDescription(incomingProgram.getDescription());
+        existingProgram.setShortDescription(incomingProgram.getShortDescription());
+        existingProgram.setConnection(incomingProgram.getConnection());
+        existingProgram.setConnectionKeys(incomingProgram.getConnectionKeys());
+        existingProgram.setAddInfo(incomingProgram.getAddInfo());
+        existingProgram.setContactEmail(incomingProgram.getContactEmail());
+        existingProgram.setContactPhone(incomingProgram.getContactPhone());
+        existingProgram.setAddress(incomingProgram.getAddress());
+        existingProgram.setCounty(incomingProgram.getCounty());
         existingProgram.setPricePerStudent(incomingProgram.getPricePerStudent());
         existingProgram.setDurationMinutes(incomingProgram.getDurationMinutes());
         existingProgram.setTargetGroups(incomingProgram.getTargetGroups());
@@ -113,7 +121,7 @@ public class ProgramService {
                 m.setFileType(file.getContentType());
                 m.setFileData(file.getBytes());
 
-                existingProgram.addMaterial(m); // IMPORTANT
+                existingProgram.addMaterial(m);
 
             }
         }
