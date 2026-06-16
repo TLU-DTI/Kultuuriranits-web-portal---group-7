@@ -1,14 +1,18 @@
 package ee.meeskond7.kultuuriranits_backend.controller;
 
+import ee.meeskond7.kultuuriranits_backend.entity.Material;
 import ee.meeskond7.kultuuriranits_backend.entity.Organization;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
+import ee.meeskond7.kultuuriranits_backend.repository.MaterialRepository;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
+import ee.meeskond7.kultuuriranits_backend.service.MaterialService;
 import ee.meeskond7.kultuuriranits_backend.service.ProgramService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @AllArgsConstructor
@@ -29,6 +34,7 @@ public class ProgramController {
 
     @Autowired
     private ProgramService programService;
+    private MaterialService materialService;
 
 
     // GET Programs
@@ -108,7 +114,9 @@ public class ProgramController {
     // Programmi lisamine
     @PostMapping("/program")
     public ResponseEntity<?> addProgram(@RequestPart Program program,
-                                        @RequestPart MultipartFile imageFile, HttpSession session) {
+                                        @RequestPart MultipartFile imageFile,
+                                        @RequestPart(value = "materialFiles", required = false)  List<MultipartFile> materialFiles,
+                                        HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
 
@@ -121,7 +129,11 @@ public class ProgramController {
             org.setId(orgId);
             program.setOrganization(org);
 
-            Program program1 = programService.addProgram(program, imageFile);
+            System.out.println("materialFiles = " + materialFiles);
+
+
+
+            Program program1 = programService.addProgram(program, imageFile, materialFiles);
             return new ResponseEntity<>(program1, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -160,5 +172,20 @@ public class ProgramController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+// dowload materials
+    @GetMapping("/program/{programId}/materials/{materialId}/download")
+    public ResponseEntity<byte[]> downloadMaterial(
+            @PathVariable Long programId,
+            @PathVariable Long materialId
+    ) {
+
+        Material material = materialService.findByIdAndProgramId(materialId, programId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(material.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + material.getName() + "\"")
+                .body(material.getFileData());
     }
 }

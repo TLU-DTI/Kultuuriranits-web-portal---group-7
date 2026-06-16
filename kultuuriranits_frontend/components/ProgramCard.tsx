@@ -31,8 +31,10 @@ export function ProgramCard({ program, apiUrl, actions }: ProgramCardProps) {
       icon: Users,
     },
     {
-      label: "Keel",
-      value: program.language || "Pole täpsustatud",
+      label: "Keeled",
+      value: program.languages?.length
+        ? program.languages.join(", ")
+        : "Pole täpsustatud",
       icon: Globe,
     },
   ];
@@ -74,7 +76,7 @@ export function ProgramCard({ program, apiUrl, actions }: ProgramCardProps) {
           </h2>
 
           <p className="text-gray-600 text-base leading-relaxed mb-6 line-clamp-2 max-w-3xl">
-            {program.description}
+            {program.shortDescription}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6 auto-rows-fr">
@@ -107,11 +109,15 @@ export function ProgramCard({ program, apiUrl, actions }: ProgramCardProps) {
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
-            {program.targetGroup && (
-              <span className="border border-blue-100 bg-white text-gray-700 px-3 py-1 rounded-md text-xs font-bold">
-                {program.targetGroup}
+            {program.targetGroups && 
+            program.targetGroups?.map((group) => (
+              <span
+                key={group}
+                className="border border-blue-100 bg-white text-gray-700 px-3 py-1 rounded-md text-xs font-bold"
+              >
+                {group}
               </span>
-            )}
+            ))}
           </div>
 
           <Link

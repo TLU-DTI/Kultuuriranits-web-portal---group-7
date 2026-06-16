@@ -48,9 +48,6 @@ async function getUserFeedback(): Promise<Feedback[]> {
   }
 }
 
-
-
-
 export default async function ProgramPage({
   params,
 }: {

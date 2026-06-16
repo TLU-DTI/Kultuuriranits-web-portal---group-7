@@ -10,5 +10,5 @@ export default function ContactPage() {
                 </p>
             </div>
         </main>
-    );    
+    );
 }

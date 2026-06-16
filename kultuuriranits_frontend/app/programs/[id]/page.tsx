@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
+import DownloadButton from "@/components/downloadButton";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -173,7 +174,9 @@ export default async function ProgramPage({
                       Keeled
                     </span>
                     <span className="text-xs font-extrabold text-gray-700 leading-tight truncate">
-                      {program.language || "Pole täpsustatud"}
+                      {program.languages?.length
+                          ? program.languages.join(", ")
+                          : "Pole täpsustatud"}
                     </span>
                   </div>
                 </div>
@@ -202,8 +205,16 @@ export default async function ProgramPage({
 
               <div className="flex flex-wrap gap-2">
                 <span className="text-sm text-gray-500">
-                  Õppekavaseos puudub või ei ole veel lisatud.
+                  {program.connectionKeys?.length
+                    ? program.connectionKeys.join(", ")
+                    : "Pole täpsustatud"}
                 </span>
+                    
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                  {program.connection || "Kirjeldus puudub"}
+                </p>
               </div>
             </div>
 
@@ -215,19 +226,22 @@ export default async function ProgramPage({
                 Ligipääsetavus
               </h3>
 
-              <ul className="space-y-3">
+               <ul className="space-y-3">
                 <li className="flex items-center text-sm font-bold text-gray-700">
-                  Ratastooliga ligipääs:{" "}
-                  <strong className="ml-1 text-gray-900 font-extrabold">
-                    Pole täpsustatud
-                  </strong>
+                  <span className={`w-2.5 h-2.5 rounded-full mr-2.5 shrink-0 ${program.wheelchair ? 'bg-green-500' : 'bg-red-400'}`}></span>
+                  Ratastooliga ligipääs: <strong className="ml-1 text-gray-900 font-extrabold">{program.wheelchair ? 'Jah' : 'Ei / Raskendatud'}</strong>
                 </li>
-
                 <li className="flex items-center text-sm font-bold text-gray-700">
-                  HEV õppijatele sobiv:{" "}
-                  <strong className="ml-1 text-gray-900 font-extrabold">
-                    Pole täpsustatud
-                  </strong>
+                  <span className={`w-2.5 h-2.5 rounded-full mr-2.5 shrink-0 ${program.hev ? 'bg-green-500' : 'bg-red-400'}`}></span>
+                  HEV õppijatele sobiv: <strong className="ml-1 text-gray-900 font-extrabold">{program.hev ? 'Jah' : 'Ei'}</strong>
+                </li>                
+                <li className="flex items-center text-sm font-bold text-gray-700">
+                  <span className={`w-2.5 h-2.5 rounded-full mr-2.5 shrink-0 ${program.lak ? 'bg-green-500' : 'bg-red-400'}`}></span>
+                  LAK: <strong className="ml-1 text-gray-900 font-extrabold">{program.lak ? 'Jah' : 'Ei'}</strong>
+                </li>
+                <li className="flex items-center text-sm font-bold text-gray-700">
+                  <span className={`w-2.5 h-2.5 rounded-full mr-2.5 shrink-0 ${program.outdoor ? 'bg-green-500' : 'bg-red-400'}`}></span>
+                  Välistingimustes: <strong className="ml-1 text-gray-900 font-extrabold">{program.outdoor ? 'Jah' : 'Ei'}</strong>
                 </li>
               </ul>
             </div>
@@ -240,7 +254,7 @@ export default async function ProgramPage({
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {program.materials.map((material: any, index: number) => (
+                {program.materials.map((material: { id: string ; name: string; fileData: File}, index: number) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat"
@@ -250,9 +264,7 @@ export default async function ProgramPage({
                         <FileText className="w-4 h-4 text-gray-400" />
                       </div>
 
-                      <span className="text-xs font-extrabold text-gray-800 truncate max-w-[180px]">
-                        {material.name || material.title || "Õppematerjal"}
-                      </span>
+                      <DownloadButton programId = {id} materialId={material.id} name = {material.name}/>
                     </div>
                   </div>
                 ))}
@@ -277,7 +289,7 @@ export default async function ProgramPage({
                       E-post:
                     </span>
                     <a className="text-xs font-extrabold text-blue-600 break-all leading-tight">
-                      {program.organization?.email || "Puudub"}
+                      {program.contactEmail || "Puudub"}
                     </a>
                   </div>
                 </div>
@@ -294,7 +306,7 @@ export default async function ProgramPage({
                       Telefon:
                     </span>
                     <a className="text-xs font-extrabold text-blue-600 break-all leading-tight">
-                      {program.organization?.phone || "Puudub"}
+                      {program.contactPhone || "Puudub"}
                     </a>
                   </div>
                 </div>
