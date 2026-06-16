@@ -261,7 +261,7 @@ export function ProgramAddForm({
                                                     setFormLanguages(formLanguages.filter(l => l !== lang));
                                                 }
                                             }}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 focus:ring-blue-500 cursor-pointer"
                                         />
                                         {lang}
                                     </label>
@@ -502,13 +502,13 @@ export function ProgramAddForm({
                             {/* Accessibility & outdoor checkboxes */}
                             <div className="space-y-2">
                                 <label className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Muu toimumisinfo</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-150 text-base font-bold text-gray-700">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-5 rounded-xl text-base font-bold text-gray-700">
                                     <label className="flex items-center gap-3 cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={wheelchair}
                                             onChange={(e) => setWheelchair(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
                                         />
                                         Ligipääs ratastooliga
                                     </label>
@@ -518,7 +518,7 @@ export function ProgramAddForm({
                                             type="checkbox"
                                             checked={hev}
                                             onChange={(e) => setHev(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
                                         />
                                         HEV
                                     </label>
@@ -528,7 +528,7 @@ export function ProgramAddForm({
                                             type="checkbox"
                                             checked={lak}
                                             onChange={(e) => setLak(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
                                         />
                                         LAK
                                     </label>
@@ -538,7 +538,7 @@ export function ProgramAddForm({
                                             type="checkbox"
                                             checked={outdoor}
                                             onChange={(e) => setOutdoor(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
                                         />
                                         Toimub välitingimustes
                                     </label>
