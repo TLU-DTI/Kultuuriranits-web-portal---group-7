@@ -49,9 +49,9 @@ export function AccessibilityButton() {
             <button
                 type="button"
                 onClick={openPanel}
-                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all cursor-pointer"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 text-xs font-bold text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all cursor-pointer"
             >
-                <PersonStanding className="w-5 h-5 text-blue-600" />
+                <PersonStanding className="w-4 h-4 text-blue-600" />
                 Juurdepääsetavus
             </button>
 
