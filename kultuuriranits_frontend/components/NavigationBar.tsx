@@ -61,7 +61,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
     { name: 'Töölaud', href: '/admin' },
     { name: 'Kasutajad', href: '/admin/users' },
     { name: 'Kultuuriprogrammid', href: '/admin/programs' },
-    { name: 'Õppematerjalid', href: '/materials' },
+    { name: 'Õppematerjalid', href: '/admin/materials' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
   ],

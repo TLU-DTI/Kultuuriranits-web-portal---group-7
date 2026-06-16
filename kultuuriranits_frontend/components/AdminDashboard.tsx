@@ -235,7 +235,7 @@ export function AdminDashboard({
             icon: BookOpen,
         },
         {
-            title: "Süsteemi kontroll",
+            title: "Vaata murekohti",
             description: "Vaata kohti, mis võivad vajada admini tähelepanu.",
             href: "#attention",
             icon: AlertTriangle,
@@ -341,7 +341,7 @@ export function AdminDashboard({
 
                         <div>
                             <h2 className="text-2xl font-black text-gray-900">
-                                Süsteemi kontroll
+                                Tähelepanu vajavad kohad
                             </h2>
 
                             <p className="text-sm text-gray-500">

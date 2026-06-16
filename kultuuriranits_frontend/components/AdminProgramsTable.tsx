@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowUpDown,
   BookOpen,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Program } from "@/models/Program";
 import { DeleteProgramButton } from "@/components/DeleteProgramButton";
+import { Pagination } from "@/components/Pagination";
 
 type AdminProgramsTableProps = {
   programs: Program[];
@@ -30,7 +32,11 @@ type SortOption =
   | "organization-az"
   | "status";
 
+const PROGRAMS_PER_PAGE = 10;
+
 export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
+  const searchParams = useSearchParams();
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -108,8 +114,8 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
           program.category?.name,
           program.organization?.name,
           program.location,
-          program.language,
-          program.targetGroup,
+          program.languages,
+          program.targetGroups,
         ]
           .filter(Boolean)
           .join(" ")
@@ -188,6 +194,20 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
     organizationFilter,
     sortBy,
   ]);
+
+  const totalPages = Math.ceil(filteredPrograms.length / PROGRAMS_PER_PAGE);
+
+  const pageParam = Number(searchParams.get("page") || 0);
+
+  const currentPage =
+    totalPages > 0
+      ? Math.min(Math.max(pageParam, 0), totalPages - 1)
+      : 0;
+
+  const startIndex = currentPage * PROGRAMS_PER_PAGE;
+  const endIndex = startIndex + PROGRAMS_PER_PAGE;
+
+  const paginatedPrograms = filteredPrograms.slice(startIndex, endIndex);
 
   const hasActiveFilters =
     search ||
@@ -303,9 +323,11 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
                 <p className="text-sm text-gray-500 mt-1">
                   Kuvan{" "}
                   <span className="font-bold text-gray-900">
-                    {filteredPrograms.length}
+                    {filteredPrograms.length > 0 ? startIndex + 1 : 0}
+                    {"–"}
+                    {Math.min(endIndex, filteredPrograms.length)}
                   </span>{" "}
-                  / {programs.length} programmist.
+                  / {filteredPrograms.length} programmist.
                 </p>
               </div>
 
@@ -327,7 +349,7 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
 
                 <input
                   type="text"
-                  placeholder="Otsi programmi, korraldajat, kategooriat..."
+                  placeholder="Otsi programmi..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
@@ -435,110 +457,120 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-[1050px] w-full border-collapse">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Programm
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Korraldaja
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Kategooria
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Staatus
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Hind
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Kestus
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Loodud
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Tegevused
-                    </th>
-                  </tr>
-                </thead>
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-[1050px] w-full border-collapse">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="w-20 px-6 py-4 text-center text-xs font-black text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
 
-                <tbody className="divide-y divide-gray-100">
-                  {filteredPrograms.map((program) => (
-                    <tr
-                      key={program.id}
-                      className="hover:bg-blue-50/40 transition-colors"
-                    >
-                      <td className="px-6 py-5 text-sm font-black text-gray-900 align-top">
-                        {program.id}
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Programm
+                      </th>
 
-                      <td className="px-6 py-5 align-top">
-                        <div className="max-w-[360px]">
-                          <p className="text-sm font-black text-gray-900 leading-snug">
-                            {program.title}
-                          </p>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Korraldaja
+                      </th>
 
-                          <p className="mt-1 text-sm text-gray-500 leading-relaxed max-h-[44px] overflow-hidden">
-                            {program.description || "Kirjeldus puudub"}
-                          </p>
-                        </div>
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Kategooria
+                      </th>
 
-                      <td className="px-6 py-5 align-top">
-                        <p className="max-w-[190px] text-sm font-semibold text-gray-800 leading-relaxed">
-                          {program.organization?.name ?? "Määramata"}
-                        </p>
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Staatus
+                      </th>
 
-                      <td className="px-6 py-5 align-top">
-                        <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">
-                          {program.category?.name ?? "Määramata"}
-                        </span>
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Hind
+                      </th>
 
-                      <td className="px-6 py-5 align-top whitespace-nowrap">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusBadgeClass(
-                            program.status
-                          )}`}
-                        >
-                          {program.status || "Puudub"}
-                        </span>
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Kestus
+                      </th>
 
-                      <td className="px-6 py-5 align-top whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 text-sm font-black text-gray-900">
-                          <Euro className="w-4 h-4 text-gray-400" />
-                          {program.pricePerStudent}
-                        </span>
-                      </td>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Loodud
+                      </th>
 
-                      <td className="px-6 py-5 text-sm text-gray-700 align-top whitespace-nowrap">
-                        {program.durationMinutes} min
-                      </td>
-
-                      <td className="px-6 py-5 text-sm text-gray-600 align-top whitespace-nowrap">
-                        {formatDate(program.createdAt)}
-                      </td>
-
-                      <td className="px-6 py-5 align-top text-right whitespace-nowrap">
-                        <DeleteProgramButton
-                          programId={program.id}
-                          programTitle={program.title}
-                        />
-                      </td>
+                      <th className="px-6 py-4 text-right text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Tegevused
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-100">
+                    {paginatedPrograms.map((program) => (
+                      <tr
+                        key={program.id}
+                        className="hover:bg-blue-50/40 transition-colors"
+                      >
+                        <td className="w-20 px-6 py-5 text-center text-sm font-black text-gray-900 align-middle">
+                          {program.id}
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <div className="max-w-[360px]">
+                            <p className="text-sm font-black text-gray-900 leading-snug">
+                              {program.title}
+                            </p>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <p className="max-w-[190px] text-sm font-semibold text-gray-800 leading-relaxed">
+                            {program.organization?.name ?? "Määramata"}
+                          </p>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">
+                            {program.category?.name ?? "Määramata"}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle whitespace-nowrap">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusBadgeClass(
+                              program.status
+                            )}`}
+                          >
+                            {program.status || "Puudub"}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 text-sm font-black text-gray-900">
+                            <Euro className="w-4 h-4 text-gray-400" />
+                            {program.pricePerStudent}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-5 text-sm text-gray-700 align-middle whitespace-nowrap">
+                          {program.durationMinutes} min
+                        </td>
+
+                        <td className="px-6 py-5 text-sm text-gray-600 align-middle whitespace-nowrap">
+                          {formatDate(program.createdAt)}
+                        </td>
+
+                        <td className="px-6 py-5 align-middle text-right whitespace-nowrap">
+                          <DeleteProgramButton
+                            programId={program.id}
+                            programTitle={program.title}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="border-t border-gray-100 px-6 pb-8">
+                <Pagination page={currentPage} totalPages={totalPages} />
+              </div>
+            </>
           )}
         </div>
       </section>

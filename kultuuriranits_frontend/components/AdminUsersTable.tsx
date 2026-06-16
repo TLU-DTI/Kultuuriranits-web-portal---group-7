@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowUpDown,
   Building2,
   GraduationCap,
   Mail,
-  Pencil,
   RotateCcw,
   Search,
   ShieldCheck,
@@ -15,6 +15,9 @@ import {
   Users,
 } from "lucide-react";
 import type { Person } from "@/models/Person";
+import { Pagination } from "@/components/Pagination";
+import { DeleteUserButton } from "@/components/DeleteUserButton";
+import { ModifyUserButton } from "@/components/ModifyUserButton";
 
 type AdminUsersTableProps = {
   users: Person[];
@@ -29,11 +32,17 @@ type SortOption =
   | "role"
   | "organization-az";
 
+const USERS_PER_PAGE = 10;
+const API_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:5050";
+
 export function AdminUsersTable({ users }: AdminUsersTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [organizationFilter, setOrganizationFilter] = useState("all");
   const [sortBy, setSortBy] = useState<SortOption>("id-asc");
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
 
   const getFullName = (user: Person) => {
     return `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Nimi puudub";
@@ -144,6 +153,20 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
     return result;
   }, [users, search, roleFilter, organizationFilter, sortBy]);
 
+  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+
+  const pageParam = Number(searchParams.get("page") || 0);
+
+  const currentPage =
+    totalPages > 0
+      ? Math.min(Math.max(pageParam, 0), totalPages - 1)
+      : 0;
+
+  const startIndex = currentPage * USERS_PER_PAGE;
+  const endIndex = startIndex + USERS_PER_PAGE;
+
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
   const hasActiveFilters =
     search ||
     roleFilter !== "all" ||
@@ -155,6 +178,34 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
     setRoleFilter("all");
     setOrganizationFilter("all");
     setSortBy("id-asc");
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    const confirmed = window.confirm(
+      "Kas oled kindel, et soovid selle kasutaja kustutada?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingUserId(userId);
+
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Kasutaja kustutamine ebaõnnestus.");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("Kasutaja kustutamisel tekkis viga:", error);
+      alert("Kasutaja kustutamine ebaõnnestus.");
+    } finally {
+      setDeletingUserId(null);
+    }
   };
 
   const getRoleBadgeClass = (role?: string) => {
@@ -272,9 +323,11 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                 <p className="text-sm text-gray-500 mt-1">
                   Kuvan{" "}
                   <span className="font-bold text-gray-900">
-                    {filteredUsers.length}
+                    {filteredUsers.length > 0 ? startIndex + 1 : 0}
+                    {"–"}
+                    {Math.min(endIndex, filteredUsers.length)}
                   </span>{" "}
-                  / {users.length} kasutajast.
+                  / {filteredUsers.length} kasutajast.
                 </p>
               </div>
 
@@ -389,115 +442,120 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-[1000px] w-full border-collapse">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-[1000px] w-full border-collapse">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="w-20 px-6 py-4 text-center text-xs font-black text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Kasutaja
-                    </th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Kasutaja
+                      </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      E-mail
-                    </th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        E-mail
+                      </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Isikukood
-                    </th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Isikukood
+                      </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Asutus
-                    </th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Asutus
+                      </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Roll
-                    </th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Roll
+                      </th>
 
-                    <th className="px-6 py-4 text-right text-xs font-black text-gray-500 uppercase tracking-wider">
-                      Tegevused
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-gray-100">
-                  {filteredUsers.map((user) => (
-                    <tr
-                      key={user.id ?? user.email}
-                      className="hover:bg-blue-50/40 transition-colors"
-                    >
-                      <td className="px-6 py-5 text-sm font-black text-gray-900 align-top">
-                        {user.id ?? "—"}
-                      </td>
-
-                      <td className="px-6 py-5 align-top">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-                            <UserRound className="w-5 h-5" />
-                          </div>
-
-                          <div>
-                            <p className="text-sm font-black text-gray-900 leading-snug">
-                              {getFullName(user)}
-                            </p>
-
-                            <p className="text-xs text-gray-500 mt-1">
-                              Kasutaja #{user.id ?? "—"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-5 align-top">
-                        <div className="inline-flex items-center gap-2 text-sm text-gray-700">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          <span>{user.email || "E-mail puudub"}</span>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-5 text-sm text-gray-700 align-top whitespace-nowrap">
-                        {user.personalCode || "Puudub"}
-                      </td>
-
-                      <td className="px-6 py-5 align-top">
-                        <p className="max-w-[220px] text-sm font-semibold text-gray-800 leading-relaxed">
-                          {getOrganizationName(user)}
-                        </p>
-                      </td>
-
-                      <td className="px-6 py-5 align-top whitespace-nowrap">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getRoleBadgeClass(
-                            user.role?.name
-                          )}`}
-                        >
-                          {getRoleLabel(user.role?.name)}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-5 align-top text-right whitespace-nowrap">
-                        {user.id ? (
-                          <Link
-                            href={`/admin/users/${user.id}`}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition cursor-pointer"
-                          >
-                            <Pencil className="w-4 h-4" />
-                            Muuda
-                          </Link>
-                        ) : (
-                          <span className="text-sm text-gray-400">
-                            ID puudub
-                          </span>
-                        )}
-                      </td>
+                      <th className="px-6 py-4 text-right text-xs font-black text-gray-500 uppercase tracking-wider">
+                        Tegevused
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-100">
+                    {paginatedUsers.map((user) => (
+                      <tr
+                        key={user.id ?? user.email}
+                        className="hover:bg-blue-50/40 transition-colors"
+                      >
+                        <td className="w-20 px-6 py-5 text-center text-sm font-black text-gray-900 align-middle">
+                          {user.id ?? "—"}
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                              <UserRound className="w-5 h-5" />
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-black text-gray-900 leading-snug">
+                                {getFullName(user)}
+                              </p>
+
+                              <p className="text-xs text-gray-500 mt-1">
+                                Kasutaja #{user.id ?? "—"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <div className="inline-flex items-center gap-2 text-sm text-gray-700">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            <span>{user.email || "E-mail puudub"}</span>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-5 text-sm text-gray-700 align-middle whitespace-nowrap">
+                          {user.personalCode || "Puudub"}
+                        </td>
+
+                        <td className="px-6 py-5 align-middle">
+                          <p className="max-w-[220px] text-sm font-semibold text-gray-800 leading-relaxed">
+                            {getOrganizationName(user)}
+                          </p>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle whitespace-nowrap">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getRoleBadgeClass(
+                              user.role?.name
+                            )}`}
+                          >
+                            {getRoleLabel(user.role?.name)}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-5 align-middle text-right whitespace-nowrap">
+                          {user.id ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <ModifyUserButton userId={Number(user.id)} />
+
+                              <DeleteUserButton
+                                userId={Number(user.id)}
+                                userName={getFullName(user)}
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">ID puudub</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="border-t border-gray-100 px-6 pb-8">
+                <Pagination page={currentPage} totalPages={totalPages} />
+              </div>
+            </>
           )}
         </div>
       </section>
