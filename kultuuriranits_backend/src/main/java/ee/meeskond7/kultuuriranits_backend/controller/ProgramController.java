@@ -85,21 +85,25 @@ public class ProgramController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long organizationId,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) String language,
+            @RequestParam(required = false) List<String> languages,
             @RequestParam(required = false) BigDecimal pricePerStudent,
             @RequestParam(required = false) Integer durationMinutes,
             @RequestParam(required = false) Integer minDurationMinutes,
             @RequestParam(required = false) Integer maxDurationMinutes,
-            @RequestParam(required = false) String targetGroup,
+            @RequestParam(required = false) List<String> targetGroups,
             @RequestParam(required = false) Integer minGroupSize,
             @RequestParam(required = false) Integer maxGroupSize,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) Boolean lak,
+            @RequestParam(required = false) Boolean hev,
+            @RequestParam(required = false) Boolean outdoor,
+            @RequestParam(required = false) Boolean wheelchair,
             Pageable pageable) {
 
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
-        Page<Program> programs = programService.searchProgramsAll(keyword, minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent,
-                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable
+        Page<Program> programs = programService.searchProgramsAll(keyword, minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, languages, pricePerStudent,
+                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize, maxGroupSize, status, lak, hev, outdoor, wheelchair, pageable
         );
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
@@ -152,6 +156,7 @@ public class ProgramController {
     public ResponseEntity<?> updateProgram(@PathVariable Long id,
                                            @RequestPart Program program,
                                            @RequestPart MultipartFile imageFile,
+                                           @RequestPart(value = "materialFiles", required = false)  List<MultipartFile> materialFiles,
                                            HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
@@ -164,7 +169,7 @@ public class ProgramController {
             org.setId(orgId);
             program.setOrganization(org);
 
-            Program updatedProgram = programService.updateProgram(id, program, imageFile);
+            Program updatedProgram = programService.updateProgram(id, program, imageFile, materialFiles);
 
             return new ResponseEntity<>("Successfully updated", HttpStatus.OK);
         } catch (IOException e) {

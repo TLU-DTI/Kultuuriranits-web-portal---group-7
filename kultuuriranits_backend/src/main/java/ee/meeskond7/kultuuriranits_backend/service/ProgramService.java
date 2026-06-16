@@ -30,9 +30,9 @@ public class ProgramService {
 
 
 
-    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, String language, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,String targetGroup, Integer minGroupSize, Integer maxGroupSize, String status, Pageable pageable) {
+    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, List<String> languages, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,List<String> targetGroups, Integer minGroupSize, Integer maxGroupSize, String status,Boolean lak, Boolean hev, Boolean outdoor, Boolean wheelchair, Pageable pageable) {
 
-        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, language, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroup, minGroupSize,maxGroupSize, status, pageable);
+        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, languages, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize,maxGroupSize, status, lak, hev, outdoor, wheelchair, pageable);
     }
 
 
@@ -68,7 +68,7 @@ public class ProgramService {
     }
 
 
-    public Program updateProgram(Long id, Program incomingProgram, MultipartFile imageFile) throws IOException {
+    public Program updateProgram(Long id, Program incomingProgram, MultipartFile imageFile, List<MultipartFile> materialFiles) throws IOException {
         Program existingProgram = programRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programmi ei leitud ID-ga: " + id));
         existingProgram.setUpdatedAt(LocalDateTime.now());
@@ -78,12 +78,16 @@ public class ProgramService {
         existingProgram.setDescription(incomingProgram.getDescription());
         existingProgram.setPricePerStudent(incomingProgram.getPricePerStudent());
         existingProgram.setDurationMinutes(incomingProgram.getDurationMinutes());
-        existingProgram.setTargetGroup(incomingProgram.getTargetGroup());
+        existingProgram.setTargetGroups(incomingProgram.getTargetGroups());
         existingProgram.setMinGroupSize(incomingProgram.getMinGroupSize());
         existingProgram.setMaxGroupSize(incomingProgram.getMaxGroupSize());
         existingProgram.setLocation(incomingProgram.getLocation());
-        existingProgram.setLanguage(incomingProgram.getLanguage());
+        existingProgram.setLanguages(incomingProgram.getLanguages());
         existingProgram.setStatus(incomingProgram.getStatus());
+        existingProgram.setLak(incomingProgram.getLak());
+        existingProgram.setHev(incomingProgram.getHev());
+        existingProgram.setOutdoor(incomingProgram.getOutdoor());
+        existingProgram.setWheelchair(incomingProgram.getWheelchair());
 
         if (incomingProgram.getCategory() != null) {
             existingProgram.setCategory(incomingProgram.getCategory());
@@ -99,6 +103,21 @@ public class ProgramService {
             existingProgram.setImageType(imageFile.getContentType());
             existingProgram.setImageData(imageFile.getBytes());
         }
+
+        if (materialFiles != null && !materialFiles.isEmpty()) {
+            System.out.println("Received files: " + materialFiles.size());
+            existingProgram.getMaterials().clear();
+            for (MultipartFile file : materialFiles) {
+                Material m = new Material();
+                m.setName(file.getOriginalFilename());
+                m.setFileType(file.getContentType());
+                m.setFileData(file.getBytes());
+
+                existingProgram.addMaterial(m); // IMPORTANT
+
+            }
+        }
+
         return programRepository.save(existingProgram);
     }
 }
