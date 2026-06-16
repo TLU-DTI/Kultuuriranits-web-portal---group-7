@@ -7,13 +7,14 @@ export interface Program {
 
     title: string;
     description: string;
+    shortDescription: string;
     pricePerStudent: number;
     durationMinutes: number;
-    targetGroup: string;
+    targetGroups: string[];
     minGroupSize: number;
     maxGroupSize: number;
     location: string;
-    language: string;
+    languages: string[];
     status: string;
     averageRating?: number;
     createdAt: string;
