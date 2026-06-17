@@ -10,6 +10,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Star,
   UserRound,
   CalendarDays,
@@ -34,6 +35,8 @@ import {
 } from "@/components/InstitutionProgramCard";
 import { ProgramAddForm } from "@/components/ProgramAddForm";
 import { getCategories } from "@/app/lib/category";
+import { Pagination } from "@/components/Pagination";
+import { Sort } from "@/components/Sort";
 
 const CHART_COLORS = [
   "#2563eb",
@@ -868,57 +871,65 @@ export default function CulturalInstitutionDashboardPage() {
                       />
                     </div>
 
-                    <select
-                      value={feedbackProgramFilter}
-                      onChange={(event) =>
-                        setFeedbackProgramFilter(event.target.value)
-                      }
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
-                    >
-                      <option value="all">Kõik programmid</option>
+                    <div className="relative w-full">
+                      <select
+                        value={feedbackProgramFilter}
+                        onChange={(event) =>
+                          setFeedbackProgramFilter(event.target.value)
+                        }
+                        className="w-full appearance-none rounded-2xl border border-gray-200 bg-white pl-4 pr-10 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                      >
+                        <option value="all">Kõik programmid</option>
+                        {feedbackProgramOptions.map((program) => (
+                          <option key={program.id} value={program.id}>
+                            {program.title}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    </div>
 
-                      {feedbackProgramOptions.map((program) => (
-                        <option key={program.id} value={program.id}>
-                          {program.title}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative w-full">
+                      <select
+                        value={feedbackRatingFilter}
+                        onChange={(event) =>
+                          setFeedbackRatingFilter(event.target.value)
+                        }
+                        className="w-full appearance-none rounded-2xl border border-gray-200 bg-white px-4 pr-10 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                      >
+                        <option value="all">Kõik hinded</option>
+                        <option value="5">5 tärni</option>
+                        <option value="4">4 tärni</option>
+                        <option value="3">3 tärni</option>
+                        <option value="2">2 tärni</option>
+                        <option value="1">1 tärn</option>
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    </div>
 
-                    <select
-                      value={feedbackRatingFilter}
-                      onChange={(event) =>
-                        setFeedbackRatingFilter(event.target.value)
-                      }
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
-                    >
-                      <option value="all">Kõik hinded</option>
-                      <option value="5">5 tärni</option>
-                      <option value="4">4 tärni</option>
-                      <option value="3">3 tärni</option>
-                      <option value="2">2 tärni</option>
-                      <option value="1">1 tärn</option>
-                    </select>
-
-                    <select
-                      value={feedbackSort}
-                      onChange={(event) => setFeedbackSort(event.target.value)}
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
-                    >
-                      <option value="newest">Uuemad enne</option>
-                      <option value="oldest">Vanemad enne</option>
-                      <option value="rating-high">Kõrgem hinne enne</option>
-                      <option value="rating-low">Madalam hinne enne</option>
-                      <option value="program-az">Programm A-Z</option>
-                    </select>
+                    <div className="relative w-full">
+                      <select
+                        value={feedbackSort}
+                        onChange={(event) =>
+                          setFeedbackSort(event.target.value)
+                        }
+                        className="w-full appearance-none rounded-2xl border border-gray-200 bg-white px-4 pr-10 py-3 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+                      >
+                        <option value="newest">Uuemad enne</option>
+                        <option value="oldest">Vanemad enne</option>
+                        <option value="rating-high">Kõrgem hinne enne</option>
+                        <option value="rating-low">Madalam hinne enne</option>
+                        <option value="program-az">Programm A-Z</option>
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    </div>
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm text-gray-500">
-                      Kuvan{" "}
-                      <span className="font-bold text-gray-900">
-                        {filteredFeedbacks.length}
-                      </span>{" "}
-                      tagasisidet
+                      {filteredFeedbacks.length === 1
+                        ? "Kuvan 1 tagasiside"
+                        : `Kuvan ${filteredFeedbacks.length} tagasisidet`}
                     </p>
 
                     {(feedbackSearch ||
@@ -1017,6 +1028,10 @@ export default function CulturalInstitutionDashboardPage() {
             <ProgramAddForm
               categories={categories}
               organizationId={organizationId}
+              onSuccess={() => {
+                setActiveTab("programs");
+                window.scrollTo({ top: 0 });
+              }}
             />
           </section>
         )}
@@ -1103,7 +1118,27 @@ export default function CulturalInstitutionDashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis dataKey="name" stroke="#6b7280" />
                         <YAxis allowDecimals={false} stroke="#6b7280" />
-                        <Tooltip />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0];
+                              const currentName = String(
+                                data.payload.name || data.name,
+                              ).toLowerCase();
+                              const labelName =
+                                currentName === "active"
+                                  ? "Aktiivseid"
+                                  : "Mitteaktiivseid";
+
+                              return (
+                                <div className="bg-white p-3 border border-gray-200 rounded-xl shadow-md text-sm font-medium text-gray-700">
+                                  {labelName}: {data.value}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                         <Bar
                           dataKey="value"
                           fill="#2563eb"
@@ -1142,7 +1177,19 @@ export default function CulturalInstitutionDashboardPage() {
                             />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0];
+                              return (
+                                <div className="bg-white p-3 border border-gray-200 rounded-xl shadow-md text-sm font-medium text-gray-700">
+                                  {data.name}: {data.value}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -1163,7 +1210,20 @@ export default function CulturalInstitutionDashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis dataKey="name" stroke="#6b7280" />
                         <YAxis stroke="#6b7280" />
-                        <Tooltip />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0];
+                              return (
+                                <div className="bg-white p-3 border border-gray-200 rounded-xl shadow-md text-sm font-medium text-gray-700">
+                                  <p className="font-semibold mb-1 text-gray-900">{`Programm: ${data.payload.name}`}</p>
+                                  <p>{`Hind: ${data.value}€`}</p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                         <Bar
                           dataKey="price"
                           fill="#16a34a"
