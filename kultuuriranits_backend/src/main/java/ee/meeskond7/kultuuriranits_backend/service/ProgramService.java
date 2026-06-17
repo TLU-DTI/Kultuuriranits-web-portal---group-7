@@ -70,7 +70,7 @@ public class ProgramService {
     }
 
 
-    public Program updateProgram(Long id, Program incomingProgram, MultipartFile imageFile, List<MultipartFile> materialFiles) throws IOException {
+    public Program updateProgram(Long id, Program incomingProgram, MultipartFile imageFile, List<MultipartFile> materialFiles, List<String> materialTitles) throws IOException {
         Program existingProgram = programRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programmi ei leitud ID-ga: " + id));
         existingProgram.setUpdatedAt(LocalDateTime.now());
@@ -116,15 +116,23 @@ public class ProgramService {
 
         if (materialFiles != null && !materialFiles.isEmpty()) {
             System.out.println("Received files: " + materialFiles.size());
+
             existingProgram.getMaterials().clear();
-            for (MultipartFile file : materialFiles) {
+
+            for (int i = 0; i < materialFiles.size(); i++) {
+                MultipartFile file = materialFiles.get(i);
+
                 Material m = new Material();
+
+                if (materialTitles != null && i < materialTitles.size()) {
+                    m.setTitle(materialTitles.get(i));
+                }
+
                 m.setName(file.getOriginalFilename());
                 m.setFileType(file.getContentType());
                 m.setFileData(file.getBytes());
 
                 existingProgram.addMaterial(m);
-
             }
         }
 

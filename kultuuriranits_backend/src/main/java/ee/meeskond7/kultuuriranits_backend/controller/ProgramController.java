@@ -158,6 +158,7 @@ public class ProgramController {
                                            @RequestPart Program program,
                                            @RequestPart MultipartFile imageFile,
                                            @RequestPart(value = "materialFiles", required = false)  List<MultipartFile> materialFiles,
+                                           @RequestParam(value = "materialTitles", required = false) List<String> materialTitles,
                                            HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
@@ -170,7 +171,7 @@ public class ProgramController {
             org.setId(orgId);
             program.setOrganization(org);
 
-            Program updatedProgram = programService.updateProgram(id, program, imageFile, materialFiles);
+            Program updatedProgram = programService.updateProgram(id, program, imageFile, materialFiles, materialTitles);
 
             return new ResponseEntity<>("Successfully updated", HttpStatus.OK);
         } catch (IOException e) {
