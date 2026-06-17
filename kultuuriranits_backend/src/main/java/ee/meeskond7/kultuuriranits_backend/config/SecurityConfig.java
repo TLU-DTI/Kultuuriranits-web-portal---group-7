@@ -30,6 +30,8 @@ public class SecurityConfig {
                         .requestMatchers("/organization","/organization/**").permitAll()
                         .requestMatchers("/feedback","/feedback/**").permitAll()
                         .requestMatchers("/notification","/notification/**").permitAll()
+                        .requestMatchers("/material","/material/**").permitAll()
+                        .requestMatchers("/sendEmail").permitAll()
                         //.requestMatchers("/users").hasRole("ADMIN") <-- tulevikus naeb kasutajaid ainult admin
                         .anyRequest().authenticated()
                 )
