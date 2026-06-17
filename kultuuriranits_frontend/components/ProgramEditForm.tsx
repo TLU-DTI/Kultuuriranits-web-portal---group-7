@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import {  useState } from "react";
 import { useRouter } from "next/navigation";
 import { Program } from "@/models/Program";
 import { Category } from "@/models/Category";
-import { Material } from "@/models/Material"; // Veendu, et sul on see mudel
-import { ArrowRight, Trash, PlusCircle, FileText, ImageIcon, X } from "lucide-react";
+import { ArrowRight, Trash, PlusCircle, FileText, ImageIcon} from "lucide-react";
+import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 interface Props {
@@ -34,18 +34,11 @@ export function ProgramEditForm({ program, categories }: Props) {
     const [connectionKeys, setConnectionKeys] = useState(program.connectionKeys ?? []);
     const [price, setPrice] = useState(program.pricePerStudent?.toString() ?? "0");
     const [duration, setDuration] = useState(program.durationMinutes?.toString() ?? "0");
-    //const [targetGroup, setTargetGroup] = useState(program.targetGroup ?? "");
     const [targetGroups, setTargetGroups] = useState(program.targetGroups ?? []);
-    //const [language, setLanguage] = useState(program.language ?? "Eesti");
     const [languages, setLanguages] = useState(program.languages ?? ["Eesti"]);
     const [minGroupSize, setMinGroupSize] = useState(program.minGroupSize?.toString() ?? "1");
     const [maxGroupSize, setMaxGroupSize] = useState(program.maxGroupSize?.toString() ?? "25");
     const [location, setLocation] = useState(program.location ?? "");
-
-    const [materialFile, setMaterialFile] = useState<File | null>(null);
-    const [materialName, setMaterialName] = useState("");
-    const [materials, setMaterials] = useState<{ file: File; name: string }[]>([]);
-
     const [status, setStatus] = useState(program.status ?? "INACTIVE");
     const [wheelchair, setWheelchair] = useState<boolean>(program?.wheelchair ?? false);
     const [outdoor, setOutdoor] = useState<boolean>(program?.outdoor ?? false);
@@ -57,22 +50,51 @@ export function ProgramEditForm({ program, categories }: Props) {
     const [address, setAddress] = useState(program.address ?? "");
     const [county, setCounty] = useState(program.county ?? "");
     const [categoryId, setCategoryId] = useState(program.category?.id?.toString() ?? "");
-
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
     // Materjalide haldus
-    const [existingMaterials, setExistingMaterials] = useState<Material[]>(program.materials ?? []);
-    const [newMaterialFiles, setNewMaterialFiles] = useState<File[]>([]);
+    const [existingMaterials, setExistingMaterials] = useState(program.materials ?? []);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [materialFile, setMaterialFile] = useState<File | null>(null);
+    const [materialName, setMaterialName] = useState("");
+    const [materials, setMaterials] = useState<{ file: File; name: string; title: string }[]>([]);
 
-    const handleAddMaterialFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setNewMaterialFiles([...newMaterialFiles, ...Array.from(e.target.files)]);
-        }
+    const handleEditMaterial = (index: number) => {
+        const material = materials[index];
+
+        setMaterialName(material.title);
+        setMaterialFile(material.file);
+        setEditingIndex(index);
     };
+
+    const handleSaveMaterial = () => {
+    if (!materialFile) return;
+
+    const material = {
+        file: materialFile,
+        title: materialName || materialFile.name,
+        name: materialFile.name,
+    };
+
+    if (editingIndex !== null) {
+        setMaterials(prev =>
+            prev.map((m, i) =>
+                i === editingIndex ? material : m
+            )
+        );
+    } else {
+        setMaterials(prev => [...prev, material]);
+    }
+
+    setMaterialFile(null);
+    setMaterialName("");
+    setEditingIndex(null);
+};
+
     const handleRemoveNewMaterial = (index: number) => {
-        setNewMaterialFiles(newMaterialFiles.filter((_, i) => i !== index));
+        setMaterials(materials.filter((_, i) => i !== index));
     };
     const handleRemoveExistingMaterial = (id: number) => {
         setExistingMaterials(existingMaterials.filter(mat => mat.id !== id));
@@ -116,7 +138,7 @@ export function ProgramEditForm({ program, categories }: Props) {
                 address: address,
                 county: county,
                 category: categoryId ? { id: parseInt(categoryId) } : null,
-
+                materialIds: existingMaterials.map(m => m.id),
                 materials: existingMaterials
             };
 
@@ -131,9 +153,13 @@ export function ProgramEditForm({ program, categories }: Props) {
                 formData.append("imageFile", new Blob([], { type: "application/octet-stream" }));
             }
 
-            if (newMaterialFiles.length > 0) {
-                newMaterialFiles.forEach((file) => {
-                    formData.append("materialFiles", file);
+            if (materials && materials.length > 0) {
+                materials.forEach((m, i) => {
+                    if (!m?.file) return;
+
+                    console.log("Material sent:", i, m.file.name, m.title);
+                    formData.append("materialFiles", m.file);
+                    formData.append("materialTitles", m.title);
                 });
             }
 
@@ -527,23 +553,27 @@ export function ProgramEditForm({ program, categories }: Props) {
                             <div className="space-y-3">
                                 <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Programmi kaanefoto *</label>
                                 <div className="border border-gray-200 bg-gray-50 rounded-2xl overflow-hidden h-48 flex flex-col items-center justify-center relative group shadow-xs">
+                                    
+                                    
                                     {imageFile ? (
-                                        <>
-                                            <img
-                                                src={URL.createObjectURL(imageFile)}
-                                                alt="Programmi kaanefoto eelvaade"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <span className="text-white text-xs font-bold bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/30">
-                                                    Kaanefoto valitud
-                                                </span>
-                                            </div>
-                                        </>
+                                        <Image
+                                            src={URL.createObjectURL(imageFile)}
+                                            alt="Preview"
+                                            fill
+                                            unoptimized
+                                            className="object-cover"
+                                        />
+                                    ) : program.imageName ? (
+                                        <Image
+                                            src={`${API_URL}/program/${program.id}/image`}
+                                            alt={program.title}
+                                            fill
+                                            unoptimized
+                                            className="object-cover"
+                                        />
                                     ) : (
-                                        <div className="text-center p-4">
-                                            <ImageIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                                            <span className="text-base text-gray-450 font-semibold">Pilti pole veel valitud</span>
+                                        <div className="flex items-center justify-center h-full">
+                                            Pilti pole veel valitud
                                         </div>
                                     )}
                                 </div>
@@ -571,73 +601,97 @@ export function ProgramEditForm({ program, categories }: Props) {
 
                             {/* SECTION 4: Meedia ja parandatud ÕPPEMATERJALID */}
                             <div className="space-y-6">
-                                <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                                    Meedia ja õppematerjalid
-                                </h3>
+                                {/* Õppematerjalide Uuendamine */}
+                                <div className="space-y-3">
+                                    <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppematerjalid</label>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <div className="border border-gray-200 bg-gray-50 rounded-2xl h-48 p-6 space-y-8 shadow-xs">
+                                            <input
+                                                type="text"
+                                                placeholder="Materjali nimetus (nt. Tööleht)"
+                                                value={materialName}
+                                                onChange={(e) => setMaterialName(e.target.value)}
+                                                className="w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                            />
 
-                                    {/* Õppematerjalide Uuendamine */}
-                                    <div className="space-y-3">
-                                        <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppematerjalid (failid)</label>
-
-                                        <div className="border border-gray-200 bg-gray-50 rounded-2xl p-5 space-y-4 shadow-xs">
                                             {/* Faili lisamise nupp */}
                                             <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl p-4 bg-white hover:bg-gray-50 cursor-pointer transition">
-                                                <PlusCircle className="w-5 h-5 text-blue-600" />
-                                                <span className="text-sm font-bold text-gray-700">Vali failid arvutist...</span>
+
+                                                <span className="text-sm font-bold text-gray-700">{materialFile ? materialFile.name : "Vali fail arvutist..."}</span>
                                                 <input
                                                     type="file"
-                                                    multiple
-                                                    onChange={handleAddMaterialFile}
+                                                    accept=".pdf, .png, .jpg, .jpeg, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt"
+                                                    onChange={(e) => {
+                                                        if (e.target.files?.[0]) {
+                                                            setMaterialFile(e.target.files[0]);
+                                                        }
+                                                    }}
                                                     className="hidden"
                                                 />
                                             </label>
-
-                                            {/* Materjalide nimekiri */}
-                                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                                {/* Osa A: Juba andmebaasis olevad materjalid */}
-                                                {existingMaterials.map((mat) => (
-                                                    <div key={mat.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-3 shadow-2xs">
-                                                        <div className="flex items-center gap-2.5 truncate">
-                                                            <FileText className="w-5 h-5 text-emerald-600 shrink-0" />
-                                                            <span className="text-sm font-semibold text-gray-700 truncate">{mat.name}</span>
-                                                            <span className="text-2xs bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Serveris</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleSaveMaterial}
+                                            className="bg-white hover:bg-gray-100 border border-gray-200 text-gray-750 py-3.5 px-6 rounded-xl text-sm font-bold cursor-pointer transition-all shadow-xs active:scale-98 flex items-center justify-center gap-2 w-full"
+                                        >
+                                            <PlusCircle className="w-5 h-5 text-gray-400" />
+                                            Lisa õppematerjal
+                                        </button>
+                                        
+                                        {/* Materjalide nimekiri */}
+                                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                            {/* Osa A: Juba andmebaasis olevad materjalid */}
+                                            {existingMaterials.map((mat) => (
+                                                <div key={mat.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-3 shadow-2xs">
+                                                    <div className="flex items-center gap-2.5 truncate">
+                                                        <FileText className="w-5 h-5 text-emerald-600 shrink-0" />
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-sm font-semibold text-gray-700 truncate">Pealkiri: {mat.title}</span>
+                                                            <span className="text-sm font-semibold text-gray-700 truncate">Faili nimi: {mat.name}</span>
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveExistingMaterial(mat.id)}
-                                                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
-                                                            title="Kustuta fail andmebaasist"
-                                                        >
-                                                            <Trash className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                ))}
 
-                                                {/* Osa B: Kasutaja poolt uuesti valitud failid */}
-                                                {newMaterialFiles.map((file, index) => (
-                                                    <div key={index} className="flex items-center justify-between bg-blue-50/40 border border-blue-100 rounded-xl p-3 shadow-2xs">
-                                                        <div className="flex items-center gap-2.5 truncate">
-                                                            <FileText className="w-5 h-5 text-blue-600 shrink-0" />
-                                                            <span className="text-sm font-semibold text-blue-800 truncate">{file.name}</span>
-                                                            <span className="text-2xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Uus</span>
+                                                        <span className="text-2xs bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Serveris</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExistingMaterial(mat.id)}
+                                                        className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
+                                                        title="Kustuta fail andmebaasist"
+                                                    >
+                                                        <Trash className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+
+                                            ))}
+
+
+                                            {/* Osa B: Kasutaja poolt uuesti valitud failid */}
+                                            {materials.map((mat, index) => (
+                                                <div key={index} className="flex items-center justify-between bg-blue-50/40 border border-blue-100 rounded-xl p-3 shadow-2xs">
+                                                    <div className="flex items-center gap-2.5 truncate">
+                                                        <FileText className="w-5 h-5 text-blue-600 shrink-0" />
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-sm font-semibold text-gray-700 truncate">Pealkiri: {mat.title}</span>
+                                                            <span className="text-sm font-semibold text-gray-700 truncate">Faili nimi: {mat.name}</span>
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveNewMaterial(index)}
-                                                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </button>
+                                                        <span className="text-2xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Uus</span>
                                                     </div>
-                                                ))}
+                                                     <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveNewMaterial(index)}
+                                                        className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
+                                                    >
+                                                        <Trash className="w-4 h-4" />
+                                                    </button>
+                                                </div>
 
-                                                {existingMaterials.length === 0 && newMaterialFiles.length === 0 && (
-                                                    <p className="text-sm text-gray-455 text-center py-4 italic">Programmil puuduvad lisatud õppematerjalid.</p>
-                                                )}
-                                            </div>
+                                            ))}
+
+                                            {existingMaterials.length === 0 && materials.length === 0 && (
+                                                <p className="text-sm text-gray-455 text-center py-4 italic">Programmil puuduvad lisatud õppematerjalid.</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

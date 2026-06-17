@@ -50,8 +50,8 @@ export default async function EditProgramPage({ params }: PageProps) {
     }
 
     return (
-        <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-            <h1>Muuda programmi (ID: {program.id})</h1>
+        <div>
+            {/* <h1>Muuda programmi (ID: {program.id})</h1> */}
             <ProgramEditForm program={program} categories={categories} />
         </div>
     );
