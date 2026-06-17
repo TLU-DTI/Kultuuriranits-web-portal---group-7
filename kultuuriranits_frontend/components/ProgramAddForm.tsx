@@ -51,7 +51,7 @@ export function ProgramAddForm({
     const [formConnections, setFormConnections] = useState<string[]>([]);
     const [formLanguages, setFormLanguages] = useState<string[]>([]);
     const [materials, setMaterials] = useState<
-        { file: File; name: string }[]
+        { file: File; name: string; title: string }[]
     >([]);
     const [wheelchair, setWheelchair] = useState(false);
     const [hev, setHev] = useState(false);
@@ -67,7 +67,8 @@ export function ProgramAddForm({
             ...prev,
             {
                 file: formMaterialFile,
-                name: formMaterialName || formMaterialFile.name,
+                name: formMaterialFile.name,
+                title: formMaterialName
             },
         ]);
 
@@ -100,6 +101,7 @@ export function ProgramAddForm({
         setFormAdditionalInfo('');
         setFormPublished('');
         setFormImageFile(null);
+        setMaterials([]);
 
         // setFormStep('form');
         // setActiveTab('lisa');
@@ -142,6 +144,7 @@ export function ProgramAddForm({
             category: {
                 id: Number(formCategories)
             },
+            material:{title:(formMaterialName)},
             organizationId: organizationId,
         };
 
@@ -652,6 +655,7 @@ export function ProgramAddForm({
 
                                     <input
                                         type="file"
+                                        accept="image/*, .pdf, .txt"
                                         onChange={(e) => {
                                             if (e.target.files?.[0]) {
                                                 setFormMaterialFile(e.target.files[0]);
@@ -660,8 +664,6 @@ export function ProgramAddForm({
                                         className="w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                     />
                                 </div>
-
-                                {/* Button BELOW inputs */}
                                 <button
                                     type="button"
                                     onClick={handleAddMaterial}
@@ -670,7 +672,6 @@ export function ProgramAddForm({
                                     <PlusCircle className="w-5 h-5 text-gray-400" />
                                     Lisa õppematerjal
                                 </button>
-
                             </div>
 
                             {/* Display added materials list */}
@@ -683,7 +684,11 @@ export function ProgramAddForm({
                                     >
                                         <span className="flex items-center gap-2">
                                             <FileText className="w-5 h-5" />
-                                            {m.name} {formMaterialName}
+                                            Pealkiri: {m.title}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            {/* <FileText className="w-5 h-5" /> */}
+                                            Faili nimi: {m.name}
                                         </span>
 
                                         <button

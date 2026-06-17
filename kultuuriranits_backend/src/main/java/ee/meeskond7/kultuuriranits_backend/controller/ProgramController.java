@@ -120,6 +120,7 @@ public class ProgramController {
     public ResponseEntity<?> addProgram(@RequestPart Program program,
                                         @RequestPart MultipartFile imageFile,
                                         @RequestPart(value = "materialFiles", required = false)  List<MultipartFile> materialFiles,
+                                        @RequestParam(value = "materialTitles", required = false) List<String> materialTitles,
                                         HttpSession session) {
         try {
             Long orgId = (Long) session.getAttribute("organization_id");
@@ -137,7 +138,7 @@ public class ProgramController {
 
 
 
-            Program program1 = programService.addProgram(program, imageFile, materialFiles);
+            Program program1 = programService.addProgram(program, imageFile, materialFiles, materialTitles);
             return new ResponseEntity<>(program1, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
