@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Category } from "../models/Category";
+import Image from "next/image";
 
 import { ArrowRight, FileText, ImageIcon, PlusCircle, Trash } from "lucide-react";
 
@@ -51,7 +52,7 @@ export function ProgramAddForm({
     const [formConnections, setFormConnections] = useState<string[]>([]);
     const [formLanguages, setFormLanguages] = useState<string[]>([]);
     const [materials, setMaterials] = useState<
-        { file: File; name: string }[]
+        { file: File; name: string; title: string; }[]
     >([]);
     const [wheelchair, setWheelchair] = useState(false);
     const [hev, setHev] = useState(false);
@@ -67,7 +68,9 @@ export function ProgramAddForm({
             ...prev,
             {
                 file: formMaterialFile,
-                name: formMaterialName || formMaterialFile.name,
+                title: formMaterialName || formMaterialFile.name,
+                name: formMaterialFile.name,
+               
             },
         ]);
 
@@ -100,6 +103,7 @@ export function ProgramAddForm({
         setFormAdditionalInfo('');
         setFormPublished('');
         setFormImageFile(null);
+        setMaterials([]);
 
         // setFormStep('form');
         // setActiveTab('lisa');
@@ -164,8 +168,9 @@ export function ProgramAddForm({
             materials.forEach((m, i) => {
                 if (!m?.file) return;
 
-                console.log("Material sent:", i, m.file.name);
+                console.log("Material sent:", i, m.file.name, m.title);
                 multipartData.append("materialFiles", m.file);
+                multipartData.append("materialTitles", m.title);
             });
         }
 
@@ -188,7 +193,7 @@ export function ProgramAddForm({
 
         alert("Programm lisatud");
 
-        handleCreateNewClick();
+        //handleCreateNewClick();
 
 
     }
@@ -563,10 +568,12 @@ export function ProgramAddForm({
                             <div className="border border-gray-200 bg-gray-50 rounded-2xl overflow-hidden h-48 flex flex-col items-center justify-center relative group shadow-xs">
                                 {formimageFile ? (
                                     <>
-                                        <img
+                                        <Image
                                             src={URL.createObjectURL(formimageFile)}
                                             alt="Programmi kaanefoto eelvaade"
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            unoptimized
+                                            className="object-cover"
                                         />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <span className="text-white text-xs font-bold bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/30">
@@ -652,6 +659,7 @@ export function ProgramAddForm({
 
                                     <input
                                         type="file"
+                                        accept="image/*, .pdf, .txt"
                                         onChange={(e) => {
                                             if (e.target.files?.[0]) {
                                                 setFormMaterialFile(e.target.files[0]);
@@ -660,8 +668,6 @@ export function ProgramAddForm({
                                         className="w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                     />
                                 </div>
-
-                                {/* Button BELOW inputs */}
                                 <button
                                     type="button"
                                     onClick={handleAddMaterial}
@@ -670,7 +676,6 @@ export function ProgramAddForm({
                                     <PlusCircle className="w-5 h-5 text-gray-400" />
                                     Lisa õppematerjal
                                 </button>
-
                             </div>
 
                             {/* Display added materials list */}
@@ -683,7 +688,11 @@ export function ProgramAddForm({
                                     >
                                         <span className="flex items-center gap-2">
                                             <FileText className="w-5 h-5" />
-                                            {m.name} {formMaterialName}
+                                            Pealkiri: {m.title}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            {/* <FileText className="w-5 h-5" /> */}
+                                            Faili nimi: {m.name}
                                         </span>
 
                                         <button
