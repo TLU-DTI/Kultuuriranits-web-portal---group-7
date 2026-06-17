@@ -108,8 +108,8 @@ export function AdminProgramsTable({ programs }: AdminProgramsTableProps) {
           program.category?.name,
           program.organization?.name,
           program.location,
-          program.language,
-          program.targetGroup,
+          program.languages,
+          program.targetGroups,
         ]
           .filter(Boolean)
           .join(" ")

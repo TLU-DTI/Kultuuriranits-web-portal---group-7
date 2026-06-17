@@ -102,8 +102,8 @@ public class Program {
     private String imageType;
     @Lob
     @JsonIgnore
-    @JdbcTypeCode(Types.BINARY)
-    //@Column(columnDefinition = "LONGBLOB") <--- mysql jaoks
+    //@JdbcTypeCode(Types.BINARY)
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
     @ManyToOne

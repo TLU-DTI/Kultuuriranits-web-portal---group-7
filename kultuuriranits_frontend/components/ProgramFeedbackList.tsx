@@ -29,7 +29,6 @@ interface ProgramFeedbackListProps {
 export async function ProgramFeedbackList({ programId }: ProgramFeedbackListProps) {
     const allFeedback = await getAllFeedback();
 
-    // Filtreerime välja tagasisided, mis kuuluvad sellele konkreetsele programmile
     const programFeedback = allFeedback.filter(
         (fb) => fb.program && fb.program.id === programId
     );

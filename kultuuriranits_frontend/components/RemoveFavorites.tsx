@@ -36,10 +36,8 @@ export function RemoveFavorites({
         throw new Error("Lemmikust eemaldamine ebaõnnestus");
       }
 
-      // Muudab südame kohe tühjaks, ei pea refreshi ootama
       setIsRemoved(true);
 
-      // Näitab toast'i
       setShowToast(true);
 
       setTimeout(() => {

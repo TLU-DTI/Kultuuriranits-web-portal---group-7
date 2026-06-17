@@ -64,6 +64,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
     { name: 'Õppematerjalid', href: '/materials' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
+    { name: 'Saada teavitus', href: '/admin/sendEmail' },
   ],
 };
 
