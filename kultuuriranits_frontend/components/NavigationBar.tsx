@@ -21,9 +21,15 @@ type CurrentUser = {
   };
 };
 
-type NavLink = {
+type NavChildLink = {
   name: string;
   href: string;
+};
+
+type NavLink = {
+  name: string;
+  href?: string;
+  children?: NavChildLink[];
 };
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL || 'http://localhost:5050';
@@ -39,8 +45,13 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
 
   TEACHER: [
     { name: 'Avaleht', href: '/' },
-    { name: 'Kultuuriprogrammid', href: '/programs' },
-    { name: 'Lemmikud', href: '/favorites' },
+    {
+      name: 'Kultuuriprogrammid',
+      children: [
+        { name: 'Programmide otsing', href: '/programs' },
+        { name: 'Lemmikud', href: '/favorites' },
+      ],
+    },
     { name: 'Tagasiside', href: '/feedback' },
     { name: 'Õppematerjalid', href: '/materials' },
     { name: 'Info', href: '/info' },
@@ -61,7 +72,7 @@ const navLinksByRole: Record<NavbarRole, NavLink[]> = {
     { name: 'Töölaud', href: '/admin' },
     { name: 'Kasutajad', href: '/admin/users' },
     { name: 'Kultuuriprogrammid', href: '/admin/programs' },
-    { name: 'Õppematerjalid', href: '/materials' },
+    { name: 'Õppematerjalid', href: '/admin/materials' },
     { name: 'Info', href: '/info' },
     { name: 'Kontakt', href: '/contact' },
     { name: 'Saada teavitus', href: '/admin/sendEmail' },
@@ -102,6 +113,18 @@ function getNotificationsHref(role: NavbarRole) {
   }
 }
 
+function isNavLinkActive(link: NavLink, pathname: string) {
+  if (link.href && pathname === link.href) {
+    return true;
+  }
+
+  if (link.children?.some((child) => pathname === child.href)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -109,8 +132,10 @@ export function Navbar() {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [openNavDropdown, setOpenNavDropdown] = useState<string | null>(null);
 
   const profileRef = useRef<HTMLDivElement>(null);
+  const navMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -164,6 +189,13 @@ export function Navbar() {
       ) {
         setIsProfileOpen(false);
       }
+
+      if (
+        navMenuRef.current &&
+        !navMenuRef.current.contains(event.target as Node)
+      ) {
+        setOpenNavDropdown(null);
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -172,6 +204,10 @@ export function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setOpenNavDropdown(null);
+  }, [pathname]);
 
   const role: NavbarRole = user?.role?.name ?? 'GUEST';
   const navLinks = navLinksByRole[role];
@@ -213,14 +249,73 @@ export function Navbar() {
               Kultuuriranits
             </Link>
 
-            <div className="hidden md:flex items-center gap-2">
+            <div
+              ref={navMenuRef}
+              className="hidden md:flex items-center gap-2"
+            >
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive = isNavLinkActive(link, pathname);
+                const hasChildren = Boolean(link.children?.length);
+                const isDropdownOpen = openNavDropdown === link.name;
+
+                if (hasChildren) {
+                  return (
+                    <div
+                      key={link.name}
+                      className="relative"
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenNavDropdown((current) =>
+                            current === link.name ? null : link.name
+                          )
+                        }
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                          isActive
+                            ? 'bg-blue-50 text-blue-700 font-semibold'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                      >
+                        <span>{link.name}</span>
+
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform ${
+                            isDropdownOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+
+                      {isDropdownOpen && (
+                        <div className="absolute left-0 mt-2 w-56 rounded-2xl border border-gray-100 bg-white py-2 shadow-xl z-50">
+                          {link.children?.map((child) => {
+                            const isChildActive = pathname === child.href;
+
+                            return (
+                              <Link
+                                key={`${child.name}-${child.href}`}
+                                href={child.href}
+                                onClick={() => setOpenNavDropdown(null)}
+                                className={`block px-4 py-2.5 text-sm transition-colors ${
+                                  isChildActive
+                                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                }`}
+                              >
+                                {child.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
 
                 return (
                   <Link
                     key={`${link.name}-${link.href}`}
-                    href={link.href}
+                    href={link.href ?? '/'}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                       isActive
                         ? 'bg-blue-50 text-blue-700 font-semibold'
@@ -237,15 +332,19 @@ export function Navbar() {
           <div className="flex items-center gap-4 shrink-0">
             {isLoadingUser ? null : user ? (
               <>
-                <Link
-                  href={getNotificationsHref(role)}
-                  className="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Teated"
-                >
-                  <Bell className="w-5 h-5" />
-                </Link>
+                {role !== 'TEACHER' && (
+                  <>
+                    <Link
+                      href={getNotificationsHref(role)}
+                      className="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="Teated"
+                    >
+                      <Bell className="w-5 h-5" />
+                    </Link>
 
-                <div className="h-6 w-px bg-gray-200" />
+                    <div className="h-6 w-px bg-gray-200" />
+                  </>
+                )}
 
                 <div className="relative" ref={profileRef}>
                   <button
@@ -328,12 +427,49 @@ export function Navbar() {
           </div>
 
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = isNavLinkActive(link, pathname);
+            const hasChildren = Boolean(link.children?.length);
+
+            if (hasChildren) {
+              return (
+                <div key={`${link.name}-mobile`} className="flex flex-col gap-2">
+                  <p
+                    className={`text-sm ${
+                      isActive
+                        ? 'text-blue-700 font-semibold'
+                        : 'text-gray-700 font-semibold'
+                    }`}
+                  >
+                    {link.name}
+                  </p>
+
+                  <div className="flex flex-col gap-2 pl-4 border-l border-gray-200">
+                    {link.children?.map((child) => {
+                      const isChildActive = pathname === child.href;
+
+                      return (
+                        <Link
+                          key={`${child.name}-${child.href}-mobile`}
+                          href={child.href}
+                          className={`text-sm ${
+                            isChildActive
+                              ? 'text-blue-700 font-semibold'
+                              : 'text-gray-700 hover:text-blue-700'
+                          }`}
+                        >
+                          {child.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <Link
                 key={`${link.name}-${link.href}-mobile`}
-                href={link.href}
+                href={link.href ?? '/'}
                 className={`text-sm ${
                   isActive
                     ? 'text-blue-700 font-semibold'

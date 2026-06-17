@@ -78,7 +78,7 @@ export function HeroCarousel() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/otsi"
-                  className="inline-block bg-white text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl transform hover:scale-105"
+                  className="inline-block bg-white text-gray-900 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 ease-out shadow-xl hover:bg-gray-100 hover:scale-105 hover:shadow-2xl active:scale-95"
                 >
                   {slide.buttonText}
                 </Link>
@@ -91,13 +91,13 @@ export function HeroCarousel() {
       {/* Navigation Buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-sm opacity-0 z-20 cursor-pointer transition-all duration-300 ease-out group-hover:opacity-100 hover:bg-white/40 hover:scale-110 active:scale-95"
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white backdrop-blur-sm opacity-0 z-20 cursor-pointer transition-all duration-300 ease-out group-hover:opacity-100 hover:bg-white/40 hover:scale-110 active:scale-95"
       >
         <ChevronRight className="w-6 h-6" />
       </button>
@@ -108,8 +108,8 @@ export function HeroCarousel() {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-              index === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70'
+            className={`h-2.5 rounded-full transition-all duration-300 ease-out cursor-pointer ${
+              index === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70 hover:scale-110'
             }`}
           />
         ))}
