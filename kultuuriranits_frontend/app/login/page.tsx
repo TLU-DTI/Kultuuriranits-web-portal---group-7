@@ -37,11 +37,10 @@ export default function LoginPage() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ email: email.trim(), password }),
-                credentials: "include", // VÄGA OLULINE: salvestab sessiooniküpsise brauserisse
+                credentials: "include",
             });
 
             if (!res.ok) {
-                // Kui backend tagastab 401 Unauthorized (vale parool või e-mail)
                 throw new Error("Vale e-maili aadress või parool.");
             }
 
