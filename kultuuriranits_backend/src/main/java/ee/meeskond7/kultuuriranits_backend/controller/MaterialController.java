@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,8 @@ public class MaterialController {
     private MaterialRepository materialRepository;
 
     @GetMapping("material")
-    public List<Material> getMaterial(){
-        return materialRepository.findAll();
+    public Page<Material> getMaterial(Pageable pageable) {
+        return materialRepository.findAll(pageable);
     }
 
     @DeleteMapping("material/{id}")
