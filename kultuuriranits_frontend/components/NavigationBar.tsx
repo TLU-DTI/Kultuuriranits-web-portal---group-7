@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Bell, ChevronDown, LogOut, User } from 'lucide-react';
@@ -19,6 +19,19 @@ type CurrentUser = {
     id: number;
     name: DatabaseRole;
   };
+};
+
+type NotificationItem = {
+  id: number;
+  title?: string;
+  message?: string;
+  status?: string;
+  createdAt?: string;
+};
+
+type NotificationsUpdatedEventDetail = {
+  unreadDelta?: number;
+  unreadCount?: number;
 };
 
 type NavChildLink = {
@@ -124,6 +137,12 @@ function isNavLinkActive(link: NavLink, pathname: string) {
   return false;
 }
 
+function getUnreadNotificationsCount(notifications: NotificationItem[]) {
+  return notifications.filter(
+    (notification) => notification.status?.toLowerCase() === 'unread'
+  ).length;
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -132,9 +151,39 @@ export function Navbar() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [openNavDropdown, setOpenNavDropdown] = useState<string | null>(null);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const navMenuRef = useRef<HTMLDivElement>(null);
+
+  const role: NavbarRole = user?.role?.name ?? 'GUEST';
+  const navLinks = navLinksByRole[role];
+
+  const refreshUnreadNotifications = useCallback(async () => {
+    if (!user?.id || role !== 'CULTURAL_INSTITUTION') {
+      setUnreadNotificationsCount(0);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/notification`, {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        setUnreadNotificationsCount(0);
+        return;
+      }
+
+      const data: NotificationItem[] = await response.json();
+      setUnreadNotificationsCount(getUnreadNotificationsCount(data));
+    } catch (error) {
+      console.error('Teavituste laadimine ebaõnnestus:', error);
+      setUnreadNotificationsCount(0);
+    }
+  }, [user?.id, role]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -181,6 +230,58 @@ export function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!user?.id || role !== 'CULTURAL_INSTITUTION') {
+      setUnreadNotificationsCount(0);
+      return;
+    }
+
+    refreshUnreadNotifications();
+
+    const handleNotificationsUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<NotificationsUpdatedEventDetail>;
+      const detail = customEvent.detail;
+
+      if (typeof detail?.unreadCount === 'number') {
+        setUnreadNotificationsCount(Math.max(detail.unreadCount, 0));
+        return;
+      }
+
+      if (typeof detail?.unreadDelta === 'number') {
+        setUnreadNotificationsCount((current) =>
+          Math.max(current + detail.unreadDelta!, 0)
+        );
+        return;
+      }
+
+      setUnreadNotificationsCount((current) => Math.max(current - 1, 0));
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshUnreadNotifications();
+      }
+    };
+
+    window.addEventListener('notifications-updated', handleNotificationsUpdated);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const intervalMs = pathname === '/notifications' ? 1000 : 10000;
+
+    const intervalId = window.setInterval(() => {
+      refreshUnreadNotifications();
+    }, intervalMs);
+
+    return () => {
+      window.removeEventListener(
+        'notifications-updated',
+        handleNotificationsUpdated
+      );
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.clearInterval(intervalId);
+    };
+  }, [user?.id, role, pathname, refreshUnreadNotifications]);
+
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
         profileRef.current &&
@@ -207,9 +308,6 @@ export function Navbar() {
   useEffect(() => {
     setOpenNavDropdown(null);
   }, [pathname]);
-
-  const role: NavbarRole = user?.role?.name ?? 'GUEST';
-  const navLinks = navLinksByRole[role];
 
   async function handleLogout() {
     try {
@@ -248,10 +346,7 @@ export function Navbar() {
               Kultuuriranits
             </Link>
 
-            <div
-              ref={navMenuRef}
-              className="hidden md:flex items-center gap-2"
-            >
+            <div ref={navMenuRef} className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => {
                 const isActive = isNavLinkActive(link, pathname);
                 const hasChildren = Boolean(link.children?.length);
@@ -259,10 +354,7 @@ export function Navbar() {
 
                 if (hasChildren) {
                   return (
-                    <div
-                      key={link.name}
-                      className="relative"
-                    >
+                    <div key={link.name} className="relative">
                       <button
                         type="button"
                         onClick={() =>
@@ -336,9 +428,22 @@ export function Navbar() {
                     <Link
                       href={getNotificationsHref(role)}
                       className="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                      aria-label="Teated"
+                      aria-label={
+                        unreadNotificationsCount > 0
+                          ? `Teated, ${unreadNotificationsCount} lugemata`
+                          : 'Teated'
+                      }
                     >
                       <Bell className="w-5 h-5" />
+
+                      {role === 'CULTURAL_INSTITUTION' &&
+                        unreadNotificationsCount > 0 && (
+                          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-black leading-none text-white shadow-sm ring-2 ring-white">
+                            {unreadNotificationsCount > 99
+                              ? '99+'
+                              : unreadNotificationsCount}
+                          </span>
+                        )}
                     </Link>
 
                     <div className="h-6 w-px bg-gray-200" />
