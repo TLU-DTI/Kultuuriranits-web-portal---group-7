@@ -21,12 +21,13 @@ public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
     private String name;
     private String fileType;
     @Lob
     @JsonIgnore
-    //@Column(columnDefinition = "LONGBLOB") <--- mysql jaoks
-    @JdbcTypeCode(Types.BINARY)
+    @Column(columnDefinition = "LONGBLOB")
+    //@JdbcTypeCode(Types.BINARY)
     private byte[] fileData;
 
     @ManyToOne

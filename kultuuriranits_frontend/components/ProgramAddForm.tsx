@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Category } from "../models/Category";
+import Image from "next/image";
 
 import {
   ArrowRight,
@@ -91,17 +92,169 @@ export function ProgramAddForm({
       const allowedExtensions =
         /(\.pdf|\.png|\.jpg|\.jpeg|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.txt)$/i;
 
-      if (!allowedExtensions.exec(file.name)) {
-        alert(
-          "Lubatud on ainult järgmised failivormingud: PDF, pildid (PNG, JPG) ja Office dokumendid!",
-        );
-        e.target.value = "";
+    const [formimageFile, setFormImageFile] = useState<File | null>(null);
+    const [formMaterialFile, setFormMaterialFile] = useState<File | null>(null);
+    const [formMaterialName, setFormMaterialName] = useState("");
+    const [formTitle, setFormTitle] = useState('');
+    const [formShortDesc, setFormShortDesc] = useState('');
+    const [formConnectionDesc, setFormConnectionDesc] = useState('');
+    const [formFullDesc, setFormFullDesc] = useState('');
+    const [formLocation, setFormLocation] = useState('');
+    const [formDuration, setFormDuration] = useState(0);
+    const [formPrice, setFormPrice] = useState(0);
+    const [formMinGroupSize, setFormMinGroupSize] = useState(0);
+    const [formMaxGroupSize, setFormMaxGroupSize] = useState(0);
+    const [formCounty, setFormCounty] = useState('');
+    const [formAddress, setFormAddress] = useState("");
+    const [formEmail, setFormEmail] = useState('');
+    const [formPhone, setFormPhone] = useState('');
+    const [formTargetGroups, setFormTargetGroups] = useState<string[]>([]);
+    const [formCategories, setFormCategories] = useState("");
+    const [formConnections, setFormConnections] = useState<string[]>([]);
+    const [formLanguages, setFormLanguages] = useState<string[]>([]);
+    const [materials, setMaterials] = useState<
+        { file: File; name: string; title: string; }[]
+    >([]);
+    const [wheelchair, setWheelchair] = useState(false);
+    const [hev, setHev] = useState(false);
+    const [lak, setLak] = useState(false);
+    const [outdoor, setOutdoor] = useState(false);
+    const [formAdditionalInfo, setFormAdditionalInfo] = useState('');
+    const [formPublished, setFormPublished] = useState('Inactive');
+
+    const handleAddMaterial = () => {
+        if (!formMaterialFile) return;
+
+        setMaterials(prev => [
+            ...prev,
+            {
+                file: formMaterialFile,
+                title: formMaterialName || formMaterialFile.name,
+                name: formMaterialFile.name,
+               
+            },
+        ]);
+
         setFormMaterialFile(null);
-        return;
-      }
-      setFormMaterialFile(file);
-    }
-  };
+        setFormMaterialName("");
+    };
+
+    const handleCreateNewClick = () => {
+        // setEditingProgramId(null);
+        setFormTitle('');
+        setFormShortDesc('');
+        setFormFullDesc('');
+        setFormLocation('');
+        setFormDuration(0);
+        setFormPrice(0);
+        setFormMinGroupSize(0);
+        setFormMaxGroupSize(0);
+        setFormCounty('');
+        setFormAddress('');
+        setOutdoor(false);
+        setWheelchair(false);
+        setHev(false);
+        setLak(false);
+        setFormEmail('');
+        setFormPhone('');
+        setFormTargetGroups([]);
+        setFormCategories('');
+        setFormConnections([]);
+        setFormLanguages([]);
+        setFormAdditionalInfo('');
+        setFormPublished('');
+        setFormImageFile(null);
+        setMaterials([]);
+
+        // setFormStep('form');
+        // setActiveTab('lisa');
+    };
+
+
+    async function handleSubmit(
+        e: React.FormEvent<HTMLFormElement>
+    ) {
+        e.preventDefault();
+
+        if (!formimageFile) {
+            alert("Palun vali pilt");
+            return;
+        }
+
+        const newProg = {
+            title: formTitle,
+            location: formLocation,
+            shortDescription: formShortDesc,
+            description: formFullDesc,
+            pricePerStudent: formPrice,
+            targetGroups: formTargetGroups,
+            durationMinutes: formDuration,
+            languages: formLanguages,
+            connection: formConnectionDesc,
+            outdoor: outdoor,
+            hev: hev,
+            lak: lak,
+            wheelchair: wheelchair,
+            contactEmail: formEmail,
+            contactPhone: formPhone,
+            status: formPublished,
+            minGroupSize: formMinGroupSize,
+            maxGroupSize: formMaxGroupSize,
+            connectionKeys: formConnections,
+            county: formCounty,
+            address: formAddress,
+            addInfo: formAdditionalInfo,
+            category: {
+                id: Number(formCategories)
+            },
+            organizationId: organizationId,
+        };
+
+        const multipartData = new FormData();
+        multipartData.append(
+            "program",
+            new Blob(
+                [JSON.stringify(newProg)],
+                {
+                    type: "application/json"
+                }
+            )
+        );
+
+        if (formimageFile) {
+            multipartData.append("imageFile", formimageFile);
+        }
+
+        if (materials && materials.length > 0) {
+            materials.forEach((m, i) => {
+                if (!m?.file) return;
+
+                console.log("Material sent:", i, m.file.name, m.title);
+                multipartData.append("materialFiles", m.file);
+                multipartData.append("materialTitles", m.title);
+            });
+        }
+
+        const response = await fetch(
+            `${API_URL}/program`,
+            {
+                method: "POST",
+                body: multipartData,
+                credentials: "include"
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(errorText);
+
+            alert("Programmi lisamine ebaõnnestus");
+            return;
+        }
+
+        alert("Programm lisatud");
+
+        //handleCreateNewClick();
 
   const handleAddMaterial = () => {
     if (!formMaterialFile) return;
@@ -202,12 +355,525 @@ export function ProgramAddForm({
       organizationId: organizationId,
     };
 
-    const multipartData = new FormData();
-    multipartData.append(
-      "program",
-      new Blob([JSON.stringify(newProg)], {
-        type: "application/json",
-      }),
+                    <div className="border-t border-gray-100 my-8 pt-8"></div>
+
+                    {/* Section 2: Teemad ja sihtgrupp */}
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            Teemad ja sihtgrupp
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Categories (Kategooriad) Dropdown Select with tag pills */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kategooriad *</label>
+                                <select
+                                    value={formCategories}
+                                    onChange={(e) => setFormCategories(e.target.value)}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa teema / kategooria...</option>
+                                    {categories?.map(cat => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+
+                            </div>
+
+                            {/* Target Groups Dropdown Select with tag pills */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Sihtgrupp *</label>
+                                <select
+                                    value=""
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val && !formTargetGroups.includes(val)) {
+                                            setFormTargetGroups([...formTargetGroups, val]);
+                                        }
+                                        e.target.value = "";
+                                    }}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa sihtgrupp...</option>
+                                    {['Lasteaed', '1. - 3. klass', '4. - 6. klass', '7. - 9. klass', 'Gümnaasium'].map(grp => (
+                                        <option key={grp} value={grp} disabled={formTargetGroups.includes(grp)}>
+                                            {grp}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
+                                    {formTargetGroups.map(grp => (
+                                        <span key={grp} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-blue-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                            {grp}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormTargetGroups(formTargetGroups.filter(g => g !== grp))}
+                                                className="text-blue-500 hover:text-blue-700 font-extrabold cursor-pointer text-sm ml-1"
+                                            >
+                                                &times;
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {formTargetGroups.length === 0 && (
+                                        <span className="text-sm text-gray-455 italic">Ühtegi sihtgruppi pole valitud</span>
+                                    )}
+                                </div>
+                            </div>
+                            {/* Õppekavaseosed Dropdown Select with tag pills */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaseosed</label>
+                                <select
+                                    value={""}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val && !formConnections.includes(val)) {
+                                            setFormConnections(prev => [...prev, val]);
+                                        }
+                                        e.target.value = "";
+                                    }}
+                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                >
+                                    <option value="">Lisa õppekavaseos...</option>
+
+
+                                    {CURRICULUM_PRESETS.map(conn => (
+                                        <option
+                                            key={conn}
+                                            value={conn}
+                                            disabled={formConnections.includes(conn)}
+                                        >
+                                            {conn}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
+                                    {formConnections.map(conn => (
+                                        <span key={conn} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                            {conn}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormConnections(formConnections.filter(c => c !== conn))}
+                                                className="text-gray-400 hover:text-gray-700 font-extrabold cursor-pointer text-sm ml-1"
+                                            >
+                                                &times;
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {formConnections.length === 0 && (
+                                        <span className="text-sm text-gray-455 italic">Õppekavaseoseid pole lisatud</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaseose kirjeldus</label>
+                            <input
+                                type="textarea"
+
+                                placeholder="Õppekavaseose kirjeldus.."
+                                value={formConnectionDesc}
+                                onChange={(e) => setFormConnectionDesc(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
+                            />
+                        </div>
+                        </div>
+                        <div className="space-y-6">
+                            <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                Toimumise info
+                            </h3>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                                {/* Price input */}
+                                <div className="space-y-1.5">
+                                    <label className="text-base font-extrabold text-gray-800 block">Hind õpilase kohta *</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="nt. 10€"
+                                        value={formPrice}
+                                        onChange={(e) => setFormPrice(parseInt(e.target.value))}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                    />
+                                </div>
+
+                                {/* Duration */}
+                                <div className="space-y-1.5">
+                                    <label className="text-base font-extrabold text-gray-800 block">Kestus *</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="nt. 90 min"
+                                        value={formDuration}
+                                        onChange={(e) => setFormDuration(parseInt(e.target.value))}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                    />
+                                </div>
+
+                                {/* Min group size */}
+                                <div className="space-y-1.5">
+                                    <label className="text-base font-extrabold text-gray-800 block">Minimaalne grupp *</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="10"
+                                        value={formMinGroupSize}
+                                        onChange={(e) => setFormMinGroupSize(parseInt(e.target.value) || 0)}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                    />
+                                </div>
+
+                                {/* Max group size */}
+                                <div className="space-y-1.5">
+                                    <label className="text-base font-extrabold text-gray-800 block">Maksimaalne grupp *</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="30"
+                                        value={formMaxGroupSize}
+                                        onChange={(e) => setFormMaxGroupSize(parseInt(e.target.value) || 0)}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                {/* County select */}
+                                <div className="space-y-1.5">
+                                    <label className="text-base font-extrabold text-gray-800 block">Maakond *</label>
+                                    <select
+                                        value={formCounty}
+                                        onChange={(e) => setFormCounty(e.target.value)}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 cursor-pointer h-[54px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                    >
+                                        {ESTONIAN_COUNTIES.map(cnt => (
+                                            <option key={cnt} value={cnt}>{cnt}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Location name */}
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <label className="text-base font-extrabold text-gray-800 block">Toimumiskoht *</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="nt. Eesti Rahva Muuseum"
+                                        value={formLocation}
+                                        onChange={(e) => setFormLocation(e.target.value)}
+                                        className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Address */}
+                            <div className="space-y-1.5">
+                                <label className="text-base font-extrabold text-gray-800 block">Täpne aadress *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="nt. Muuseumi tee 2, 60532 Tartu"
+                                    value={formAddress}
+                                    onChange={(e) => setFormAddress(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                                />
+                            </div>
+
+                            {/* Accessibility & outdoor checkboxes */}
+                            <div className="space-y-2">
+                                <label className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Muu toimumisinfo</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-5 rounded-xl text-base font-bold text-gray-700">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={wheelchair}
+                                            onChange={(e) => setWheelchair(e.target.checked)}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
+                                        />
+                                        Ligipääs ratastooliga
+                                    </label>
+
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={hev}
+                                            onChange={(e) => setHev(e.target.checked)}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
+                                        />
+                                        HEV
+                                    </label>
+
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={lak}
+                                            onChange={(e) => setLak(e.target.checked)}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
+                                        />
+                                        LAK
+                                    </label>
+
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={outdoor}
+                                            onChange={(e) => setOutdoor(e.target.checked)}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
+                                        />
+                                        Toimub välitingimustes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-gray-100 my-8 pt-8"></div>
+                    </div>
+
+                </div>
+                <div className="space-y-6">
+                    <h3 className="text-lg font-extrabold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                        Meedia ja õppematerjalid
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Kaanefoto (Image Box Preview) */}
+                        <div className="space-y-3">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Programmi kaanefoto *</label>
+                            <div className="border border-gray-200 bg-gray-50 rounded-2xl overflow-hidden h-48 flex flex-col items-center justify-center relative group shadow-xs">
+                                {formimageFile ? (
+                                    <>
+                                        <Image
+                                            src={URL.createObjectURL(formimageFile)}
+                                            alt="Programmi kaanefoto eelvaade"
+                                            fill
+                                            unoptimized
+                                            className="object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/30">
+                                                Kaanefoto valitud
+                                            </span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-center p-4">
+                                        <ImageIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                        <span className="text-base text-gray-450 font-semibold">Pilti pole veel valitud</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Image upload zone or URL */}
+                            <div className="space-y-3 pt-2">
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    {/* File input (custom styled) */}
+                                    <label className="flex-1 bg-white border border-gray-300 rounded-xl px-5 py-3.5 text-base font-bold text-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all cursor-pointer shadow-xs active:scale-98 border-dashed border-2 hover:border-blue-400">
+                                        <PlusCircle className="w-5 h-5 text-gray-400" />
+                                        Vali fail arvutist
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                if (e.target.files?.[0]) {
+                                                    setFormImageFile(
+                                                        e.target.files[0]
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                    </label>
+
+                                    {/* <div className="flex-1">
+                                        <input
+                                            type="text"
+                                            placeholder="või sisesta pildi URL..."
+                                            value={formImage.startsWith('data:image') ? '' : formImage}
+                                            onChange={(e) => setFormImage(e.target.value)}
+                                            className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs h-[54px]"
+                                        />
+                                    </div> */}
+                                </div>
+
+                                {/* Presets Row */}
+                                {/* <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormImage('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=800&auto=format&fit=crop')}
+                                        className="flex-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 py-3 rounded-xl text-sm font-extrabold text-gray-650 transition-all cursor-pointer shadow-xs active:scale-95"
+                                    >
+                                        Ajalugu (ERM)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormImage('https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800&auto=format&fit=crop')}
+                                        className="flex-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 py-3 rounded-xl text-sm font-extrabold text-gray-650 transition-all cursor-pointer shadow-xs active:scale-95"
+                                    >
+                                        Kunst ja disain
+                                    </button>
+                                </div> */}
+                            </div>
+                        </div>
+
+                        {/* Õppematerjalid (Dynamic documents list) */}
+                        <div className="space-y-3">
+                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppematerjalid</label>
+
+                            <div className="space-y-3">
+
+                                {/* Inputs */}
+                                <div className="border border-gray-200 bg-gray-50 rounded-2xl h-48 p-6 space-y-8 shadow-xs">
+                                    <input
+                                        type="text"
+                                        placeholder="Materjali nimetus (nt. Tööleht)"
+                                        value={formMaterialName}
+                                        onChange={(e) => setFormMaterialName(e.target.value)}
+                                        className="w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    />
+
+                                    <input
+                                        type="file"
+                                        accept="image/*, .pdf, .txt"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                setFormMaterialFile(e.target.files[0]);
+                                            }
+                                        }}
+                                        className="w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleAddMaterial}
+                                    className="bg-white hover:bg-gray-100 border border-gray-200 text-gray-750 py-3.5 px-6 rounded-xl text-sm font-bold cursor-pointer transition-all shadow-xs active:scale-98 flex items-center justify-center gap-2 w-full"
+                                >
+                                    <PlusCircle className="w-5 h-5 text-gray-400" />
+                                    Lisa õppematerjal
+                                </button>
+                            </div>
+
+                            {/* Display added materials list */}
+                            <div className="space-y-2 max-h-48 overflow-y-auto pt-1">
+
+                                {materials.map((m, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="flex justify-between items-center bg-gray-50 p-4 rounded-xl"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <FileText className="w-5 h-5" />
+                                            Pealkiri: {m.title}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            {/* <FileText className="w-5 h-5" /> */}
+                                            Faili nimi: {m.name}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setMaterials(materials.filter((_, i) => i !== idx))
+                                            }
+                                        >
+                                            <Trash className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                ))}
+
+
+                            </div>
+
+                        </div>
+                        
+                        {/* Additional Info textarea for contact booking */}
+                        <div className="space-y-1.5">
+                            <label className="text-base font-extrabold text-gray-800 block">Lisainfo</label>
+                            <textarea
+                                rows={3}
+                                placeholder="Täiendav info programmi kohta..."
+                                value={formAdditionalInfo}
+                                onChange={(e) => setFormAdditionalInfo(e.target.value)}
+                                className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                <div className="space-y-4 pt-4 border-t border-gray-100 animate-fade-in">
+                      <p className="text-sm font-semibold text-gray-500 leading-relaxed">
+                        Täida allolevad kontaktandmed, mille kaudu õpetajad saavad Teiega ühendust võtta.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-base font-extrabold text-gray-800 block">Email *</label>
+                          <input
+                            type="email"
+                            placeholder="kultuuri@asutus.ee"
+                            value={formEmail}
+                            onChange={(e) => setFormEmail(e.target.value)}
+                            className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-base font-extrabold text-gray-800 block">Telefon *</label>
+                          <input
+                            type="text"
+                            placeholder="+372 ..."
+                            value={formPhone}
+                            onChange={(e) => setFormPhone(e.target.value)}
+                            className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+                          />
+                        </div>
+                      </div>
+                      </div>
+
+                {/* Section 6: Avalikustamise olek */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-150">
+                    <div>
+                        <span className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Avalikustamise olek</span>
+                        <span className="text-xs sm:text-sm text-gray-500 font-semibold block mt-0.5">Kas programm on salvestamise järel õpetajatele nähtav?</span>
+                    </div>
+
+                    <select
+                        value={formPublished}
+                        onChange={(e) => setFormPublished(e.target.value)}
+                        className="bg-white border border-gray-300 rounded-xl px-5 py-3.5 text-base font-extrabold text-gray-800 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 h-[54px]"
+                    >
+                        <option value="Active">Avalik (nähtav)</option>
+                        <option value="Inactive">Mitteavalik (draft)</option>
+                    </select>
+                </div>
+
+                {/* FORM FOOTER BUTTONS */}
+                <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onClick={() => {
+
+                        }}
+                        className="bg-white border border-gray-300 text-gray-700 px-8 py-3.5 rounded-xl text-base font-bold hover:bg-gray-50 transition-all cursor-pointer shadow-xs active:scale-98"
+                    >
+                        Tühista
+                    </button>
+
+                    <button
+                        type="submit"
+                        className="bg-blue-600 text-white px-10 py-3.5 rounded-xl text-base font-bold hover:bg-blue-700 transition-all shadow-xs flex items-center gap-2 cursor-pointer transform active:scale-98"
+                    >
+                        Salvesta
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+            </form >
+        </div >
     );
 
     if (formimageFile) {
