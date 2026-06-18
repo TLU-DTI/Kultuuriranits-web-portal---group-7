@@ -72,6 +72,14 @@ export function Footer() {
                 Juurdepääsetavus
               </h3>
               <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/accessibility"
+                    className="text-white/80 hover:text-white transition-colors"
+                  >
+                    Juurdepääsetavuse avaldus
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -131,8 +139,8 @@ export function Footer() {
           <div className="space-y-1 md:pl-4">
             <h4 className="font-bold text-base">Kultuuriministeerium</h4>
             <p className="text-white/80 pt-1">+372 628 2222</p>
-            <a 
-              href="mailto:min@kul.ee" 
+            <a
+              href="mailto:min@kul.ee"
               className="inline-block text-white/80 hover:text-white hover:underline transition-all mb-1"
             >
               min@kul.ee
