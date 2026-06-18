@@ -33,9 +33,9 @@ public class ProgramService {
 
 
 
-    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, List<String> languages, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,List<String> targetGroups, Integer minGroupSize, Integer maxGroupSize, String status,Boolean lak, Boolean hev, Boolean outdoor, Boolean wheelchair, Pageable pageable) {
+    public Page<Program> searchProgramsAll(String keyword,BigDecimal minPricePerStudent, BigDecimal maxPricePerStudent, Long categoryId, Long organizationId, String location, List<String> languages, BigDecimal pricePerStudent, Integer durationMinutes, Integer minDurationMinutes,Integer maxDurationMinutes ,List<String> targetGroups, Integer minGroupSize, Integer maxGroupSize, String status,Boolean lak, Boolean hev, Boolean outdoor, Boolean wheelchair, String county, Pageable pageable) {
 
-        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, languages, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize,maxGroupSize, status, lak, hev, outdoor, wheelchair, pageable);
+        return programRepository.searchProgramsAll((keyword==null)?null:"%"+keyword.toLowerCase()+"%",minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, languages, pricePerStudent, durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize,maxGroupSize, status, lak, hev, outdoor, wheelchair,county, pageable);
     }
 
 

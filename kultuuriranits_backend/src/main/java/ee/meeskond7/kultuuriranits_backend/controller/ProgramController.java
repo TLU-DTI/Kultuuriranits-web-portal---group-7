@@ -98,12 +98,13 @@ public class ProgramController {
             @RequestParam(required = false) Boolean hev,
             @RequestParam(required = false) Boolean outdoor,
             @RequestParam(required = false) Boolean wheelchair,
+            @RequestParam(required = false) String county,
             Pageable pageable) {
 
         System.out.println("searching with keyword: " + keyword + " and categoryId: " + categoryId);
 
         Page<Program> programs = programService.searchProgramsAll(keyword, minPricePerStudent, maxPricePerStudent, categoryId, organizationId, location, languages, pricePerStudent,
-                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize, maxGroupSize, status, lak, hev, outdoor, wheelchair, pageable
+                durationMinutes,minDurationMinutes, maxDurationMinutes, targetGroups, minGroupSize, maxGroupSize, status, lak, hev, outdoor, wheelchair, county, pageable
         );
         return new ResponseEntity<>(programs, HttpStatus.OK);
     }
