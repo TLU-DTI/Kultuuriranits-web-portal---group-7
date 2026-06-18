@@ -18,6 +18,7 @@ import {
 
 import Link from "next/link";
 import DownloadButton from "@/components/downloadButton";
+import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
@@ -90,16 +91,13 @@ export default async function ProgramPage({
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-gray-150 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
             <div className="h-64 sm:h-[350px] relative overflow-hidden group/image">
-              <img
+              <Image
                 src={`${API_URL}/program/${program.id}/image`}
                 alt={program.title}
-                style={{
-                  width: "100%",
-                  height: "250px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                  marginBottom: "12px",
-                }}
+                fill
+                unoptimized
+                className="object-cover"
+               
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent"></div>
@@ -254,7 +252,7 @@ export default async function ProgramPage({
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {program.materials.map((material: { id: string ; name: string; fileData: File}, index: number) => (
+                {program.materials.map((material: { id: string ; name: string; title: string;}, index: number) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 hover:border-gray-200 transition-all duration-200 group/mat"
@@ -263,8 +261,7 @@ export default async function ProgramPage({
                       <div className="p-2 bg-white rounded-lg border border-gray-150 shadow-xs group-hover/mat:border-gray-300 transition-colors">
                         <FileText className="w-4 h-4 text-gray-400" />
                       </div>
-
-                      <DownloadButton programId = {id} materialId={material.id} name = {material.name}/>
+                      <DownloadButton programId = {id} materialId={material.id} name = {material.name} title = {material.title}/>
                     </div>
                   </div>
                 ))}

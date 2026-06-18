@@ -124,8 +124,8 @@ public class Program {
         material.setProgram(this);
     }
 
-//    public void removeMaterial(Material material) {
-//        materials.remove(material);
-//        material.setProgram(null);
-//    }
+    public void removeMaterial(Material material) {
+        materials.remove(material);
+        material.setProgram(null);
+    }
 }
