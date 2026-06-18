@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { Program } from "@/models/Program";
 import { Category } from "@/models/Category";
 import {
-    ArrowRight,
     Trash,
     PlusCircle,
     FileText,
-    ImageIcon,
     ChevronDown
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
 interface Props {
@@ -684,7 +683,7 @@ export function ProgramEditForm({ program, categories }: Props) {
                                             {/* Faili lisamise nupp */}
                                             <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl p-4 bg-white hover:bg-gray-50 cursor-pointer transition">
 
-                                                <span className="text-sm font-bold text-gray-700">{materialFile ? materialFile.name : "Vali fail arvutist..."}</span>
+                                                <span className="text-sm font-bold text-gray-700">{materialFile ?  materialFile.name : "Vali fail (PDF, PNG, JPG, DOCX...)"}</span>
                                                 <input
                                                     type="file"
                                                     accept=".pdf, .png, .jpg, .jpeg, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt"
@@ -697,13 +696,13 @@ export function ProgramEditForm({ program, categories }: Props) {
                                                 />
                                             </label>
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={handleSaveMaterial}
-                                            className="bg-white hover:bg-gray-100 border border-gray-200 text-gray-750 py-3.5 px-6 rounded-xl text-sm font-bold cursor-pointer transition-all shadow-xs active:scale-98 flex items-center justify-center gap-2 w-full"
+                                       <button
+                                        type="button"
+                                        onClick={handleSaveMaterial}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white py-3.5 px-6 rounded-xl text-sm font-bold cursor-pointer transition-all shadow-xs active:scale-98 flex items-center justify-center gap-2 w-full"
                                         >
-                                            <PlusCircle className="w-5 h-5 text-gray-400" />
-                                            Lisa õppematerjal
+                                            <PlusCircle className="w-5 h-5" />
+                                            Lisa õppematerjal nimekirja
                                         </button>
 
                                         {/* Materjalide nimekiri */}
@@ -829,20 +828,19 @@ export function ProgramEditForm({ program, categories }: Props) {
 
                     {/* FORM FOOTER BUTTONS */}
                     <div className="flex justify-end gap-3 pt-6 pb-12 mb-8 border-t border-gray-100">
-                        <button
-                            type="button"
-                            onClick={() => { }}
+                         <Link 
+                            href="/cultural_institution"
                             className="bg-white border border-gray-300 text-gray-700 px-8 py-3.5 rounded-xl text-base font-bold hover:bg-gray-50 transition-all cursor-pointer shadow-xs active:scale-98"
-                        >
+                            >
                             Tühista
-                        </button>
+                        </Link>
 
                         <button
                             type="submit"
                             className="bg-blue-600 text-white px-10 py-3.5 rounded-xl text-base font-bold hover:bg-blue-700 transition-all shadow-xs flex items-center gap-2 cursor-pointer transform active:scale-98"
                         >
                             Salvesta
-                            <ArrowRight className="w-5 h-5" />
+                            {/* <ArrowRight className="w-5 h-5" /> */}
                         </button>
                     </div>
                 </div>
