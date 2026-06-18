@@ -1,79 +1,166 @@
 # Kultuuriranits
+
 ## Projekti kirjeldus
 
-**Kultuuriranits** on veebirakendus, mille eesmärk on koondada kultuurihariduse programmid ühte kesksesse keskkonda. Rakendus aitab õpetajatel leida sobivaid kultuuriprogramme õpilastele ning võimaldab kultuuriasutustel oma programme hallata. Platvorm lihtsustab koolide ja kultuuriasutuste vahelist suhtlust, vähendab info killustatust ning teeb programmide leidmise, filtreerimise ja haldamise mugavamaks. Süsteemis on eraldi vaated õpetajale, kultuuriasutusele ja administraatorile.
+**Kultuuriranits** on veebirakendus, mille eesmärk on koondada Eesti kultuurihariduse programmid ühte kesksesse keskkonda. Rakendus aitab õpetajatel leida sobivaid kultuuriprogramme, õppematerjale ja õppekäike ning võimaldab kultuuriasutustel oma programme mugavalt hallata. Platvorm vähendab info killustatust, lihtsustab programmide otsimist ja filtreerimist ning toetab koolide ja kultuuriasutuste vahelist koostööd.
 
-Projekt valmis Tallinna Ülikooli Digitehnoloogiate instituudis tarkvaraarenduse projekti ehk suvepraktika raames.
+Projekt valmis **Tallinna Ülikooli Digitehnoloogiate instituudi** õppeaine **IFI6231.DT Tarkvaraarenduse projekt ehk suvepraktika** raames.
+
+> **Märkus:** tegemist on ülikooli projekti raames loodud prototüübiga. Rakendus ei ole ametlik riiklik teenus ega lõplikult kasutusele võetud portaal.
+
+---
 
 ## Töötav rakendus
 
-Tuleb. Väga varsti!
+Töötava rakenduse link:
+
+```txt
+LISA SIIA VEEBIAADRESS
+```
 
 ## Põhifunktsionaalsus
 
-Rakenduses on kolm peamist kasutajarolli.
+Rakenduses on kolm peamist kasutajarolli: **õpetaja**, **kultuuriasutus** ja **administraator**.
 
 ### Õpetaja
 
-* Saab sirvida kultuuriprogramme.
-* Saab otsida ja filtreerida programme.
-* Saab vaadata programmi detailvaadet.
-* Saab lisada programme lemmikutesse.
-* Saab jätta programmidele tagasisidet.
+Õpetaja saab:
+
+- sirvida kultuuriprogramme;
+- otsida ja filtreerida programme;
+- vaadata programmi detailvaadet;
+- lisada programme lemmikutesse;
+- vaadata õppematerjale;
+- anda programmidele tagasisidet.
 
 ### Kultuuriasutus
 
-* Saab hallata enda programme.
-* Saab lisada, muuta, kustutada ja mitteaktiivseks muuta programme.
-* Saab näha oma programmidele jäetud tagasisidet.
-* Saab vaadata oma programmidega seotud statistikat.
+Kultuuriasutus saab:
+
+- lisada uusi kultuuriprogramme;
+- muuta enda programme;
+- muuta programmi avalikustamise olekut;
+- lisada programmidele kaanefotosid ja õppematerjale;
+- vaadata enda programmidele jäetud tagasisidet;
+- näha statistikat enda programmide kohta;
+- saada ja hallata teavitusi.
 
 ### Administraator
 
-* Saab vaadata kogu süsteemi üldstatistikat.
-* Saab hallata kasutajaid.
-* Saab hallata kõiki programme.
-* Saab otsida, filtreerida ja sorteerida kasutajaid ning programme.
-* Saab jälgida süsteemi kontrollnäitajaid, näiteks mitteaktiivseid programme, madala hinnanguga tagasisidet ja konto seadistuse probleeme.
+Administraator saab:
 
-## Kasutatud tehnoloogiad
+- vaadata süsteemi üldstatistikat;
+- hallata kasutajaid;
+- hallata programme;
+- otsida, filtreerida ja sorteerida kasutajaid ning programme;
+- jälgida süsteemi kontrollnäitajaid;
+- kustutada vajadusel sobimatut sisu.
+
+---
+
+## Tehnoloogiad
 
 ### Frontend
 
-* Next.js `16.2.9`
-* React `19.2.4`
-* React DOM `19.2.4`
-* TypeScript `^5`
-* Tailwind CSS `^4`
-* Lucide React `^1.17.0`
-* Recharts `^3.8.1`
-* Embla Carousel React `^8.6.0`
-* React Icons `^5.6.0`
-* EmailJS Browser `^4.4.1`
+Frontend asub kaustas:
+
+```txt
+kultuuriranits_frontend
+```
+
+Kasutatud tehnoloogiad:
+
+| Tehnoloogia | Versioon |
+|---|---:|
+| Next.js | ^16.2.9 |
+| React | 19.2.4 |
+| React DOM | 19.2.4 |
+| TypeScript | ^5 |
+| Tailwind CSS | ^4 |
+| Lucide React | ^1.17.0 |
+| Recharts | ^3.8.1 |
+| Embla Carousel React | ^8.6.0 |
+| React Icons | ^5.6.0 |
+| EmailJS Browser | ^4.4.1 |
 
 ### Backend
 
-* Java `25`
-* Spring Boot `4.0.6`
-* Spring Boot Web MVC
-* Spring Boot Security
-* Spring Data JPA
-* Spring JDBC
-* PostgreSQL
-* H2 Console
-* Lombok
-* Java Personal Code `1.6`
-* Maven
+Backend asub kaustas:
+
+```txt
+kultuuriranits_backend
+```
+
+Kasutatud tehnoloogiad:
+
+| Tehnoloogia | Versioon |
+|---|---:|
+| Java | 25 |
+| Spring Boot | 4.0.6 |
+| Spring Web MVC | 4.0.6 |
+| Spring Security | 4.0.6 |
+| Spring Data JPA | 4.0.6 |
+| Spring JDBC | 4.0.6 |
+| Maven | — |
+| Lombok | — |
+| MySQL Connector/J | runtime |
+| H2 Database | runtime |
+| Java Personal Code | 1.6 |
 
 ### Andmebaas
 
-* PostgreSQL
-* Arenduskeskkonna vaikimisi andmebaas: `kultuuriranits_db`
+Projekt kasutab arenduskeskkonnas MySQL/MariaDB andmebaasi.
 
-## Projekti autorid
+Vaikimisi andmebaasi nimi:
 
-* Raimond Lige
-* Kevin Lillemets
-* Karel Reose
-* Janari Altdorf
-* Lisette Reins
+```txt
+kultuuriranits_db
+```
+
+---
+
+## Projekti struktuur
+
+```txt
+Kultuuriranits-web-portal---group-7/
+├── kultuuriranits_frontend/      # Next.js frontend
+├── kultuuriranits_backend/       # Spring Boot backend
+├── docs/                         # README pildid ja lisadokumendid
+├── LICENSE
+├── PAEVIK.md
+└── README.md
+```
+
+---
+
+
+## Ekraanipilt
+
+
+## Autorid
+
+Projekti autorid:
+
+- Raimond Lige
+- Kevin Lillemets
+- Karel Reose
+- Janari Altdorf
+- Lisette Reins
+
+---
+
+## Litsents
+
+Projektis on kasutusel **CC0 1.0 Universal** litsents.
+
+Vaata täpsemalt failist:
+
+```txt
+LICENSE
+```
+
+---
+
+## Staatus
+
+Projekt valmis Tallinna Ülikooli suvepraktika raames prototüübina. Rakendus demonstreerib Kultuuriranitsa portaali võimalikku toimimist ning vajab päriskasutusse võtmiseks täiendavat arendust, turvaülevaatust, testimist ja sisulist kooskõlastamist.
