@@ -2,6 +2,7 @@ package ee.meeskond7.kultuuriranits_backend.service;
 
 import ee.meeskond7.kultuuriranits_backend.entity.Material;
 import ee.meeskond7.kultuuriranits_backend.entity.Program;
+import ee.meeskond7.kultuuriranits_backend.repository.MaterialRepository;
 import ee.meeskond7.kultuuriranits_backend.repository.ProgramRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,6 +21,7 @@ import java.util.List;
 public class ProgramService {
 
     private final ProgramRepository programRepository;
+    private final MaterialRepository materialRepository;
 
     // Programmide otsing
     public Page<Program> searchPrograms(String keyword, Long categoryId, Pageable pageable) {
@@ -114,11 +117,20 @@ public class ProgramService {
             existingProgram.setImageData(imageFile.getBytes());
         }
 
+        for (Material material : new ArrayList<>(existingProgram.getMaterials())) {
+            existingProgram.removeMaterial(material);
+        }
+
+        if (incomingProgram.getMaterials() != null) {
+            for (Material material : incomingProgram.getMaterials()) {
+                Material existingMaterial =
+                        materialRepository.findById(material.getId())
+                                .orElseThrow();
+
+                existingProgram.addMaterial(existingMaterial);
+            }
+        }
         if (materialFiles != null && !materialFiles.isEmpty()) {
-            System.out.println("Received files: " + materialFiles.size());
-
-            existingProgram.getMaterials().clear();
-
             for (int i = 0; i < materialFiles.size(); i++) {
                 MultipartFile file = materialFiles.get(i);
 
