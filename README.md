@@ -14,7 +14,7 @@ Projekt valmis **Tallinna Ülikooli Digitehnoloogiate instituudi** õppeaine **I
 
 ## Töötav rakendus
 
-Rakendus on kättesaadav aadressil:
+Rakendus on kättesaadav aadressil (HETKEL VEEL KATKI):
 
 ```txt
 https://jaltdorf.eu
