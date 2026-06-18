@@ -12,7 +12,9 @@ export function ProgramCard({ program, apiUrl, actions }: ProgramCardProps) {
   const infoItems = [
     {
       label: "Asukoht",
-      value: program.location || "Pole täpsustatud",
+      value: program.location && program.county
+          ? `${program.location}, ${program.county}`
+          : "Pole täpsustatud",
       icon: MapPin,
     },
     {

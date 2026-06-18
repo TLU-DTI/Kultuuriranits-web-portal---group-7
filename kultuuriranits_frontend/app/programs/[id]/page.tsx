@@ -124,8 +124,14 @@ export default async function ProgramPage({
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
                       Asukoht
                     </span>
-                    <span className="text-xs font-extrabold text-gray-700 leading-tight truncate">
-                      {program.location || "Pole täpsustatud"}
+                    <span className="text-xs font-extrabold text-gray-700 leading-tight">
+                      {program.location || "Pole täpsustatud"}, 
+                    </span>
+                    <span className="text-xs font-extrabold text-gray-700 leading-tight">
+                      {program.address},
+                    </span>
+                    <span className="text-xs font-extrabold text-gray-700 leading-tight">
+                      {program.county}
                     </span>
                   </div>
                 </div>
