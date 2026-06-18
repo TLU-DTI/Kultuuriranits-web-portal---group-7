@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -12,21 +13,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: light) {
+/* 
+  Hoiame veebilehe alati heledana, isegi kui kasutajal on süsteemis dark mode.
+  See väldib olukorda, kus body muutub mustaks ja heledale UI-le mõeldud tekstid/taustad lähevad katki.
+*/
+@media (prefers-color-scheme: dark) {
   :root {
     --background: #ffffff;
-    --foreground: #000000;
+    --foreground: #171717;
+    color-scheme: light;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-  }
+html {
+  background: #ffffff;
+  color-scheme: light;
 }
 
 body {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
@@ -42,10 +47,12 @@ body {
   scrollbar-width: none;
 }
 
+/* Ligipääsetavuse kõrge kontrastsuse režiim */
 .accessibility-high-contrast,
 .accessibility-high-contrast body {
   background: #000000 !important;
   color: #ffff00 !important;
+  color-scheme: dark;
 }
 
 .accessibility-high-contrast * {
@@ -95,6 +102,7 @@ body {
   background-color: #000000 !important;
 }
 
+/* Ligipääsetavuse modali animatsioonid */
 @keyframes accessibilityOverlayIn {
   from {
     opacity: 0;
@@ -160,6 +168,7 @@ body {
   }
 }
 
+/* Toast animatsioon */
 @keyframes toastIn {
   from {
     opacity: 0;

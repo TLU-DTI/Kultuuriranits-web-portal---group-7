@@ -1,10 +1,17 @@
 "use client";
 
-import {  useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Program } from "@/models/Program";
 import { Category } from "@/models/Category";
-import { ArrowRight, Trash, PlusCircle, FileText, ImageIcon} from "lucide-react";
+import {
+    ArrowRight,
+    Trash,
+    PlusCircle,
+    FileText,
+    ImageIcon,
+    ChevronDown
+} from "lucide-react";
 import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_BACK_URL;
@@ -70,28 +77,28 @@ export function ProgramEditForm({ program, categories }: Props) {
     };
 
     const handleSaveMaterial = () => {
-    if (!materialFile) return;
+        if (!materialFile) return;
 
-    const material = {
-        file: materialFile,
-        title: materialName || materialFile.name,
-        name: materialFile.name,
+        const material = {
+            file: materialFile,
+            title: materialName || materialFile.name,
+            name: materialFile.name,
+        };
+
+        if (editingIndex !== null) {
+            setMaterials(prev =>
+                prev.map((m, i) =>
+                    i === editingIndex ? material : m
+                )
+            );
+        } else {
+            setMaterials(prev => [...prev, material]);
+        }
+
+        setMaterialFile(null);
+        setMaterialName("");
+        setEditingIndex(null);
     };
-
-    if (editingIndex !== null) {
-        setMaterials(prev =>
-            prev.map((m, i) =>
-                i === editingIndex ? material : m
-            )
-        );
-    } else {
-        setMaterials(prev => [...prev, material]);
-    }
-
-    setMaterialFile(null);
-    setMaterialName("");
-    setEditingIndex(null);
-};
 
     const handleRemoveNewMaterial = (index: number) => {
         setMaterials(materials.filter((_, i) => i !== index));
@@ -238,10 +245,16 @@ export function ProgramEditForm({ program, categories }: Props) {
 
                         {/* Keeled (Language checkboxes) */}
                         <div className="space-y-2.5">
-                            <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Keeled *</label>
+                            <div className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">
+                                Keeled *
+                            </div>
+
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-50 p-5 rounded-xl border border-gray-150">
-                                {['Eesti', 'Inglise', 'Vene', 'Muu'].map((lang) => (
-                                    <label key={lang} className="flex items-center gap-3 cursor-pointer text-base font-bold text-gray-700 select-none">
+                                {["Eesti", "Inglise", "Vene", "Muu"].map((lang) => (
+                                    <div
+                                        key={lang}
+                                        className="flex items-center gap-3 text-base font-bold text-gray-700 select-none"
+                                    >
                                         <input
                                             type="checkbox"
                                             checked={languages.includes(lang)}
@@ -252,10 +265,10 @@ export function ProgramEditForm({ program, categories }: Props) {
                                                     setLanguages(languages.filter(l => l !== lang));
                                                 }
                                             }}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 focus:ring-blue-500 cursor-pointer"
                                         />
                                         {lang}
-                                    </label>
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -271,48 +284,78 @@ export function ProgramEditForm({ program, categories }: Props) {
                         </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Categories (Kategooriad) Dropdown Select */}
+                            {/* Kategooriad */}
                             <div className="space-y-2">
-                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Kategooriad *</label>
-                                <select
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
-                                >
-                                    <option value="">Lisa teema / kategooria...</option>
-                                    {categories?.map(cat => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">
+                                    Kategooriad *
+                                </label>
+
+                                <div className="relative">
+                                    <select
+                                        value={categoryId}
+                                        onChange={(e) => setCategoryId(e.target.value)}
+                                        className="block w-full pl-4 pr-10 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                    >
+                                        <option value="">Lisa teema / kategooria...</option>
+                                        {categories?.map(cat => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
                             </div>
 
-                            {/* Target Groups Dropdown Select */}
+                            {/* Sihtgrupp */}
                             <div className="space-y-2">
-                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Sihtgrupp *</label>
-                                <select
-                                    value=""
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val && !targetGroups.includes(val)) {
-                                            setTargetGroups([...targetGroups, val]);
-                                        }
-                                        e.target.value = "";
-                                    }}
-                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
-                                >
-                                    <option value="">Lisa sihtgrupp...</option>
-                                    {['Lasteaed', '1. - 3. klass', '4. - 6. klass', '7. - 9. klass', 'Gümnaasium'].map(grp => (
-                                        <option key={grp} value={grp} disabled={targetGroups.includes(grp)}>
-                                            {grp}
-                                        </option>
-                                    ))}
-                                </select>
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">
+                                    Sihtgrupp *
+                                </label>
+
+                                <div className="relative">
+                                    <select
+                                        value=""
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+
+                                            if (val && !targetGroups.includes(val)) {
+                                                setTargetGroups([...targetGroups, val]);
+                                            }
+
+                                            e.target.value = "";
+                                        }}
+                                        className="block w-full pl-4 pr-10 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                    >
+                                        <option value="">Lisa sihtgrupp...</option>
+
+                                        {[
+                                            "Lasteaed",
+                                            "1. - 3. klass",
+                                            "4. - 6. klass",
+                                            "7. - 9. klass",
+                                            "Gümnaasium",
+                                        ].map(grp => (
+                                            <option
+                                                key={grp}
+                                                value={grp}
+                                                disabled={targetGroups.includes(grp)}
+                                            >
+                                                {grp}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
 
                                 <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
                                     {targetGroups.map(grp => (
-                                        <span key={grp} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-blue-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                        <span
+                                            key={grp}
+                                            className="inline-flex items-center gap-2 bg-white border border-gray-200 text-blue-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs"
+                                        >
                                             {grp}
                                             <button
                                                 type="button"
@@ -323,51 +366,57 @@ export function ProgramEditForm({ program, categories }: Props) {
                                             </button>
                                         </span>
                                     ))}
+
                                     {targetGroups.length === 0 && (
-                                        <span className="text-sm text-gray-455 italic">Ühtegi sihtgruppi pole valitud</span>
+                                        <span className="text-sm text-gray-455 italic">
+                                            Ühtegi sihtgruppi pole valitud
+                                        </span>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Õppekavaga seos kirjeldus */}
+                            {/* Õppekavaseosed */}
                             <div className="space-y-2">
-                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaga seos lühikirjeldus (1-2 lauset) *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Maksimaalselt 150 tähemärki"
-                                    value={connection}
-                                    onChange={(e) => setConnection(e.target.value)}
-                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
-                                />
-                            </div>
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">
+                                    Õppekavaseosed
+                                </label>
 
-                            {/* Õppekavaseosed Dropdown Select */}
-                            <div className="space-y-2">
-                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Õppekavaseosed</label>
-                                <select
-                                    value={""}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        // Kasutame connectionKeys massiivi connection asemel
-                                        if (val && !connectionKeys.includes(val)) {
-                                            setConnectionKeys(prev => [...prev, val]);
-                                        }
-                                        e.target.value = "";
-                                    }}
-                                    className="block w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
-                                >
-                                    <option value="">Lisa õppekavaseos...</option>
-                                    {CURRICULUM_PRESETS.map(conn => (
-                                        <option key={conn} value={conn} disabled={connectionKeys.includes(conn)}>
-                                            {conn}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="relative">
+                                    <select
+                                        value=""
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+
+                                            if (val && !connectionKeys.includes(val)) {
+                                                setConnectionKeys(prev => [...prev, val]);
+                                            }
+
+                                            e.target.value = "";
+                                        }}
+                                        className="block w-full pl-4 pr-10 py-3.5 bg-white border border-gray-300 rounded-xl text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer h-[54px] appearance-none"
+                                    >
+                                        <option value="">Lisa õppekavaseos...</option>
+
+                                        {CURRICULUM_PRESETS.map(conn => (
+                                            <option
+                                                key={conn}
+                                                value={conn}
+                                                disabled={connectionKeys.includes(conn)}
+                                            >
+                                                {conn}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
 
                                 <div className="flex flex-wrap gap-2 mt-3 bg-gray-50 p-3 rounded-xl border border-gray-150 min-h-[52px] items-center">
                                     {connectionKeys.map(conn => (
-                                        <span key={conn} className="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs">
+                                        <span
+                                            key={conn}
+                                            className="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold px-3 py-1 rounded-lg shadow-xs"
+                                        >
                                             {conn}
                                             <button
                                                 type="button"
@@ -378,13 +427,30 @@ export function ProgramEditForm({ program, categories }: Props) {
                                             </button>
                                         </span>
                                     ))}
+
                                     {connectionKeys.length === 0 && (
-                                        <span className="text-sm text-gray-455 italic">Õppekavaseoseid pole lisatud</span>
+                                        <span className="text-sm text-gray-455 italic">
+                                            Õppekavaseoseid pole lisatud
+                                        </span>
                                     )}
                                 </div>
                             </div>
-                        </div>
 
+                            {/* Õppekavaseose kirjeldus */}
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">
+                                    Õppekavaseose kirjeldus
+                                </label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Õppekavaseose kirjeldus.."
+                                    value={connection}
+                                    onChange={(e) => setConnection(e.target.value)}
+                                    className="block w-full px-5 py-3.5 bg-white border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold text-gray-855 shadow-xs"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="border-t border-gray-100 my-8 pt-8"></div>
@@ -494,47 +560,47 @@ export function ProgramEditForm({ program, categories }: Props) {
 
                         {/* Accessibility & outdoor checkboxes */}
                         <div className="space-y-2">
-                            <label className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">Muu toimumisinfo</label>
+                            <div className="text-base font-extrabold text-gray-800 block uppercase tracking-wider">
+                                Muu toimumisinfo
+                            </div>
+
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-150 text-base font-bold text-gray-700">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={wheelchair}
-                                        onChange={(e) => setWheelchair(e.target.checked)}
-                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
-                                    />
-                                    Ligipääs ratastooliga
-                                </label>
+                                {[
+                                    {
+                                        label: "Ligipääs ratastooliga",
+                                        checked: wheelchair,
+                                        setter: setWheelchair,
+                                    },
+                                    {
+                                        label: "HEV",
+                                        checked: hev,
+                                        setter: setHEV,
+                                    },
+                                    {
+                                        label: "LAK",
+                                        checked: lak,
+                                        setter: setLAK,
+                                    },
+                                    {
+                                        label: "Toimub välitingimustes",
+                                        checked: outdoor,
+                                        setter: setOutdoor,
+                                    },
+                                ].map((item) => (
+                                    <div
+                                        key={item.label}
+                                        className="flex items-center gap-3 select-none"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={item.checked}
+                                            onChange={(e) => item.setter(e.target.checked)}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded accent-blue-600 cursor-pointer"
+                                        />
 
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={hev}
-                                        onChange={(e) => setHEV(e.target.checked)}
-                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
-                                    />
-                                    HEV
-                                </label>
-
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={lak}
-                                        onChange={(e) => setLAK(e.target.checked)}
-                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
-                                    />
-                                    LAK
-                                </label>
-
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={outdoor}
-                                        onChange={(e) => setOutdoor(e.target.checked)}
-                                        className="w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer"
-                                    />
-                                    Toimub välitingimustes
-                                </label>
+                                        {item.label}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -553,8 +619,8 @@ export function ProgramEditForm({ program, categories }: Props) {
                             <div className="space-y-3">
                                 <label className="text-base font-extrabold text-gray-800 uppercase tracking-wider block">Programmi kaanefoto *</label>
                                 <div className="border border-gray-200 bg-gray-50 rounded-2xl overflow-hidden h-48 flex flex-col items-center justify-center relative group shadow-xs">
-                                    
-                                    
+
+
                                     {imageFile ? (
                                         <Image
                                             src={URL.createObjectURL(imageFile)}
@@ -639,7 +705,7 @@ export function ProgramEditForm({ program, categories }: Props) {
                                             <PlusCircle className="w-5 h-5 text-gray-400" />
                                             Lisa õppematerjal
                                         </button>
-                                        
+
                                         {/* Materjalide nimekiri */}
                                         <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                                             {/* Osa A: Juba andmebaasis olevad materjalid */}
@@ -678,7 +744,7 @@ export function ProgramEditForm({ program, categories }: Props) {
                                                         </div>
                                                         <span className="text-2xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Uus</span>
                                                     </div>
-                                                     <button
+                                                    <button
                                                         type="button"
                                                         onClick={() => handleRemoveNewMaterial(index)}
                                                         className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition hover:bg-red-50 cursor-pointer"
@@ -762,7 +828,7 @@ export function ProgramEditForm({ program, categories }: Props) {
                     </div>
 
                     {/* FORM FOOTER BUTTONS */}
-                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                    <div className="flex justify-end gap-3 pt-6 pb-12 mb-8 border-t border-gray-100">
                         <button
                             type="button"
                             onClick={() => { }}
