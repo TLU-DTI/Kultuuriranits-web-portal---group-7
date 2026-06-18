@@ -135,9 +135,8 @@ Kultuuriranits-web-portal---group-7/
 
 
 ## Ekraanipilt
-```md
+
 ![Kultuuriranitsa ekraanipilt](./docs/kultuuriranits_homepage.png)
-```
 
 ---
 
