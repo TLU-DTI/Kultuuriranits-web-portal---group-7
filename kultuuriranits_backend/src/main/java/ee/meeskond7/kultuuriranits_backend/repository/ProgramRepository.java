@@ -61,6 +61,7 @@ public interface ProgramRepository extends JpaRepository<Program, Long> {
          AND (:wheelchair IS NULL OR p.wheelchair = :wheelchair)
          AND (:hev IS NULL OR p.hev = :hev)
          AND (:lak IS NULL OR p.lak = :lak)
+         AND (:county IS NULL OR p.county = :county)
        \s
 """)
     Page<Program> searchProgramsAll(
@@ -83,6 +84,7 @@ public interface ProgramRepository extends JpaRepository<Program, Long> {
             @Param("hev") Boolean hev,
             @Param("outdoor") Boolean outdoor,
             @Param("wheelchair") Boolean wheelchair,
+            @Param("county") String county,
             Pageable pageable
     );
 }

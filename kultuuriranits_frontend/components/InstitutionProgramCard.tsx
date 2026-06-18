@@ -39,6 +39,7 @@ export type InstitutionProgram = {
     minGroupSize: number;
     maxGroupSize: number;
     location: string;
+    county: string;
     languages: string[];
     status: string;
     createdAt?: string;
@@ -70,7 +71,9 @@ export function InstitutionProgramCard({
     const infoItems = [
         {
             label: "Asukoht",
-            value: program.location || "Pole täpsustatud",
+            value: program.location && program.county
+          ? `${program.location}, ${program.county}`
+          : "Pole täpsustatud",
             icon: MapPin,
         },
         {
